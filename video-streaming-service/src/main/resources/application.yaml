@@ -16,6 +16,6 @@ amazon:
   s3:
     bucket: ${secret.amazon.aws.s3.bucket}
   cloudfront:
-    name: ${secret.amazon.aws.cloudfront.name}
+    url: ${secret.amazon.aws.cloudfront.url}
     public-key: ${secret.amazon.aws.cloudfront.public-key}
-    secret-key-location: ${amazon.cloudfront.secret-key-location}
+    secret-key-location: ${secret.amazon.aws.cloudfront.secret-key-location}
