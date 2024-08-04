@@ -1,0 +1,16 @@
+spring:
+  profiles:
+    active: default
+  config:
+    import: optional:classpath:secret.yaml
+
+app:
+  name: AmazonS3
+#aws credentials
+amazon:
+  aws:
+    accessKey: ${secret.amazon.aws.accessKey}
+    secretKey: ${secret.amazon.aws.secretKey}
+    region: ap-northeast-1
+  s3:
+    bucket: nqat0919-bucket
