@@ -1,16 +1,21 @@
+server:
+  port: 8888
 spring:
+  application:
+    name: video-streaming-service
   profiles:
     active: default
   config:
     import: optional:classpath:secret.yaml
-
-app:
-  name: AmazonS3
 #aws credentials
 amazon:
   aws:
-    accessKey: ${secret.amazon.aws.accessKey}
-    secretKey: ${secret.amazon.aws.secretKey}
-    region: ap-northeast-1
+    accessKey: ${secret.amazon.aws.s3.accessKey}
+    secretKey: ${secret.amazon.aws.s3.secretKey}
+    region: ${secret.amazon.aws.s3.region}
   s3:
-    bucket: nqat0919-bucket
+    bucket: ${secret.amazon.aws.s3.bucket}
+  cloudfront:
+    name: ${secret.amazon.aws.cloudfront.name}
+    public-key: ${secret.amazon.aws.cloudfront.public-key}
+    secret-key-location: ${amazon.cloudfront.secret-key-location}
