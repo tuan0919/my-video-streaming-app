@@ -10,8 +10,8 @@ import java.time.temporal.ChronoUnit;
 public class Playground {
     public static void main(String[] args) throws Exception {
         CloudFrontUtilities cloudFrontUtilities = CloudFrontUtilities.create();
-        Instant expirationDate = Instant.now().plus(30, ChronoUnit.SECONDS);
-        String resourceUrl = "https://d1jlaprzsrhy1t.cloudfront.net/444490094_3374843149491960_8573212762319914279_n.jpg";
+        Instant expirationDate = Instant.now().plus(20, ChronoUnit.SECONDS);
+        String resourceUrl = "https://d1jlaprzsrhy1t.cloudfront.net/Y2meta.app-SUICIDE%20SQUAD_%20KTJL%20SEASON%202%20_%20CH%C3%8A%20GAME-(1080p60).mp4";
         String keyPairId = "K346G69MH91HZD";
         CannedSignerRequest cannedRequest = CannedSignerRequest.builder()
                 .resourceUrl(resourceUrl)
