@@ -7,6 +7,15 @@ spring:
     active: default
   config:
     import: optional:classpath:secret.yaml
+  datasource:
+    url: jdbc:mysql://localhost:3306/video-streaming
+    username: nqat0919
+    password: secret
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
 #aws credentials
 amazon:
   aws:
