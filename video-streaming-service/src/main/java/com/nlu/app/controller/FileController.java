@@ -1,6 +1,7 @@
 package com.nlu.app.controller;
 import com.nlu.app.dto.AppResponse;
 import com.nlu.app.service.FileService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -16,6 +17,17 @@ public class FileController {
     public AppResponse<String> getFileSignedURL(@RequestParam String key) {
         return AppResponse.<String>builder()
                 .result(fileService.generateURL(key))
+                .build();
+    }
+
+    @GetMapping("sign-cookies")
+    public AppResponse<String> getFileSignedURL(HttpServletResponse response) {
+        var cookies = fileService.signCookies();
+        response.addHeader("Set-Cookie", cookies.policyHeaderValue() + "; Domain=.wjbu.online; HttpOnly");
+        response.addHeader("Set-Cookie", cookies.keyPairIdHeaderValue() + "; Domain=.wjbu.online; HttpOnly");
+        response.addHeader("Set-Cookie", cookies.signatureHeaderValue() + "; Domain=.wjbu.online; HttpOnly");
+        return AppResponse.<String>builder()
+                .result("OK")
                 .build();
     }
 
