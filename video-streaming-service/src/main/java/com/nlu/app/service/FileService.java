@@ -2,6 +2,7 @@ package com.nlu.app.service;
 
 import com.nlu.app.exception.ApplicationException;
 import com.nlu.app.exception.ErrorCode;
+import jakarta.servlet.http.Cookie;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -10,10 +11,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cloudfront.CloudFrontUtilities;
+import software.amazon.awssdk.services.cloudfront.cookie.CookiesForCannedPolicy;
+import software.amazon.awssdk.services.cloudfront.cookie.CookiesForCustomPolicy;
 import software.amazon.awssdk.services.cloudfront.model.CannedSignerRequest;
+import software.amazon.awssdk.services.cloudfront.model.CustomSignerRequest;
 import software.amazon.awssdk.services.cloudfront.url.SignedUrl;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
@@ -48,6 +50,23 @@ public class FileService {
     @Autowired
     public void setSigner(S3Presigner signer) {
         this.signer = signer;
+    }
+
+    public CookiesForCustomPolicy signCookies() {
+        CloudFrontUtilities cloudFrontUtilities = CloudFrontUtilities.create();
+        CustomSignerRequest customRequest = null;
+        Instant expirationDate = Instant.now().plus(5, ChronoUnit.MINUTES);
+        try {
+            customRequest = CustomSignerRequest.builder()
+                    .resourceUrl(cloudFrontUrl+"/inventory/*")
+                    .privateKey(Path.of(secretKeyLocation))
+                    .keyPairId(keypairId)
+                    .expirationDate(expirationDate)
+                    .build();
+        } catch (Exception e) {
+            throw new ApplicationException(ErrorCode.RESOURCE_NOT_FOUND);
+        }
+        return cloudFrontUtilities.getCookiesForCustomPolicy(customRequest);
     }
 
     public String generateURL(String fileName) {
