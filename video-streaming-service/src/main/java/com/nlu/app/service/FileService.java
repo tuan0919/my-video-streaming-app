@@ -18,9 +18,7 @@ import software.amazon.awssdk.services.cloudfront.model.CannedSignerRequest;
 import software.amazon.awssdk.services.cloudfront.model.CustomSignerRequest;
 import software.amazon.awssdk.services.cloudfront.url.SignedUrl;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
-import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
@@ -88,12 +86,38 @@ public class FileService {
         return signedUrl.url();
     }
 
-    public String signUpload (String keyName) {
-        String extension = keyName.substring(keyName.lastIndexOf(".") + 1);
-        String key = rollKey(extension);
+    public String moveToInventory(String oldKey) {
+        try {
+            HeadObjectRequest headRequest = HeadObjectRequest.builder()
+                    .bucket(bucket)
+                    .key("temp/"+oldKey)
+                    .build();
+            HeadObjectResponse headResponse = s3Client.headObject(headRequest);
+        } catch (S3Exception  e) {
+            e.printStackTrace();
+            throw new ApplicationException(ErrorCode.RESOURCE_NOT_FOUND);
+        }
+        String extension = oldKey.substring(oldKey.lastIndexOf(".") + 1);
+        String newKey = rollKey(extension);
+        CopyObjectRequest copyRequest = CopyObjectRequest.builder()
+                .sourceBucket(bucket)
+                .destinationBucket(bucket)
+                .sourceKey("temp/"+oldKey)
+                .destinationKey("inventory/"+newKey)
+                .build();
+        s3Client.copyObject(copyRequest);
+        DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+                .bucket(bucket)
+                .key("temp/"+oldKey)
+                .build();
+        s3Client.deleteObject(deleteRequest);
+        return "OK";
+    }
+
+    public String uploadToTemp (String key) {
         PutObjectRequest objectRequest = PutObjectRequest.builder()
                 .bucket(bucket)
-                .key("inventory/"+key)
+                .key("temp/"+key)
                 .build();
         PutObjectPresignRequest signRequest = PutObjectPresignRequest.builder()
                 .signatureDuration(Duration.ofMinutes(1))
