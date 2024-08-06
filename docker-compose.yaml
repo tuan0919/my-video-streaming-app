@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  mysql-video-streaming:
+    container_name: mysql-video-streaming
+    image: mysql:5.7
+    env_file:
+      - video-streaming-service/env/mysql.env
+      - env/docker-compose.env
+    volumes:
+      - video-service-mysql-volumes:/var/lib/mysql
+    ports:
+      - '3306:3306'
+
+  mysql-identity:
+    container_name: mysql-identity
+    image: mysql:5.7
+    env_file:
+      - identity-service/env/mysql.env
+    volumes:
+      - identity-service-mysql-volumes:/var/lib/mysql
+    ports:
+      - '3307:3306'
+
+volumes:
+  video-service-mysql-volumes:
+  identity-service-mysql-volumes:
