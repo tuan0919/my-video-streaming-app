@@ -34,7 +34,14 @@ public class FileController {
     @PutMapping("file/{fileName}")
     public AppResponse<String> putFileSignedURL(@PathVariable String fileName) {
         return AppResponse.<String>builder()
-                .result(fileService.signUpload(fileName))
+                .result(fileService.uploadToTemp(fileName))
+                .build();
+    }
+
+    @PostMapping("file/{key}")
+    public AppResponse<String> saveFile(@PathVariable String key) {
+        return AppResponse.<String>builder()
+                .result(fileService.moveToInventory(key))
                 .build();
     }
 }
