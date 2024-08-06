@@ -22,8 +22,6 @@ public class Video {
     LocalDateTime createAt;
     @Column(columnDefinition = "varchar(255) collate utf8mb4_unicode_ci not null")
     String videoKey;
-    @Column(columnDefinition = "bigint not null")
-    Long duration;
     @Column(columnDefinition = "varchar(255) collate utf8mb4_unicode_ci not null")
     String thumbnailKey;
     @Column
