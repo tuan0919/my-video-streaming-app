@@ -2,12 +2,12 @@ package com.nlu.app.controller;
 
 import java.util.List;
 
-import com.nlu.app.service.PermissionService;
 import org.springframework.web.bind.annotation.*;
 
 import com.nlu.app.dto.AppResponse;
 import com.nlu.app.dto.request.PermissionRequest;
 import com.nlu.app.dto.response.PermissionResponse;
+import com.nlu.app.service.PermissionService;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

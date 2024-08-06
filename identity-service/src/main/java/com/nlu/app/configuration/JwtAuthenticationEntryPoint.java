@@ -2,8 +2,6 @@ package com.nlu.app.configuration;
 
 import java.io.IOException;
 
-import com.nlu.app.dto.AppResponse;
-import com.nlu.app.exception.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -12,6 +10,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nlu.app.dto.AppResponse;
+import com.nlu.app.exception.ErrorCode;
 
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override

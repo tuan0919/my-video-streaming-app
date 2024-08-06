@@ -7,29 +7,29 @@ import java.util.Date;
 import java.util.StringJoiner;
 import java.util.UUID;
 
-import com.nlu.app.exception.ApplicationException;
-import com.nlu.app.dto.response.AuthenticationResponse;
-import com.nlu.app.entity.InvalidatedToken;
-import com.nlu.app.entity.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import com.nlu.app.dto.request.AuthenticationRequest;
-import com.nlu.app.dto.request.IntrospectRequest;
-import com.nlu.app.dto.request.LogoutRequest;
-import com.nlu.app.dto.request.RefreshRequest;
-import com.nlu.app.dto.response.IntrospectResponse;
-import com.nlu.app.exception.ErrorCode;
-import com.nlu.app.repository.InvalidatedTokenRepository;
-import com.nlu.app.repository.UserRepository;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import com.nlu.app.dto.request.AuthenticationRequest;
+import com.nlu.app.dto.request.IntrospectRequest;
+import com.nlu.app.dto.request.LogoutRequest;
+import com.nlu.app.dto.request.RefreshRequest;
+import com.nlu.app.dto.response.AuthenticationResponse;
+import com.nlu.app.dto.response.IntrospectResponse;
+import com.nlu.app.entity.InvalidatedToken;
+import com.nlu.app.entity.User;
+import com.nlu.app.exception.ApplicationException;
+import com.nlu.app.exception.ErrorCode;
+import com.nlu.app.repository.InvalidatedTokenRepository;
+import com.nlu.app.repository.UserRepository;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +57,7 @@ public class AuthenticationService {
     @Value("${jwt.refreshable-duration}")
     protected long REFRESHABLE_DURATION;
 
-    public IntrospectResponse introspect(IntrospectRequest request)  {
+    public IntrospectResponse introspect(IntrospectRequest request) {
         var token = request.getToken();
         boolean isValid = true;
 
@@ -96,7 +96,7 @@ public class AuthenticationService {
                     InvalidatedToken.builder().id(jit).expiryTime(expiryTime).build();
 
             invalidatedTokenRepository.save(invalidatedToken);
-        } catch (ApplicationException exception){
+        } catch (ApplicationException exception) {
             log.info("Token already expired");
         }
     }
@@ -114,8 +114,9 @@ public class AuthenticationService {
 
         var username = signedJWT.getJWTClaimsSet().getSubject();
 
-        var user =
-                userRepository.findByUsername(username).orElseThrow(() -> new ApplicationException(ErrorCode.UNAUTHENTICATED));
+        var user = userRepository
+                .findByUsername(username)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.UNAUTHENTICATED));
 
         var token = generateToken(user);
 
@@ -130,8 +131,7 @@ public class AuthenticationService {
                 .issuer("devteria.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(
-                        Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()
-                ))
+                        Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()))
                 .jwtID(UUID.randomUUID().toString())
                 .claim("scope", buildScope(user))
                 .build();
@@ -155,8 +155,12 @@ public class AuthenticationService {
         SignedJWT signedJWT = SignedJWT.parse(token);
 
         Date expiryTime = (isRefresh)
-                ? new Date(signedJWT.getJWTClaimsSet().getIssueTime()
-                .toInstant().plus(REFRESHABLE_DURATION, ChronoUnit.SECONDS).toEpochMilli())
+                ? new Date(signedJWT
+                        .getJWTClaimsSet()
+                        .getIssueTime()
+                        .toInstant()
+                        .plus(REFRESHABLE_DURATION, ChronoUnit.SECONDS)
+                        .toEpochMilli())
                 : signedJWT.getJWTClaimsSet().getExpirationTime();
 
         var verified = signedJWT.verify(verifier);

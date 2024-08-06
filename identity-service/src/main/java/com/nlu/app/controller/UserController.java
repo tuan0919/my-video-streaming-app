@@ -2,7 +2,6 @@ package com.nlu.app.controller;
 
 import java.util.List;
 
-import com.nlu.app.service.UserService;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +10,7 @@ import com.nlu.app.dto.AppResponse;
 import com.nlu.app.dto.request.UserCreationRequest;
 import com.nlu.app.dto.request.UserUpdateRequest;
 import com.nlu.app.dto.response.UserResponse;
+import com.nlu.app.service.UserService;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

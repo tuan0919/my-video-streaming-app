@@ -2,21 +2,20 @@ package com.nlu.app.controller;
 
 import java.text.ParseException;
 
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.nimbusds.jose.JOSEException;
 import com.nlu.app.dto.AppResponse;
 import com.nlu.app.dto.request.AuthenticationRequest;
 import com.nlu.app.dto.request.IntrospectRequest;
 import com.nlu.app.dto.request.LogoutRequest;
 import com.nlu.app.dto.request.RefreshRequest;
 import com.nlu.app.dto.response.AuthenticationResponse;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.devteria.identity.dto.request.*;
 import com.nlu.app.dto.response.IntrospectResponse;
 import com.nlu.app.service.AuthenticationService;
-import com.nimbusds.jose.JOSEException;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

@@ -2,12 +2,12 @@ package com.nlu.app.controller;
 
 import java.util.List;
 
-import com.nlu.app.service.RoleService;
 import org.springframework.web.bind.annotation.*;
 
 import com.nlu.app.dto.AppResponse;
 import com.nlu.app.dto.request.RoleRequest;
 import com.nlu.app.dto.response.RoleResponse;
+import com.nlu.app.service.RoleService;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

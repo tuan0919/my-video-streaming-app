@@ -3,7 +3,6 @@ package com.nlu.app.service;
 import java.util.HashSet;
 import java.util.List;
 
-import com.nlu.app.exception.ApplicationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +16,7 @@ import com.nlu.app.dto.request.UserUpdateRequest;
 import com.nlu.app.dto.response.UserResponse;
 import com.nlu.app.entity.Role;
 import com.nlu.app.entity.User;
+import com.nlu.app.exception.ApplicationException;
 import com.nlu.app.exception.ErrorCode;
 import com.nlu.app.mapper.ProfileMapper;
 import com.nlu.app.mapper.UserMapper;
@@ -52,7 +52,7 @@ public class UserService {
 
         try {
             user = userRepository.save(user);
-        } catch (DataIntegrityViolationException exception){
+        } catch (DataIntegrityViolationException exception) {
             throw new ApplicationException(ErrorCode.USER_ALREADY_EXISTED);
         }
 
@@ -66,14 +66,17 @@ public class UserService {
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
 
-        User user = userRepository.findByUsername(name).orElseThrow(() -> new ApplicationException(ErrorCode.USER_NOT_EXISTED));
+        User user = userRepository
+                .findByUsername(name)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.USER_NOT_EXISTED));
 
         return userMapper.toUserResponse(user);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     public UserResponse updateUser(String userId, UserUpdateRequest request) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new ApplicationException(ErrorCode.USER_NOT_EXISTED));
+        User user =
+                userRepository.findById(userId).orElseThrow(() -> new ApplicationException(ErrorCode.USER_NOT_EXISTED));
 
         userMapper.updateUser(user, request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));

@@ -2,15 +2,15 @@ package com.nlu.app.configuration;
 
 import java.util.HashSet;
 
-import com.nlu.app.constant.PredefinedRole;
-import com.nlu.app.entity.Role;
-import com.nlu.app.entity.User;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.nlu.app.constant.PredefinedRole;
+import com.nlu.app.entity.Role;
+import com.nlu.app.entity.User;
 import com.nlu.app.repository.RoleRepository;
 import com.nlu.app.repository.UserRepository;
 
