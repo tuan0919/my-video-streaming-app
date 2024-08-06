@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>yml</artifactId>
+	<artifactId>video-streaming-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>video-streaming-service</name>
 	<description>video-streaming-service</description>
