@@ -6,6 +6,7 @@ import com.nlu.app.dto.AppResponse;
 import com.nlu.app.exception.ErrorCode;
 import com.nlu.app.route.Routes;
 import com.nlu.app.service.IdentityService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
+@Slf4j
 public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {
     ObjectMapper objectMapper;
     IdentityService service;
@@ -32,7 +34,6 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
     public AuthenticationFilter() {
         super(AuthenticationFilter.Config.class);
     }
-
     @Override
     public GatewayFilter apply(Config config) {
         return ((exchange, chain) -> {
@@ -45,25 +46,33 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
             var header = exchange.getRequest()
                     .getHeaders().get(HttpHeaders.AUTHORIZATION);
             if (header == null || header.isEmpty()) {
-                return unauthorized(response);
+                log.info("Failed to authenticate due to missing token.");
+                return monoError(response, ErrorCode.UNAUTHENTICATED);
             }
             String token = header.getFirst().replace("Bearer ", "");
+            log.info("Token: {}", token);
             return service.introspect(token)
                     .flatMap(result -> {
-                        if (result) return chain.filter(exchange);
-                        else
-                            return unauthorized(response);
+                        if (result) {
+                            log.info("Successfully authenticated.");
+                            return chain.filter(exchange);
+                        }
+                        else {
+                            log.info("Failed to authenticate.");
+                            return monoError(response, ErrorCode.UNAUTHENTICATED);
+                        }
                     })
-                    .onErrorResume(_ -> unauthorized(response));
+                    .doOnError(error -> log.error(error.getMessage(), error))
+                    .onErrorResume(_ -> monoError(response, ErrorCode.UNKNOWN_EXCEPTION));
         });
     }
 
-    public Mono<Void> unauthorized(ServerHttpResponse response) {
+    public Mono<Void> monoError(ServerHttpResponse response, ErrorCode errorCode) {
         response.setStatusCode(ErrorCode.UNAUTHENTICATED.getStatusCode());
         response.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
         AppResponse<?> appResponse = AppResponse.builder()
-                .code(ErrorCode.UNAUTHENTICATED.getCode())
-                .message("Unauthenticated!")
+                .code(errorCode.getCode())
+                .message(errorCode.getMessage())
                 .build();
         var bufferFactory = response.bufferFactory();
         String body = null;
