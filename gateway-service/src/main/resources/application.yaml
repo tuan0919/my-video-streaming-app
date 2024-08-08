@@ -6,5 +6,10 @@ spring:
   profiles:
     active: default
 
+gateway-service:
+  /prefix: /api/v1
+  strip: 2
 identity-service:
-  uri: http://localhost:8080
+  domain: http://localhost:8080
+video-streaming-service:
+  domain: http://wjbu.online:8888
