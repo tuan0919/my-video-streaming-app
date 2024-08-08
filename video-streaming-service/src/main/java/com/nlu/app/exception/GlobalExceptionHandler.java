@@ -8,20 +8,32 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @ControllerAdvice
 @Slf4j
-@ResponseBody
 public class GlobalExceptionHandler {
-    @ExceptionHandler(Exception.class)
-    AppResponse<String> handleRuntimeException(RuntimeException ex) {
+    @ExceptionHandler(RuntimeException.class)
+    @ResponseBody
+    AppResponse<?> handleRuntimeException(RuntimeException ex) {
         log.error("exception: ", ex);
-        return AppResponse.<String>builder()
+        return AppResponse.builder()
+                .message(ErrorCode.UNKNOWN_EXCEPTION.getMessage())
+                .code(ErrorCode.UNKNOWN_EXCEPTION.getCode())
+                .build();
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseBody
+    AppResponse<?> handleException(Exception ex) {
+        log.error("exception: ", ex);
+        return AppResponse.builder()
                 .message(ErrorCode.UNKNOWN_EXCEPTION.getMessage())
                 .code(ErrorCode.UNKNOWN_EXCEPTION.getCode())
                 .build();
     }
 
     @ExceptionHandler(ApplicationException.class)
-    AppResponse<String> handleApplicationException(ApplicationException ex) {
-        return AppResponse.<String>builder()
+    @ResponseBody
+    AppResponse<?> handleApplicationException(ApplicationException ex) {
+        log.error("exception: ", ex);
+        return AppResponse.builder()
                 .message(ex.getErrorCode().getMessage())
                 .code(ex.getErrorCode().getCode())
                 .build();
