@@ -10,6 +10,7 @@ import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.cloudfront.CloudFrontUtilities;
 import software.amazon.awssdk.services.cloudfront.cookie.CookiesForCannedPolicy;
@@ -86,6 +87,7 @@ public class FileService {
         return signedUrl.url();
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public String moveToInventory(String oldKey) {
         try {
             HeadObjectRequest headRequest = HeadObjectRequest.builder()
@@ -114,6 +116,7 @@ public class FileService {
         return "OK";
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public String uploadToTemp (String key) {
         PutObjectRequest objectRequest = PutObjectRequest.builder()
                 .bucket(bucket)
