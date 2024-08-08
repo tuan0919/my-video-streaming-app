@@ -8,13 +8,14 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/files")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-
 public class FileController {
     FileService fileService;
-    @GetMapping("file")
-    public AppResponse<String> getFileSignedURL(@RequestParam String key) {
+
+    @GetMapping
+    public AppResponse<String> getFileSignedURL(@RequestParam(value = "key", required = true) String key) {
         return AppResponse.<String>builder()
                 .result(fileService.generateURL(key))
                 .build();
@@ -31,14 +32,14 @@ public class FileController {
                 .build();
     }
 
-    @PutMapping("file/{fileName}")
+    @PutMapping("/{fileName}")
     public AppResponse<String> putFileSignedURL(@PathVariable String fileName) {
         return AppResponse.<String>builder()
                 .result(fileService.uploadToTemp(fileName))
                 .build();
     }
 
-    @PostMapping("file/{key}")
+    @PostMapping("/{key}")
     public AppResponse<String> saveFile(@PathVariable String key) {
         return AppResponse.<String>builder()
                 .result(fileService.moveToInventory(key))
