@@ -39,7 +39,7 @@ public class Routes {
                         .filters(f -> f.stripPrefix(PREFIX_STRIP).filter(authFilter))
                         .uri(identityDomain)
                 )
-                .route(r -> r.path(prefix+"/file/**")
+                .route(r -> r.path(prefix+"/video-streaming/**")
                         .filters(f -> f.stripPrefix(PREFIX_STRIP).filter(authFilter))
                         .uri(videoStreamingDomain)
                 ).build();
