@@ -1,8 +1,12 @@
 package com.nlu.app.service;
 
+import com.nlu.app.dto.request.PutFileRequest;
+import com.nlu.app.dto.request.SaveFileRequest;
+import com.nlu.app.dto.response.SignedURLResponse;
+import com.nlu.app.dto.webclient.identity.request.TokenUserRequest;
 import com.nlu.app.exception.ApplicationException;
 import com.nlu.app.exception.ErrorCode;
-import jakarta.servlet.http.Cookie;
+import com.nlu.app.repository.IdentityWebClient;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -12,12 +16,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
+import software.amazon.awssdk.services.cloudfront.CloudFrontAsyncClient;
+import software.amazon.awssdk.services.cloudfront.CloudFrontAsyncClientBuilder;
+import software.amazon.awssdk.services.cloudfront.CloudFrontClient;
 import software.amazon.awssdk.services.cloudfront.CloudFrontUtilities;
 import software.amazon.awssdk.services.cloudfront.cookie.CookiesForCannedPolicy;
 import software.amazon.awssdk.services.cloudfront.cookie.CookiesForCustomPolicy;
 import software.amazon.awssdk.services.cloudfront.model.CannedSignerRequest;
 import software.amazon.awssdk.services.cloudfront.model.CustomSignerRequest;
 import software.amazon.awssdk.services.cloudfront.url.SignedUrl;
+import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -42,7 +53,8 @@ public class FileService {
     String keypairId;
     @Value("${amazon.cloudfront.url}") @NonFinal
     String cloudFrontUrl;
-    S3Client s3Client;
+    S3AsyncClient s3Client;
+    IdentityWebClient identityWebClient;
     @NonFinal
     S3Presigner signer;
 
@@ -68,7 +80,7 @@ public class FileService {
         return cloudFrontUtilities.getCookiesForCustomPolicy(customRequest);
     }
 
-    public String generateURL(String fileName) {
+    private String signedURL(String fileName) {
         CloudFrontUtilities cloudFrontUtilities = CloudFrontUtilities.create();
         Instant expirationDate = Instant.now().plus(1, ChronoUnit.MINUTES);
         String resource = String.format("%s/%s", cloudFrontUrl, fileName);
@@ -87,67 +99,127 @@ public class FileService {
         return signedUrl.url();
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN')")
-    public String moveToInventory(String oldKey) {
-        try {
-            HeadObjectRequest headRequest = HeadObjectRequest.builder()
+    public Mono<SignedURLResponse> generateURL(String fileName) {
+        return Mono.fromCallable(() -> signedURL(fileName))
+                .map(link -> SignedURLResponse.builder().link(link).build())
+                .onErrorResume(error -> Mono.error(error))
+                .subscribeOn(Schedulers.immediate());
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public Mono<String> moveToInventory(SaveFileRequest request) {
+        String token = request.getToken();
+        String oldKey = request.getFilename();
+        var userTokenRequest = TokenUserRequest.builder()
+                .token(token)
+                .build();
+        return identityWebClient.userInfo(userTokenRequest)
+                .flatMap(response -> {
+                    String username = response.getResult().getUsername();
+                    log.info("temp resource: {}", "temp/"+username+"/"+oldKey);
+                    HeadObjectRequest headRequest = HeadObjectRequest.builder()
+                            .bucket(bucket)
+                            .key("temp/"+username+"/"+oldKey)
+                            .build();
+                    return Mono.fromFuture(s3Client.headObject(headRequest));
+                })
+                .onErrorResume(e -> {
+                    if (e instanceof S3Exception) {
+                        S3Exception castedEx = (S3Exception) e;
+                        log.info("AWS Exception status: {}", castedEx.statusCode());
+                        log.info("AWS Exception: {}", castedEx.getMessage());
+                        return Mono.error(new ApplicationException(ErrorCode.RESOURCE_NOT_FOUND));
+                    }
+                    else {
+                        log.info("Unknown error happened at here: {}", e.getMessage());
+                        return Mono.error(e);
+                    }
+                })
+                .then(Mono.defer(() -> {
+                    String extension = oldKey.substring(oldKey.lastIndexOf(".") + 1);
+                    return rollKey(extension);
+                }))
+                .flatMap(newKey -> {
+                    return Mono.fromFuture(() -> {
+                        CopyObjectRequest copyRequest = CopyObjectRequest.builder()
+                                .sourceBucket(bucket)
+                                .destinationBucket(bucket)
+                                .sourceKey("temp/"+oldKey)
+                                .destinationKey("inventory/"+newKey)
+                                .build();
+                        return s3Client.copyObject(copyRequest);
+                    });
+                })
+                .then(Mono.fromFuture(() -> {
+                    DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+                            .bucket(bucket)
+                            .key("temp/"+oldKey)
+                            .build();
+                    return s3Client.deleteObject(deleteRequest);
+                }))
+                .then(Mono.just("OK"));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public Mono<SignedURLResponse> uploadToTemp (PutFileRequest request) {
+        String fileName = request.getFilename();
+        String token = request.getToken();
+        var userTokenRequest = TokenUserRequest.builder()
+                .token(token)
+                .build();
+        return identityWebClient.userInfo(userTokenRequest)
+                .flatMap(response -> {
+                    String username = response.getResult().getUsername();
+                    PutObjectRequest objectRequest = PutObjectRequest.builder()
+                            .bucket(bucket)
+                            .key("temp/"+username+"/"+fileName)
+                            .build();
+                    PutObjectPresignRequest signRequest = PutObjectPresignRequest.builder()
+                            .signatureDuration(Duration.ofMinutes(1))
+                            .putObjectRequest(objectRequest)
+                            .build();
+                    return Mono.fromCallable(() -> signer.presignPutObject(signRequest))
+                            .subscribeOn(Schedulers.immediate());
+                })
+                .map(response -> {
+                    signer.close();
+                    String signedLink = response.url().toString();
+                    return SignedURLResponse.builder().link(signedLink).build();
+                }).onErrorResume(error -> {
+                    log.error("Unknown error happen here: {}", error.getMessage());
+                    return Mono.error(error);
+                });
+    }
+
+    private Mono<Boolean> doesKeyExists(String key) {
+        return Mono.fromFuture(() -> {
+            HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
                     .bucket(bucket)
-                    .key("temp/"+oldKey)
+                    .key(key)
                     .build();
-            HeadObjectResponse headResponse = s3Client.headObject(headRequest);
-        } catch (S3Exception  e) {
-            e.printStackTrace();
-            throw new ApplicationException(ErrorCode.RESOURCE_NOT_FOUND);
-        }
-        String extension = oldKey.substring(oldKey.lastIndexOf(".") + 1);
-        String newKey = rollKey(extension);
-        CopyObjectRequest copyRequest = CopyObjectRequest.builder()
-                .sourceBucket(bucket)
-                .destinationBucket(bucket)
-                .sourceKey("temp/"+oldKey)
-                .destinationKey("inventory/"+newKey)
-                .build();
-        s3Client.copyObject(copyRequest);
-        DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
-                .bucket(bucket)
-                .key("temp/"+oldKey)
-                .build();
-        s3Client.deleteObject(deleteRequest);
-        return "OK";
-    }
-
-    @PreAuthorize("hasAnyRole('ADMIN')")
-    public String uploadToTemp (String key) {
-        PutObjectRequest objectRequest = PutObjectRequest.builder()
-                .bucket(bucket)
-                .key("temp/"+key)
-                .build();
-        PutObjectPresignRequest signRequest = PutObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofMinutes(1))
-                .putObjectRequest(objectRequest)
-                .build();
-        String url = signer.presignPutObject(signRequest).url().toString();
-        signer.close();
-        return url;
-    }
-
-    private String rollKey (String extension) {
-        String key = UUID.randomUUID().toString()+"."+extension;
-        while (true) {
-            try {
-                HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
-                        .bucket(bucket)
-                        .key(key)
-                        .build();
-                HeadObjectResponse response = s3Client.headObject(headObjectRequest);
-                log.info("Key already exists, generate a new one");
-                key = UUID.randomUUID().toString()+"."+extension;
-            } catch (Exception e) {
-                log.info("Key does not exist, safe to use");
-                break;
+            return s3Client.headObject(headObjectRequest);
+        })
+        .map(_ -> true)
+        .onErrorResume(error -> {
+            if (error instanceof S3Exception) {
+                log.info("Key {} is not existed, safe to use", key);
+                return Mono.just(false);
             }
-        }
-        return key;
-    }
+            else {
+                log.info("Unknown error happen at here: {}", error.getMessage());
+                return Mono.error(new ApplicationException(ErrorCode.UNKNOWN_EXCEPTION));
+            }
+        });
+    };
 
+    private Mono<String> rollKey (String extension) {
+        return Mono.defer(() -> {
+                String key = UUID.randomUUID().toString() + "." + extension;
+                return doesKeyExists(key);
+            }).flatMap(isExist -> {
+                if (isExist) return rollKey(extension);
+                else
+                    return Mono.just("OK");
+        });
+    };
 }
