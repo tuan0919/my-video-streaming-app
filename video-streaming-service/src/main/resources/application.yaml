@@ -30,3 +30,5 @@ amazon:
     url: ${secret.amazon.aws.cloudfront.url}
     public-key: ${secret.amazon.aws.cloudfront.public-key}
     secret-key-location: ${secret.amazon.aws.cloudfront.secret-key-location}
+identity-service:
+  domain: http://localhost:8080
