@@ -2,40 +2,53 @@ package com.nlu.app.exception;
 
 import com.nlu.app.dto.AppResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponseException;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.result.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 
 @ControllerAdvice
 @Slf4j
-public class GlobalExceptionHandler {
+@Order(-2)
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+
     @ExceptionHandler(RuntimeException.class)
     @ResponseBody
-    AppResponse<?> handleRuntimeException(RuntimeException ex) {
-        log.error("exception: ", ex);
-        return AppResponse.builder()
+    Mono<AppResponse<?>> handleRuntimeException(RuntimeException ex, ServerWebExchange exchange) {
+        log.error("runtime exception: ", ex);
+        exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+        return Mono.just(AppResponse.builder()
                 .message(ErrorCode.UNKNOWN_EXCEPTION.getMessage())
                 .code(ErrorCode.UNKNOWN_EXCEPTION.getCode())
-                .build();
+                .build());
+    }
+
+    @ExceptionHandler({ApplicationException.class})
+    @ResponseBody
+    public Mono<AppResponse<?>> handleApplicationException(ApplicationException ex, ServerWebExchange exchange) {
+        log.info("application exception: {}", ex.getMessage());
+        exchange.getResponse().setStatusCode(ex.getErrorCode().getStatusCode());
+        return Mono.just(AppResponse.builder()
+                .message(ex.getErrorCode().getMessage())
+                .code(ex.getErrorCode().getCode())
+                .build());
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseBody
-    AppResponse<?> handleException(Exception ex) {
+    Mono<AppResponse<?>> handleGenericException(Exception ex, ServerWebExchange exchange) {
         log.error("exception: ", ex);
-        return AppResponse.builder()
+        exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+        return Mono.just(AppResponse.builder()
                 .message(ErrorCode.UNKNOWN_EXCEPTION.getMessage())
                 .code(ErrorCode.UNKNOWN_EXCEPTION.getCode())
-                .build();
+                .build());
     }
 
-    @ExceptionHandler(ApplicationException.class)
-    @ResponseBody
-    AppResponse<?> handleApplicationException(ApplicationException ex) {
-        log.error("exception: ", ex);
-        return AppResponse.builder()
-                .message(ex.getErrorCode().getMessage())
-                .code(ex.getErrorCode().getCode())
-                .build();
-    }
 }
