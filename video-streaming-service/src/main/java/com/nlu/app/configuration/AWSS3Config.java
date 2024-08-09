@@ -28,6 +28,14 @@ public class AWSS3Config {
     }
 
     @Bean
+    public S3AsyncClient getS3AsyncClient() {
+        return S3AsyncClient.builder()
+                .region(Region.AP_NORTHEAST_1)
+                .credentialsProvider(ProfileCredentialsProvider.create("nqat0919-uploader"))
+                .build();
+    }
+
+    @Bean
     @Scope("prototype")
     public S3Presigner getS3Presigner() {
         return S3Presigner.builder()

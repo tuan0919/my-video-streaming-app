@@ -5,7 +5,6 @@ import com.nlu.app.exception.ApplicationException;
 import com.nlu.app.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.stereotype.Component;
@@ -15,7 +14,7 @@ import java.text.ParseException;
 
 @Component
 @Slf4j
-public class CustomJwtDecoder implements ReactiveJwtDecoder {
+public class ReactiveCustomJwtDecoder implements ReactiveJwtDecoder {
     @Override
     public Mono<Jwt> decode(String token) throws JwtException {
         try {
