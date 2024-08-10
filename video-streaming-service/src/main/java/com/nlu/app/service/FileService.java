@@ -2,6 +2,7 @@ package com.nlu.app.service;
 
 import com.nlu.app.dto.request.PutFileRequest;
 import com.nlu.app.dto.request.SaveFileRequest;
+import com.nlu.app.dto.response.SaveFileResponse;
 import com.nlu.app.dto.response.SignedURLResponse;
 import com.nlu.app.dto.webclient.identity.request.TokenUserRequest;
 import com.nlu.app.exception.ApplicationException;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Marker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -107,19 +109,25 @@ public class FileService {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    public Mono<String> moveToInventory(SaveFileRequest request) {
+    public Mono<SaveFileResponse> moveToInventory(SaveFileRequest request) {
         String token = request.getToken();
         String oldKey = request.getFilename();
         var userTokenRequest = TokenUserRequest.builder()
                 .token(token)
                 .build();
+        var wrap = new Object() {
+            String userId;
+        };
+        var resultKey = new Object() {
+            String value;
+        };
         return identityWebClient.userInfo(userTokenRequest)
                 .flatMap(response -> {
-                    String username = response.getResult().getUsername();
-                    log.info("temp resource: {}", "temp/"+username+"/"+oldKey);
+                    wrap.userId = response.getResult().getUserId();
+                    log.info("temp resource: {}", "temp/"+wrap.userId+"/"+oldKey);
                     HeadObjectRequest headRequest = HeadObjectRequest.builder()
                             .bucket(bucket)
-                            .key("temp/"+username+"/"+oldKey)
+                            .key("temp/"+wrap.userId+"/"+oldKey)
                             .build();
                     return Mono.fromFuture(s3Client.headObject(headRequest));
                 })
@@ -131,7 +139,7 @@ public class FileService {
                         return Mono.error(new ApplicationException(ErrorCode.RESOURCE_NOT_FOUND));
                     }
                     else {
-                        log.info("Unknown error happened at here: {}", e.getMessage());
+                        log.error("Unknown error happened: {}", e.getMessage());
                         return Mono.error(e);
                     }
                 })
@@ -144,20 +152,27 @@ public class FileService {
                         CopyObjectRequest copyRequest = CopyObjectRequest.builder()
                                 .sourceBucket(bucket)
                                 .destinationBucket(bucket)
-                                .sourceKey("temp/"+oldKey)
-                                .destinationKey("inventory/"+newKey)
+                                .sourceKey("temp/"+wrap.userId+"/"+oldKey)
+                                .destinationKey("inventory/"+wrap.userId+"/"+newKey)
                                 .build();
+                        resultKey.value = "inventory/"+wrap.userId+"/"+newKey;
                         return s3Client.copyObject(copyRequest);
                     });
                 })
                 .then(Mono.fromFuture(() -> {
                     DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
                             .bucket(bucket)
-                            .key("temp/"+oldKey)
+                            .key("temp/"+wrap.userId+"/"+oldKey)
                             .build();
                     return s3Client.deleteObject(deleteRequest);
                 }))
-                .then(Mono.just("OK"));
+                .map(_ -> SaveFileResponse.builder()
+                        .key(resultKey.value)
+                        .build())
+                .onErrorResume(error -> {
+                    log.error("Unknown error happened: {}", error.getMessage());
+                    return Mono.error(error);
+                });
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -169,10 +184,10 @@ public class FileService {
                 .build();
         return identityWebClient.userInfo(userTokenRequest)
                 .flatMap(response -> {
-                    String username = response.getResult().getUsername();
+                    String userId = response.getResult().getUserId();
                     PutObjectRequest objectRequest = PutObjectRequest.builder()
                             .bucket(bucket)
-                            .key("temp/"+username+"/"+fileName)
+                            .key("temp/"+userId+"/"+fileName)
                             .build();
                     PutObjectPresignRequest signRequest = PutObjectPresignRequest.builder()
                             .signatureDuration(Duration.ofMinutes(1))
@@ -213,13 +228,13 @@ public class FileService {
     };
 
     private Mono<String> rollKey (String extension) {
+        String key = UUID.randomUUID().toString() + "." + extension;
         return Mono.defer(() -> {
-                String key = UUID.randomUUID().toString() + "." + extension;
                 return doesKeyExists(key);
             }).flatMap(isExist -> {
                 if (isExist) return rollKey(extension);
                 else
-                    return Mono.just("OK");
+                    return Mono.just(key);
         });
     };
 }
