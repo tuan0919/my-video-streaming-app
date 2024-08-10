@@ -4,9 +4,12 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.List;
 import java.util.StringJoiner;
 import java.util.UUID;
 
+import com.nlu.app.dto.request.*;
+import com.nlu.app.dto.response.TokenUserResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,10 +21,6 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.nlu.app.dto.request.AuthenticationRequest;
-import com.nlu.app.dto.request.IntrospectRequest;
-import com.nlu.app.dto.request.LogoutRequest;
-import com.nlu.app.dto.request.RefreshRequest;
 import com.nlu.app.dto.response.AuthenticationResponse;
 import com.nlu.app.dto.response.IntrospectResponse;
 import com.nlu.app.entity.InvalidatedToken;
@@ -128,12 +127,13 @@ public class AuthenticationService {
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getUsername())
-                .issuer("devteria.com")
+                .issuer("identity-service")
                 .issueTime(new Date())
                 .expirationTime(new Date(
                         Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()))
                 .jwtID(UUID.randomUUID().toString())
                 .claim("scope", buildScope(user))
+                .claim("id", user.getId())
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -186,5 +186,18 @@ public class AuthenticationService {
         return stringJoiner.toString();
     }
 
-    private record TokenInfo(String token, Date expiryDate) {}
+    public TokenUserResponse getUserInToken(TokenUserRequest request) throws ParseException, JOSEException {
+        var signedJWT = verifyToken(request.getToken(), true);
+        String username = signedJWT.getJWTClaimsSet().getSubject();
+        String scope = (String) signedJWT.getJWTClaimsSet()
+                .getClaims().get("scope");
+        String userId = (String) signedJWT.getJWTClaimsSet()
+                .getClaim("id");
+        List<String> roles = List.of(scope.split(" "));
+        return TokenUserResponse.builder()
+                .roles(roles)
+                .userId(userId)
+                .username(username)
+                .build();
+    }
 }
