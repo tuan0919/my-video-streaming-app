@@ -2,6 +2,8 @@ package com.nlu.app.controller;
 
 import java.text.ParseException;
 
+import com.nlu.app.dto.request.*;
+import com.nlu.app.dto.response.TokenUserResponse;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,10 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nimbusds.jose.JOSEException;
 import com.nlu.app.dto.AppResponse;
-import com.nlu.app.dto.request.AuthenticationRequest;
-import com.nlu.app.dto.request.IntrospectRequest;
-import com.nlu.app.dto.request.LogoutRequest;
-import com.nlu.app.dto.request.RefreshRequest;
 import com.nlu.app.dto.response.AuthenticationResponse;
 import com.nlu.app.dto.response.IntrospectResponse;
 import com.nlu.app.service.AuthenticationService;
@@ -45,6 +43,14 @@ public class AuthenticationController {
             throws ParseException, JOSEException {
         var result = authenticationService.refreshToken(request);
         return AppResponse.<AuthenticationResponse>builder().result(result).build();
+    }
+
+    @PostMapping("/userinfo")
+    AppResponse<TokenUserResponse> authenticate(@RequestBody TokenUserRequest request)
+            throws ParseException, JOSEException {
+        var result = authenticationService.getUserInToken(request);
+        return AppResponse.<TokenUserResponse>builder()
+                .result(result).build();
     }
 
     @PostMapping("/logout")
