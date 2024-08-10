@@ -11,6 +11,7 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TokenUserResponse {
+    String userId;
     String username;
     List<String> roles;
 }
