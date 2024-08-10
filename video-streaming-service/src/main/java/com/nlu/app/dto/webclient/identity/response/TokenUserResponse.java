@@ -13,4 +13,5 @@ import java.util.List;
 public class TokenUserResponse {
     String username;
     List<String> roles;
+    String userId;
 }
