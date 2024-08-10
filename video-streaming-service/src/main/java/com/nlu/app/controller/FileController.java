@@ -2,6 +2,7 @@ package com.nlu.app.controller;
 import com.nlu.app.dto.AppResponse;
 import com.nlu.app.dto.request.PutFileRequest;
 import com.nlu.app.dto.request.SaveFileRequest;
+import com.nlu.app.dto.response.SaveFileResponse;
 import com.nlu.app.dto.response.SignedURLResponse;
 import com.nlu.app.service.FileService;
 import lombok.AccessLevel;
@@ -18,10 +19,10 @@ public class FileController {
     FileService fileService;
 
     @PostMapping
-    public Mono<AppResponse<String>> saveFile(@RequestBody SaveFileRequest request) {
+    public Mono<AppResponse<SaveFileResponse>> saveFile(@RequestBody SaveFileRequest request) {
         return fileService.moveToInventory(request)
                 .map(response -> {
-                    return AppResponse.<String>builder()
+                    return AppResponse.<SaveFileResponse>builder()
                             .result(response).build();
                 });
     }
