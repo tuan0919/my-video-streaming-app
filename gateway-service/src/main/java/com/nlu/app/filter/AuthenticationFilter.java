@@ -8,6 +8,7 @@ import com.nlu.app.route.Routes;
 import com.nlu.app.service.IdentityService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpHeaders;
@@ -16,11 +17,17 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.util.stream.Stream;
+
 @Component
 @Slf4j
 public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {
     ObjectMapper objectMapper;
     IdentityService service;
+
+    @Value("${gateway-service.openEndpoints}")
+    String[] opens;
+
     @Autowired
     public void setObjectMapper(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
@@ -40,7 +47,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
             var response = exchange.getResponse();
             var request = exchange.getRequest();
             String path = request.getURI().getPath();
-            if (Routes.openEndpoints.stream().anyMatch(path::matches)) {
+            if (Stream.of(opens).anyMatch(path::matches)) {
                 return chain.filter(exchange);
             }
             var header = exchange.getRequest()

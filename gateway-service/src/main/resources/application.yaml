@@ -9,6 +9,11 @@ spring:
 gateway-service:
   /prefix: /api/v1
   strip: 2
+  openEndpoints: >
+    /identity/auth/token,
+    /identity/auth/introspect,
+    /identity/users/registration
+
 identity-service:
   domain: http://localhost:8080
 video-streaming-service:

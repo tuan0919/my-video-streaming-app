@@ -1,5 +1,6 @@
 package com.nlu.app.route;
 import com.nlu.app.filter.AuthenticationFilter;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.route.RouteLocator;
@@ -20,10 +21,7 @@ public class Routes {
     String prefix;
     @Value("${gateway-service.strip}")
     int PREFIX_STRIP;
-    public static final List<String> openEndpoints = List.of(
-            "/identity/auth/.*",
-            "/identity/users/registration"
-    );
+
     AuthenticationFilter authenticationFilter;
     @Autowired
     public void setAuthenticationFilter(AuthenticationFilter authenticationFilter) {
