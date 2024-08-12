@@ -19,19 +19,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
-import software.amazon.awssdk.services.cloudfront.CloudFrontAsyncClient;
-import software.amazon.awssdk.services.cloudfront.CloudFrontAsyncClientBuilder;
-import software.amazon.awssdk.services.cloudfront.CloudFrontClient;
 import software.amazon.awssdk.services.cloudfront.CloudFrontUtilities;
-import software.amazon.awssdk.services.cloudfront.cookie.CookiesForCannedPolicy;
 import software.amazon.awssdk.services.cloudfront.cookie.CookiesForCustomPolicy;
 import software.amazon.awssdk.services.cloudfront.model.CannedSignerRequest;
 import software.amazon.awssdk.services.cloudfront.model.CustomSignerRequest;
 import software.amazon.awssdk.services.cloudfront.url.SignedUrl;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
-import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
@@ -109,8 +103,7 @@ public class FileService {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    public Mono<SaveFileResponse> moveToInventory(SaveFileRequest request) {
-        String token = request.getToken();
+    public Mono<SaveFileResponse> moveToInventory(SaveFileRequest request, String token) {
         String oldKey = request.getFilename();
         var userTokenRequest = TokenUserRequest.builder()
                 .token(token)
@@ -176,9 +169,8 @@ public class FileService {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    public Mono<SignedURLResponse> uploadToTemp (PutFileRequest request) {
+    public Mono<SignedURLResponse> uploadToTemp (PutFileRequest request, String token) {
         String fileName = request.getFilename();
-        String token = request.getToken();
         var userTokenRequest = TokenUserRequest.builder()
                 .token(token)
                 .build();

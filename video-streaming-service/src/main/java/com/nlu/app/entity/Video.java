@@ -24,7 +24,7 @@ public class Video {
     String videoKey;
     @Column(columnDefinition = "varchar(255) collate utf8mb4_unicode_ci not null")
     String thumbnailKey;
-    @Column(name="tags")
+    @Column(name = "tags", columnDefinition = "varchar(255) collate utf8mb4_unicode_ci not null")
     String tagsString;
     @Transient @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE)
     List<String> tags;
