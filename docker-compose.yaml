@@ -32,6 +32,10 @@ services:
     depends_on:
       - mysql-video-streaming
       - mysql-identity
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+
 volumes:
   video-service-mysql-volumes:
   identity-service-mysql-volumes:
