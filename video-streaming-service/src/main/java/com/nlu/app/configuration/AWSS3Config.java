@@ -12,13 +12,6 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 @Configuration
 public class AWSS3Config {
-    @Value("${amazon.aws.accessKey}")
-    String accessKey;
-    @Value("${amazon.aws.secretKey}")
-    String secretKey;
-    @Value("${amazon.aws.region}")
-    String region;
-
     @Bean
     public S3Client getS3Client() {
         return S3Client.builder()
