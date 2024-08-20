@@ -22,6 +22,16 @@ services:
     ports:
       - '3307:3306'
 
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 7979:80
+    environment:
+      - PMA_ARBITRARY=1
+    depends_on:
+      - mysql-video-streaming
+      - mysql-identity
 volumes:
   video-service-mysql-volumes:
   identity-service-mysql-volumes:
