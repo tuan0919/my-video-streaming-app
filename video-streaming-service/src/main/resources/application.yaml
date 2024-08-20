@@ -7,8 +7,6 @@ spring:
     name: video-streaming-service
   profiles:
     active: default
-  config:
-    import: optional:classpath:secret.yaml
   r2dbc:
     url: r2dbc:mysql://localhost:3306/video-streaming
     username: nqat0919
@@ -24,15 +22,11 @@ spring:
     show-sql: true
 #aws credentials
 amazon:
-  aws:
-    accessKey: ${secret.amazon.aws.s3.accessKey}
-    secretKey: ${secret.amazon.aws.s3.secretKey}
-    region: ${secret.amazon.aws.s3.region}
   s3:
-    bucket: ${secret.amazon.aws.s3.bucket}
+    bucket: nqat0919-bucket
   cloudfront:
-    url: ${secret.amazon.aws.cloudfront.url}
-    public-key: ${secret.amazon.aws.cloudfront.public-key}
-    secret-key-location: ${secret.amazon.aws.cloudfront.secret-key-location}
+    url: https://cdn.wjbu.online
+    public-key: KELN0DV2RMYI1
+    secret-key-location: /home/nqat0919/resource/pk-APKAZQ3DSOCM42AQIJCR.pem
 identity-service:
   domain: http://localhost:8080
