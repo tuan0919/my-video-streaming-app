@@ -125,8 +125,7 @@ public class FileService {
                     return Mono.fromFuture(s3Client.headObject(headRequest));
                 })
                 .onErrorResume(e -> {
-                    if (e instanceof S3Exception) {
-                        S3Exception castedEx = (S3Exception) e;
+                    if (e instanceof S3Exception castedEx) {
                         log.info("AWS Exception status: {}", castedEx.statusCode());
                         log.info("AWS Exception: {}", castedEx.getMessage());
                         return Mono.error(new ApplicationException(ErrorCode.RESOURCE_NOT_FOUND));
