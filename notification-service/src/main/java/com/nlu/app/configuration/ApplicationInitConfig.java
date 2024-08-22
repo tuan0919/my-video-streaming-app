@@ -1,5 +1,4 @@
 package com.nlu.app.configuration;
-
 import com.nlu.app.entity.Notification;
 import com.nlu.app.repository.NotificationRepository;
 import lombok.AccessLevel;
@@ -20,7 +19,7 @@ public class ApplicationInitConfig {
     @EventListener(ApplicationReadyEvent.class)
     void applicationRunner() {
         var initValue = Notification.builder()
-                        .id("#").timestamp(System.currentTimeMillis()).userId("#")
+                        .id("#").userId("#")
                         .build();
         log.info("Initializing application.....");
         repository.findById("#")
