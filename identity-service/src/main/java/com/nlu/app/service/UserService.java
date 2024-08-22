@@ -3,6 +3,9 @@ package com.nlu.app.service;
 import java.util.HashSet;
 import java.util.List;
 
+import com.nlu.app.common.dto.UserCreationDTO;
+import com.nlu.app.common.event.UserCreationEvent;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,7 +41,8 @@ public class UserService {
     UserMapper userMapper;
     ProfileMapper profileMapper;
     PasswordEncoder passwordEncoder;
-    KafkaTemplate<String, String> kafkaTemplate;
+    StreamBridge streamBridge;
+
 
     public UserResponse createUser(UserCreationRequest request) {
         User user = userMapper.toUser(request);
@@ -55,10 +59,14 @@ public class UserService {
         } catch (DataIntegrityViolationException exception) {
             throw new ApplicationException(ErrorCode.USER_ALREADY_EXISTED);
         }
-
-        var profileRequest = profileMapper.toProfileCreationRequest(request);
-        profileRequest.setUserId(user.getId());
-
+        UserCreationDTO creationDTO = UserCreationDTO.builder()
+                        .userId(user.getId())
+                        .username(user.getUsername())
+                        .timestamp(System.currentTimeMillis())
+                .build();
+        UserCreationEvent event = new UserCreationEvent(creationDTO);
+        streamBridge.setAsync(true);
+        streamBridge.send("publishToNotification-out-0", event);
         return userMapper.toUserResponse(user);
     }
 
