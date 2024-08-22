@@ -7,6 +7,23 @@ spring:
     name: video-streaming-service
   profiles:
     active: default
+  cloud:
+    stream:
+      bindings:
+        publishToNotification-out-0:
+          destination: user-created
+          producer:
+            use-native-encoding: true
+      kafka:
+        binder:
+          brokers:
+            - localhost:9092
+          configuration:
+            key.serializer: org.apache.kafka.common.serialization.StringSerializer
+            key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+            value.serializer: org.springframework.kafka.support.serializer.JsonSerializer
+            value.deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+
   datasource:
     url: jdbc:mysql://localhost:3307/identity
     username: nqat0919
