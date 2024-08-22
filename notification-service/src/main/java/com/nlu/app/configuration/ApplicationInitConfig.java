@@ -1,7 +1,7 @@
 package com.nlu.app.configuration;
 
-import com.nlu.app.entity.Comment;
-import com.nlu.app.repository.CommentRepository;
+import com.nlu.app.entity.Notification;
+import com.nlu.app.repository.NotificationRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -16,21 +16,17 @@ import reactor.core.publisher.Mono;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class ApplicationInitConfig {
-    CommentRepository commentRepository;
+    NotificationRepository repository;
     @EventListener(ApplicationReadyEvent.class)
     void applicationRunner() {
-        var initValue = Comment.builder()
-                .id("#")
-                .timestamp(System.currentTimeMillis())
-                .content("#")
-                .videoId("#")
-                .userId("#")
-                .parentId("#").build();
+        var initValue = Notification.builder()
+                        .id("#").timestamp(System.currentTimeMillis()).userId("#")
+                        .build();
         log.info("Initializing application.....");
-        commentRepository.findById("#")
+        repository.findById("#")
                 .switchIfEmpty(Mono.defer(() -> {
                     log.warn("Does not found init value, creating new one");
-                    return commentRepository.insert(initValue)
+                    return repository.insert(initValue)
                             .map(comment -> comment);
                 }))
                 .map(value -> {

@@ -1,0 +1,10 @@
+server:
+  port: 45551
+  servlet:
+    context-path: /notification-service
+spring:
+  application:
+    name: notification-service
+  data:
+    mongodb:
+      uri: mongodb://nqat0919:secret@localhost:27018/notifications-db?authSource=admin
