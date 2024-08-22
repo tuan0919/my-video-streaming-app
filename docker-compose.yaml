@@ -22,20 +22,71 @@ services:
     ports:
       - '3307:3306'
 
-  phpmyadmin:
-    image: phpmyadmin
-    restart: always
-    ports:
-      - 7979:80
+  mongo-comments:
+    image: mongo
+    container_name: mongo-comments
     environment:
-      - PMA_ARBITRARY=1
-    depends_on:
-      - mysql-video-streaming
-      - mysql-identity
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      MONGO_INITDB_ROOT_USERNAME: nqat0919
+      MONGO_INITDB_ROOT_PASSWORD: secret
+    ports:
+      - '27017:27017'
+    volumes:
+      - comments-service-mongo-volumes:/data/db
 
+  mongo-notifications:
+    image: mongo
+    container_name: mongo-notifications
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: nqat0919
+      MONGO_INITDB_ROOT_PASSWORD: secret
+    ports:
+      - '27018:27017'
+    volumes:
+      - notifications-service-mongo-volumes:/data/db
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:5.4.0
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  broker:
+    image: confluentinc/cp-server:5.4.0
+    hostname: broker
+    container_name: broker
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    env_file:
+      env/kafka-config.env
+
+  kafka-tools:
+    image: confluentinc/cp-kafka:5.4.0
+    hostname: kafka-tools
+    container_name: kafka-tools
+    command: [ "tail", "-f", "/dev/null" ]
+    network_mode: "host"
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:5.4.0
+    hostname: schema-registry
+    container_name: schema-registry
+    depends_on:
+      - zookeeper
+      - broker
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: "zookeeper:2181"
 
 volumes:
   video-service-mysql-volumes:
   identity-service-mysql-volumes:
+  comments-service-mongo-volumes:
+  notifications-service-mongo-volumes:
