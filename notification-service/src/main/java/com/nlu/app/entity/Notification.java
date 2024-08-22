@@ -1,9 +1,7 @@
 package com.nlu.app.entity;
 
 import com.nlu.app.constant.NotificationType;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -18,21 +16,24 @@ import java.util.UUID;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Notification {
     @Id
     String id = UUID.randomUUID().toString();
     String userId;
-    Long timestamp;
+    @Field("timestamp")
+    Long time = System.currentTimeMillis();
     String content;
-    Boolean isRead;
+    Boolean isRead = false;
     @Field("type")
     NotificationType type;
 
     public LocalDateTime getTimestamp() {
-        return LocalDateTime.ofInstant(Instant.ofEpochSecond(timestamp), ZoneId.systemDefault());
+        return LocalDateTime.ofInstant(Instant.ofEpochSecond(time), ZoneId.systemDefault());
     }
 
     public void setTimestamp(LocalDateTime localDateTime) {
-        this.timestamp = localDateTime.atZone(ZoneId.systemDefault()).toEpochSecond();
+        this.time = localDateTime.atZone(ZoneId.systemDefault()).toEpochSecond();
     }
 }
