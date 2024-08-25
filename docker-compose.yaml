@@ -3,7 +3,7 @@ version: '3.8'
 services:
   mysql-video-streaming:
     container_name: mysql-video-streaming
-    image: mysql:5.7
+    image: mysql:8.4.2
     env_file:
       - video-streaming-service/env/mysql.env
       - env/docker-compose.env
@@ -14,7 +14,7 @@ services:
 
   mysql-identity:
     container_name: mysql-identity
-    image: mysql:5.7
+    image: mysql:8.4.2
     env_file:
       - identity-service/env/mysql.env
     volumes:
@@ -52,38 +52,41 @@ services:
       - "2181:2181"
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
 
-  broker:
-    image: confluentinc/cp-server:5.4.0
-    hostname: broker
-    container_name: broker
-    depends_on:
-      - zookeeper
+  kafka:
+    container_name: kafka
+    image: confluentinc/cp-enterprise-kafka:5.5.3
+    depends_on: [ zookeeper ]
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     ports:
       - "9092:9092"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  debezium:
+    image: debezium/connect:1.4
+    hostname: debezium
+    container_name: debezium
     env_file:
-      env/kafka-config.env
-
-  kafka-tools:
-    image: confluentinc/cp-kafka:5.4.0
-    hostname: kafka-tools
-    container_name: kafka-tools
-    command: [ "tail", "-f", "/dev/null" ]
-    network_mode: "host"
-
-  schema-registry:
-    image: confluentinc/cp-schema-registry:5.4.0
-    hostname: schema-registry
-    container_name: schema-registry
+      - env/debezium.env
     depends_on:
       - zookeeper
-      - broker
+      - kafka
     ports:
-      - "8081:8081"
+      - "8083:8083"
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:5.5.3
     environment:
-      SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: "zookeeper:2181"
+      - SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL=zookeeper:2181
+      - SCHEMA_REGISTRY_HOST_NAME=schema-registry
+      - SCHEMA_REGISTRY_LISTENERS=http://schema-registry:8081,http://localhost:8081
+    ports:
+      - 8081:8081
+    depends_on: [zookeeper, kafka]
 
 volumes:
   video-service-mysql-volumes:
