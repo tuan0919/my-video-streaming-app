@@ -1,0 +1,18 @@
+{
+  "name": "debezium_identity-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+    "plugin.name": "identity-watcher",
+    "database.hostname": "mysql-identity",
+    "database.port": "3306",
+    "database.user": "root",
+    "database.password": "secret",
+    "database.dbname": "identity",
+    "database.server.id": 1,
+    "database.server.name": "mysql-identity",
+    "table.include.list": "user",
+    "topic.prefix": "identity-db",
+    "schema.history.internal.kafka.bootstrap.servers": "broker:29092",
+    "schema.history.internal.kafka.topic": "schema-changes.inventory"
+  }
+}
