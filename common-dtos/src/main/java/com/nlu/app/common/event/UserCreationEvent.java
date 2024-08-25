@@ -12,7 +12,7 @@ public class UserCreationEvent {
     private UserCreationDTO userCreateDTO;
     private Long timestamp = System.currentTimeMillis();
 
-    public UserCreationEvent(String eventId) {
-        this.eventId = eventId;
+    public UserCreationEvent(UserCreationDTO userCreateDTO) {
+        this.userCreateDTO = userCreateDTO;
     }
 }
