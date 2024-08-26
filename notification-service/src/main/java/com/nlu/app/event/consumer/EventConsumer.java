@@ -1,5 +1,6 @@
 package com.nlu.app.event.consumer;
 
+import com.nlu.app.common.dto.UserCreationDTO;
 import com.nlu.app.common.event.UserCreationEvent;
 import com.nlu.app.constant.NotificationType;
 import com.nlu.app.entity.Notification;
@@ -9,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageHeaderAccessor;
 import reactor.core.publisher.Flux;
 
 import java.util.function.Consumer;
@@ -19,23 +21,21 @@ import java.util.function.Function;
 @Slf4j
 public class EventConsumer {
     private final NotificationService service;
-//    @Bean
-//    public Function<Flux<UserCreationEvent>, Flux<Notification>> userCreationEvent() {
-//        return fluxEvent -> fluxEvent.flatMap(event -> {
-//            log.info("Consumed user-created event");
-//            Notification notification = new Notification();
-//            notification.setType(NotificationType.INFO);
-//            notification.setContent(String.format("Hello user %s, welcome to our services.", event.getUserCreateDTO().getUsername()));
-//            notification.setTime(event.getTimestamp());
-//            notification.setUserId(event.getUserCreateDTO().getUserId());
-//            return service.insertDB(notification);
-//        });
-//    }
 
     @Bean
-    public Consumer<Message<String>> userCreationEvent() {
-        return str -> {
-            log.info("Consumed: {}", str);
-        };
+    public Function<Flux<Message<UserCreationEvent>>, Flux<Notification>> userCreationEvent() {
+        return flux -> flux.flatMap(message -> {
+            MessageHeaderAccessor accessor = new MessageHeaderAccessor(message);
+            log.info("userid in message[%s]'s header: %s",
+                    message.getHeaders().getId().toString(),
+                    accessor.getHeader("userid"));
+            var event = message.getPayload();
+            Notification notification = new Notification();
+            notification.setType(NotificationType.INFO);
+            notification.setContent(String.format("Hello user %s, welcome to our services.", event.getUserCreateDTO().getUsername()));
+            notification.setTime(event.getTimestamp());
+            notification.setUserId(event.getUserCreateDTO().getUserId());
+            return service.insertDB(notification);
+        });
     }
 }
