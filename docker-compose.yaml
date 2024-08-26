@@ -3,7 +3,7 @@ version: '3.8'
 services:
   mysql-video-streaming:
     container_name: mysql-video-streaming
-    image: mysql:8.4.2
+    image: mysql:8.0.19
     env_file:
       - video-streaming-service/env/mysql.env
       - env/docker-compose.env
@@ -11,16 +11,18 @@ services:
       - video-service-mysql-volumes:/var/lib/mysql
     ports:
       - '3306:3306'
+    command: --default-authentication-plugin=mysql_native_password
 
   mysql-identity:
     container_name: mysql-identity
-    image: mysql:8.4.2
+    image: mysql:8.0.19
     env_file:
       - identity-service/env/mysql.env
     volumes:
       - identity-service-mysql-volumes:/var/lib/mysql
     ports:
       - '3307:3306'
+    command: --default-authentication-plugin=mysql_native_password
 
   mongo-comments:
     image: mongo
@@ -55,19 +57,15 @@ services:
 
   kafka:
     container_name: kafka
-    image: confluentinc/cp-enterprise-kafka:5.5.3
+    image: confluentinc/cp-server:5.4.0
     depends_on: [ zookeeper ]
-    environment:
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    env_file:
+      - env/kafka-config.env
     ports:
       - "9092:9092"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
   debezium:
-    image: debezium/connect:1.4
+    image: quay.io/debezium/connect
     hostname: debezium
     container_name: debezium
     env_file:
