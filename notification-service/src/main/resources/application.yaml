@@ -11,23 +11,15 @@ spring:
         definition: userCreationEvent
       bindings:
         userCreationEvent-in-0:
-          destination: user-created
-          group: user-created-notification
-          consumer:
-            use-native-decoding: true
+          destination: user_created
+          group: notification-service
+          contentType: application/json
         userCreationEvent-out-0:
           destination: notification-created
-          producer:
-            use-native-encoding: true
       kafka:
         binder:
           brokers:
             - localhost:9092
-          configuration:
-              key.serializer: org.apache.kafka.common.serialization.StringSerializer
-              key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
-              value.serializer: org.springframework.kafka.support.serializer.JsonSerializer
-              value.deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
           consumer-properties:
             spring:
               json:

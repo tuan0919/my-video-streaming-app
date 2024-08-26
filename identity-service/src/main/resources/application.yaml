@@ -9,11 +9,11 @@ spring:
     active: default
   cloud:
     stream:
-      bindings:
-        publishToNotification-out-0:
-          destination: user-created
-          producer:
-            use-native-encoding: true
+      #bindings:
+        #publishToNotification-out-0:
+          #destination: user-created
+          #producer:
+            #use-native-encoding: true
       kafka:
         binder:
           brokers:
