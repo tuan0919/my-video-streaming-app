@@ -3,8 +3,12 @@ package com.nlu.app.service;
 import java.util.HashSet;
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nlu.app.common.dto.UserCreationDTO;
 import com.nlu.app.common.event.UserCreationEvent;
+import com.nlu.app.entity.Outbox;
+import com.nlu.app.repository.OutboxRepository;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -38,6 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UserService {
     UserRepository userRepository;
     RoleRepository roleRepository;
+    OutboxRepository outboxRepository;
     UserMapper userMapper;
     ProfileMapper profileMapper;
     PasswordEncoder passwordEncoder;
@@ -65,8 +70,18 @@ public class UserService {
                         .timestamp(System.currentTimeMillis())
                 .build();
         UserCreationEvent event = new UserCreationEvent(creationDTO);
-        streamBridge.setAsync(true);
-        streamBridge.send("publishToNotification-out-0", event);
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            Outbox outbox = Outbox.builder()
+                    .type("insert")
+                    .aggregateType("created")
+                    .aggregateId(user.getId())
+                    .payload(objectMapper.writeValueAsString(event))
+                    .build();
+            outboxRepository.save(outbox);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
         return userMapper.toUserResponse(user);
     }
 
