@@ -2,17 +2,23 @@
   "name": "debezium_identity-connector",
   "config": {
     "connector.class": "io.debezium.connector.mysql.MySqlConnector",
-    "plugin.name": "identity-watcher",
+    "tasks.max": "1",
     "database.hostname": "mysql-identity",
     "database.port": "3306",
     "database.user": "root",
     "database.password": "secret",
     "database.dbname": "identity",
-    "database.server.id": 1,
-    "database.server.name": "mysql-identity",
-    "table.include.list": "user",
-    "topic.prefix": "identity-db",
-    "schema.history.internal.kafka.bootstrap.servers": "broker:29092",
-    "schema.history.internal.kafka.topic": "schema-changes.inventory"
+    "database.server.id": 165131216,
+    "table.include.list": "identity.outbox",
+    "topic.prefix": "identity_db",
+
+    "transforms": "outbox",
+    "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
+    "transforms.outbox.table.fields.additional.placement": "aggregateid:header:userid",
+    "transforms.outbox.route.by.field": "aggregatetype",
+    "transforms.outbox.route.topic.replacement": "user_${routedByValue}",
+
+    "schema.history.internal.kafka.bootstrap.servers": "kafka:29092",
+    "schema.history.internal.kafka.topic": "schema.inventory"
   }
 }
