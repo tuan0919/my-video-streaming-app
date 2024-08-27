@@ -19,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.LocalDateTime;
 
@@ -30,8 +31,8 @@ public class CommentService {
     private final OutboxRepository outboxRepository;
     private final IdentityWebClient identityWebClient;
 
-    @Transactional
     @PreAuthorize("hasAnyRole('ADMIN')")
+    @Transactional
     public Mono<String> createComment(String token, CommentCreationRequestDTO request) {
         TokenUserRequest requestUserInfo = new TokenUserRequest(token);
         var wrap = new Object() {
@@ -56,7 +57,7 @@ public class CommentService {
     private Mono<Comment> insertToDB(Comment comment) {
         return checkIsReplyComment(comment)
                 .filter(isReply -> isReply)
-                .flatMap(_ -> commentRepository.findById(comment.getParentId()))
+                .map(_ -> commentRepository.findById(comment.getParentId()).get())
                 .flatMap(parentCmt -> {
 //                  In case comment is a reply, we need to publish its DTO to topic, using outbox pattern.
                     ObjectMapper objectMapper = new ObjectMapper();
@@ -74,23 +75,23 @@ public class CommentService {
                     Outbox outbox = new Outbox();
                     outbox.setAggregateId(parentCmt.getId());
                     outbox.setType("insert");
-                    outbox.setAggregateType("created");
+                    outbox.setAggregateType("replied");
                     try {
                         outbox.setPayload(objectMapper.writeValueAsString(event));
-                        return outboxRepository.save(outbox);
+                        outboxRepository.save(outbox);
+                        commentRepository.save(comment);
+                        return Mono.just(comment);
                     } catch (Exception e) {
                         log.error(e.getMessage(), e);
                         return Mono.error(e);
                     }
-                })
-                .then(commentRepository.save(comment));
+                }).subscribeOn(Schedulers.boundedElastic());
     }
 
     private Mono<Boolean> checkIsReplyComment(Comment comment) {
         String otherComment = comment.getParentId();
         if (otherComment == null) return Mono.just(false);
-        return commentRepository.findById(otherComment)
-                .map(_ -> true)
-                .defaultIfEmpty(false);
+        return Mono.fromCallable(() -> commentRepository.findById(otherComment).isPresent())
+                .subscribeOn(Schedulers.boundedElastic());
     }
 }

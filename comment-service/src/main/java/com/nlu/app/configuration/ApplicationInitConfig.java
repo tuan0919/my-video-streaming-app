@@ -16,22 +16,8 @@ import reactor.core.publisher.Mono;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class ApplicationInitConfig {
-    CommentRepository commentRepository;
     @EventListener(ApplicationReadyEvent.class)
     void applicationRunner() {
-        var initValue = Comment.builder()
-                .id("#").build();
-        log.info("Initializing application.....");
-        commentRepository.findById("#")
-                .switchIfEmpty(Mono.defer(() -> {
-                    log.warn("Does not found init value, creating new one");
-                    return commentRepository.insert(initValue)
-                            .map(comment -> comment);
-                }))
-                .map(value -> {
-                    log.info("Found init value");
-                    return Mono.just(value);
-                })
-                .subscribe(_ -> log.info("Initialized"));
+
     }
 }
