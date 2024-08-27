@@ -20,12 +20,7 @@ public class ApplicationInitConfig {
     @EventListener(ApplicationReadyEvent.class)
     void applicationRunner() {
         var initValue = Comment.builder()
-                .id("#")
-                .timestamp(System.currentTimeMillis())
-                .content("#")
-                .videoId("#")
-                .userId("#")
-                .parentId("#").build();
+                .id("#").build();
         log.info("Initializing application.....");
         commentRepository.findById("#")
                 .switchIfEmpty(Mono.defer(() -> {
