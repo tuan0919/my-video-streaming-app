@@ -1,10 +1,13 @@
 server:
   port: 8887
   servlet:
-    context-path: /comment-service
+    context-path: /comment
 spring:
   application:
     name: comment-service
   data:
     mongodb:
       uri: mongodb://nqat0919:secret@localhost:27017/comments-db?authSource=admin # Đường dẫn kết nối
+
+identity-service:
+  domain: http://localhost:8080
