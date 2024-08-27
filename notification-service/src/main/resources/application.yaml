@@ -6,12 +6,16 @@ spring:
   application:
     name: notification-service
   cloud:
+    function:
+        definition: userCreationEvent;commentRepliedEvent
     stream:
-      function:
-        definition: userCreationEvent
       bindings:
         userCreationEvent-in-0:
           destination: user_created
+          group: notification-service
+          contentType: application/json
+        commentRepliedEvent-in-0:
+          destination: comment_replied
           group: notification-service
           contentType: application/json
         userCreationEvent-out-0:
