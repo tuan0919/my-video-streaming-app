@@ -15,6 +15,7 @@ import com.nlu.app.repository.IdentityWebClient;
 import com.nlu.app.repository.OutboxRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
@@ -27,9 +28,10 @@ import java.time.LocalDateTime;
 public class CommentService {
     private final CommentRepository commentRepository;
     private final OutboxRepository outboxRepository;
-    private IdentityWebClient identityWebClient;
+    private final IdentityWebClient identityWebClient;
 
     @Transactional
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public Mono<String> createComment(String token, CommentCreationRequestDTO request) {
         TokenUserRequest requestUserInfo = new TokenUserRequest(token);
         var wrap = new Object() {
