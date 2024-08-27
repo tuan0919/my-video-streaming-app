@@ -5,9 +5,16 @@ server:
 spring:
   application:
     name: comment-service
-  data:
-    mongodb:
-      uri: mongodb://nqat0919:secret@localhost:27017/comments-db?authSource=admin # Đường dẫn kết nối
+  datasource:
+    url: jdbc:mysql://localhost:33061/comments
+    username: nqat0919
+    password: secret
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
 
 identity-service:
   domain: http://localhost:8080
