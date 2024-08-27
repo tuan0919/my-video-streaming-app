@@ -24,26 +24,16 @@ services:
       - '3307:3306'
     command: --default-authentication-plugin=mysql_native_password
 
-  mongo-comments:
-    image: mongo:7
-    container_name: mongo-comments
-    command: mongod --replSet rs0
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: nqat0919
-      MONGO_INITDB_ROOT_PASSWORD: secret
-    ports:
-      - '27017:27017'
+  mysql-comments:
+    container_name: mysql-comments
+    image: mysql:8.0.19
+    env_file:
+      - comment-service/env/mysql.env
     volumes:
-      - comments-service-mongo-volumes:/data/db
-    healthcheck:
-      test: |
-        mongosh --eval "try { rs.status().ok } catch (e) { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'localhost:27017' }] }).ok }"
-      start_period: 0s
-      interval: 500ms
-      timeout: 5s
-      retries: 5
-
-
+      - comments-service-mysql-volumes:/var/lib/mysql
+    ports:
+      - '33061:3306'
+    command: --default-authentication-plugin=mysql_native_password
 
   mongo-notifications:
     image: mongo
@@ -99,5 +89,5 @@ services:
 volumes:
   video-service-mysql-volumes:
   identity-service-mysql-volumes:
-  comments-service-mongo-volumes:
+  comments-service-mysql-volumes:
   notifications-service-mongo-volumes:
