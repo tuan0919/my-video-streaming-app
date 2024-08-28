@@ -9,6 +9,7 @@ public enum ErrorCode {
     UNKNOWN_EXCEPTION(9999, "Something went wrong :(.", HttpStatus.INTERNAL_SERVER_ERROR),
     UNAUTHENTICATED(1002, "You are not authenticated!", HttpStatus.FORBIDDEN),
     UNAUTHORIZED(1003, "You are not authorized to access!", HttpStatus.UNAUTHORIZED),
+    PARENT_COMMENT_NOT_EXISTED(1004, "The comment you're replied is not exists!", HttpStatus.NOT_FOUND)
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
