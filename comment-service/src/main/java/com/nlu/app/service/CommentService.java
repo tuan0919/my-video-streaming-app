@@ -1,6 +1,5 @@
 package com.nlu.app.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nlu.app.common.dto.notification.CommentRepliedDTO;
 import com.nlu.app.common.event.comment_created.CommentCreationEvent;
@@ -31,67 +30,57 @@ public class CommentService {
     private final OutboxRepository outboxRepository;
     private final IdentityWebClient identityWebClient;
 
-    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN, USER')")
     @Transactional
     public Mono<String> createComment(String token, CommentCreationRequestDTO request) {
         TokenUserRequest requestUserInfo = new TokenUserRequest(token);
-        var wrap = new Object() {
-            String userId;
-        };
         return identityWebClient.userInfo(requestUserInfo)
-                .map(info -> wrap.userId = info.getResult().getUserId())
-                .then(Mono.defer(() -> {
+                .flatMap(info -> {
+                    String userId = info.getResult().getUserId();
                     Comment comment = new Comment();
-                    comment.setUserId(wrap.userId);
+                    comment.setUserId(userId);
                     comment.setContent(request.getContent());
                     comment.setVideoId(request.getVideoId());
                     comment.setTimestamp(LocalDateTime.now());
                     comment.setParentId(request.getParentId());
-                    return insertToDB(comment);
-                }))
-                .map(value -> "OK")
-                .switchIfEmpty(Mono.error(new ApplicationException(ErrorCode.UNKNOWN_EXCEPTION)));
+                    return Mono.fromCallable(() -> _insertToDB_(userId, comment))
+                            .subscribeOn(Schedulers.boundedElastic());
+                })
+                .switchIfEmpty(Mono.error(new ApplicationException(ErrorCode.UNAUTHENTICATED)))
+                .map(value -> "OK");
     }
 
+    private Comment _insertToDB_(String userId, Comment comment) {
+        boolean isNotification = false;
+        Comment parentCmt = null;
+        if (comment.getParentId() != null) {
+            var o = commentRepository.findById(comment.getParentId());
+            if (o.isEmpty()) throw new ApplicationException(ErrorCode.PARENT_COMMENT_NOT_EXISTED);
+            parentCmt = o.get();
+            isNotification = !parentCmt.getUserId().equalsIgnoreCase(userId); // Make no sense if notify about yourself
+        }
 
-    private Mono<Comment> insertToDB(Comment comment) {
-        return checkIsReplyComment(comment)
-                .filter(isReply -> isReply)
-                .map(_ -> commentRepository.findById(comment.getParentId()).get())
-                .flatMap(parentCmt -> {
+        if (isNotification) {
 //                  In case comment is a reply, we need to publish its DTO to topic, using outbox pattern.
-                    ObjectMapper objectMapper = new ObjectMapper();
+            ObjectMapper objectMapper = new ObjectMapper();
 //                    Create DTO
-                    CommentRepliedDTO dto = new CommentRepliedDTO();
-                    dto.setUserId(parentCmt.getUserId());
-                    dto.setUserCommentId(parentCmt.getId());
-                    dto.setReplierCommentId(comment.getId());
-                    dto.setReplierId(comment.getUserId());
-                    dto.setContent(comment.getContent());
+            CommentRepliedDTO dto = new CommentRepliedDTO();
+            dto.setUserId(parentCmt.getUserId());
+            dto.setUserCommentId(parentCmt.getId());
+            dto.setReplierCommentId(comment.getId());
+            dto.setReplierId(comment.getUserId());
+            dto.setContent(comment.getContent());
 
 //                    Create Event object and warp DTO into it
-                    CommentCreationEvent event = new CommentCreationEvent(dto);
+            CommentCreationEvent event = new CommentCreationEvent(dto);
 //                    Insert to outbox table
-                    Outbox outbox = new Outbox();
-                    outbox.setAggregateId(parentCmt.getId());
-                    outbox.setType("insert");
-                    outbox.setAggregateType("replied");
-                    try {
-                        outbox.setPayload(objectMapper.writeValueAsString(event));
-                        outboxRepository.save(outbox);
-                        commentRepository.save(comment);
-                        return Mono.just(comment);
-                    } catch (Exception e) {
-                        log.error(e.getMessage(), e);
-                        return Mono.error(e);
-                    }
-                }).subscribeOn(Schedulers.boundedElastic());
-    }
-
-    private Mono<Boolean> checkIsReplyComment(Comment comment) {
-        String otherComment = comment.getParentId();
-        if (otherComment == null) return Mono.just(false);
-        return Mono.fromCallable(() -> commentRepository.findById(otherComment).isPresent())
-                .subscribeOn(Schedulers.boundedElastic());
+            Outbox outbox = new Outbox();
+            outbox.setAggregateId(parentCmt.getId());
+            outbox.setType("insert");
+            outbox.setAggregateType("replied");
+            outboxRepository.save(outbox);
+        }
+        commentRepository.save(comment);
+        return comment;
     }
 }
