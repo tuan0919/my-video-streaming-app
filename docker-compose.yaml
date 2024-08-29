@@ -55,14 +55,41 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
 
-  kafka:
-    container_name: kafka
+#  kafka:
+#    container_name: kafka
+#    image: confluentinc/cp-server:5.4.0
+#    depends_on: [ zookeeper ]
+#    env_file:
+#      - env/kafka-config.env
+#    ports:
+#      - "9092:9092"
+
+  broker1:
+    container_name: broker1
     image: confluentinc/cp-server:5.4.0
     depends_on: [ zookeeper ]
     env_file:
-      - env/kafka-config.env
+      - env/broker_1.env
     ports:
-      - "9092:9092"
+      - "19092:19092"
+
+  broker2:
+    container_name: broker2
+    image: confluentinc/cp-server:5.4.0
+    depends_on: [ zookeeper ]
+    env_file:
+      - env/broker_2.env
+    ports:
+      - "29092:29092"
+
+  broker3:
+    container_name: broker3
+    image: confluentinc/cp-server:5.4.0
+    depends_on: [ zookeeper ]
+    env_file:
+      - env/broker_3.env
+    ports:
+      - "39092:39092"
 
   debezium:
     image: quay.io/debezium/connect
@@ -70,9 +97,7 @@ services:
     container_name: debezium
     env_file:
       - env/debezium.env
-    depends_on:
-      - zookeeper
-      - kafka
+    depends_on: [zookeeper, broker1, broker2, broker3]
     ports:
       - "8083:8083"
 
@@ -84,7 +109,7 @@ services:
       - SCHEMA_REGISTRY_LISTENERS=http://schema-registry:8081,http://localhost:8081
     ports:
       - 8081:8081
-    depends_on: [zookeeper, kafka]
+    depends_on: [zookeeper, broker1, broker2, broker3]
 
 volumes:
   video-service-mysql-volumes:
