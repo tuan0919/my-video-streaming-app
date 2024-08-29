@@ -1,5 +1,6 @@
 package com.nlu.app.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nlu.app.common.dto.notification.CommentRepliedDTO;
 import com.nlu.app.common.event.comment_created.CommentCreationEvent;
@@ -30,7 +31,7 @@ public class CommentService {
     private final OutboxRepository outboxRepository;
     private final IdentityWebClient identityWebClient;
 
-    @PreAuthorize("hasAnyRole('ADMIN, USER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @Transactional
     public Mono<String> createComment(String token, CommentCreationRequestDTO request) {
         TokenUserRequest requestUserInfo = new TokenUserRequest(token);
@@ -50,7 +51,7 @@ public class CommentService {
                 .map(value -> "OK");
     }
 
-    private Comment _insertToDB_(String userId, Comment comment) {
+    private Comment _insertToDB_(String userId, Comment comment) throws JsonProcessingException {
         boolean isNotification = false;
         Comment parentCmt = null;
         if (comment.getParentId() != null) {
@@ -78,6 +79,7 @@ public class CommentService {
             outbox.setAggregateId(parentCmt.getId());
             outbox.setType("insert");
             outbox.setAggregateType("replied");
+            outbox.setPayload(objectMapper.writeValueAsString(event));
             outboxRepository.save(outbox);
         }
         commentRepository.save(comment);
