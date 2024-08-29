@@ -7,13 +7,16 @@ spring:
     name: notification-service
   cloud:
     function:
-        definition: userCreationEvent;commentRepliedEvent
+        definition: userCreationEvent;commentRepliedEvent;dumbass
     stream:
       bindings:
         userCreationEvent-in-0:
           consumer:
             concurrency: 3
-            max-attempts: 5
+            max-attempts: 3
+            back-off-initial-interval: 1000
+            back-off-multiplier: 1
+            back-off-max-interval: 10000
           destination: user_created
           group: notification-service
           contentType: application/json
@@ -47,10 +50,13 @@ spring:
         bindings:
           commentRepliedEvent-in-0:
             consumer:
+              ack-mode: manual_immediate
+              start-offset: latest
               enable-dlq: true
               dlq-name: dlq_comment_replied
           userCreationEvent-in-0:
             consumer:
+              ack-mode: manual_immediate
               enable-dlq: true
               dlq-name: dlq_user_created
   data:

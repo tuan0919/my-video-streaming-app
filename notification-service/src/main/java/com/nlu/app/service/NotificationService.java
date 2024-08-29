@@ -12,6 +12,7 @@ public class NotificationService {
     private final NotificationRepository repository;
 
     public Mono<Notification> insertDB(Notification notification) {
-        return repository.insert(notification);
+//        return repository.insert(notification);
+        return Mono.error(new Exception("\"Cannot consume message\""));
     }
 }
