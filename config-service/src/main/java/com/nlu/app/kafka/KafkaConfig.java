@@ -34,4 +34,12 @@ public class KafkaConfig {
                 .replicas(3) // Number of replicas
                 .build();
     }
+
+    @Bean
+    public NewTopic dlq_user_created() {
+        return TopicBuilder.name("dlq_user_created")
+                .partitions(5)
+                .replicas(3) // Number of replicas
+                .build();
+    }
 }
