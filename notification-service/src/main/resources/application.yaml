@@ -11,24 +11,48 @@ spring:
     stream:
       bindings:
         userCreationEvent-in-0:
+          consumer:
+            concurrency: 3
+            max-attempts: 5
           destination: user_created
           group: notification-service
           contentType: application/json
+        userCreationEvent-out-0:
+          destination: notification_created
+          contentType: application/json
+          producer:
+            partition-key-expression: headers['partitonKey']
+            partition-count: 5
         commentRepliedEvent-in-0:
+          consumer:
+            concurrency: 3
+            max-attempts: 5
           destination: comment_replied
           group: notification-service
           contentType: application/json
-        userCreationEvent-out-0:
-          destination: notification-created
+        commentRepliedEvent-out-0:
+          destination: notification_created
+          contentType: application/json
       kafka:
         binder:
           brokers:
-            - localhost:9092
+            - localhost:19092
+            - localhost:29092
+            - localhost:39092
           consumer-properties:
             spring:
               json:
                 trusted:
                   packages: '*'
+        bindings:
+          commentRepliedEvent-in-0:
+            consumer:
+              enable-dlq: true
+              dlq-name: dlq_comment_replied
+          userCreationEvent-in-0:
+            consumer:
+              enable-dlq: true
+              dlq-name: dlq_user_created
   data:
     mongodb:
       uri: mongodb://nqat0919:secret@localhost:27018/notifications-db?authSource=admin
