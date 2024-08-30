@@ -7,35 +7,30 @@ spring:
     name: notification-service
   cloud:
     function:
-        definition: userCreationEvent;commentRepliedEvent;dumbass
+        definition: userCreationEvent;commentRepliedEvent
     stream:
       bindings:
         userCreationEvent-in-0:
           consumer:
             concurrency: 3
-            max-attempts: 3
-            back-off-initial-interval: 1000
-            back-off-multiplier: 1
-            back-off-max-interval: 10000
           destination: user_created
           group: notification-service
           contentType: application/json
         userCreationEvent-out-0:
           destination: notification_created
           contentType: application/json
-          producer:
-            partition-key-expression: headers['partitonKey']
-            partition-count: 5
         commentRepliedEvent-in-0:
           consumer:
             concurrency: 3
-            max-attempts: 5
           destination: comment_replied
           group: notification-service
           contentType: application/json
         commentRepliedEvent-out-0:
           destination: notification_created
           contentType: application/json
+        userCreationEvent-dlq:
+          destination: dlq_user_created
+          content-type: application/json
       kafka:
         binder:
           brokers:
@@ -51,7 +46,6 @@ spring:
           commentRepliedEvent-in-0:
             consumer:
               ack-mode: manual_immediate
-              start-offset: latest
               enable-dlq: true
               dlq-name: dlq_comment_replied
           userCreationEvent-in-0:
@@ -59,6 +53,10 @@ spring:
               ack-mode: manual_immediate
               enable-dlq: true
               dlq-name: dlq_user_created
+          userCreationEvent-dlq:
+            producer:
+              message-key-expression: headers['myKey']
+
   data:
     mongodb:
       uri: mongodb://nqat0919:secret@localhost:27018/notifications-db?authSource=admin
