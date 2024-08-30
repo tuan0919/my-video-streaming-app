@@ -56,15 +56,14 @@ public class EventConsumer {
                     .map(msg ->  {
                         ack.acknowledge();
                         return MessageBuilder.withPayload(msg)
-                                .setHeader("partitonKey", userId)
+                                .setHeader("myKey", "ABC")
                                 .build();
                     })
                     .onErrorResume(error -> {
                         error.printStackTrace();
                         log.error("given up on message [{}]", messageId);
-                        streamBridge.send("dlq_user_created", MessageBuilder.withPayload(event)
-                                .setHeader("partitionKey", userId)
-                                .setHeader(BinderHeaders.PARTITION_OVERRIDE, userId)
+                        streamBridge.send("userCreationEvent-dlq", MessageBuilder.withPayload(event)
+                                .setHeader("myKey", "ABC")
                                 .build());
                         ack.acknowledge();
                         return Mono.empty();
