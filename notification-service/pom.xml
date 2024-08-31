@@ -79,6 +79,10 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.nlu.app</groupId>
 			<artifactId>common-dtos</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
