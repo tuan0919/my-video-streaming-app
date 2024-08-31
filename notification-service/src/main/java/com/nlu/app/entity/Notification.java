@@ -1,39 +1,24 @@
 package com.nlu.app.entity;
 
 import com.nlu.app.constant.NotificationType;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
-
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.UUID;
 
-@Document(collection = "notifications")
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity(name = "notifications")
 public class Notification {
-    @Id
-    String id = UUID.randomUUID().toString();
+    @Id @GeneratedValue(strategy = GenerationType.UUID)
+    String id;
     String userId;
-    @Field("timestamp")
-    Long time = System.currentTimeMillis();
+    LocalDateTime time;
     String content;
     Boolean isRead = false;
-    @Field("type")
+    @Enumerated(EnumType.STRING)
     NotificationType type;
-
-    public LocalDateTime getTimestamp() {
-        return LocalDateTime.ofInstant(Instant.ofEpochSecond(time), ZoneId.systemDefault());
-    }
-
-    public void setTimestamp(LocalDateTime localDateTime) {
-        this.time = localDateTime.atZone(ZoneId.systemDefault()).toEpochSecond();
-    }
 }
