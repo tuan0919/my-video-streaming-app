@@ -1,7 +1,7 @@
 server:
-  port: 45551
+  port: 18886
   servlet:
-    context-path: /notification-service
+    context-path: /notification
 spring:
   application:
     name: notification-service
@@ -21,7 +21,6 @@ spring:
       bindings:
         userCreationEvent-in-0:
           consumer:
-            concurrency: 3
             max-attempts: 3
             back-off-multiplier: 1.2
             back-off-initial-interval: 1000
@@ -31,8 +30,6 @@ spring:
           group: notification-service
           contentType: application/json
         commentRepliedEvent-in-0:
-          consumer:
-            concurrency: 3
           destination: comment_replied
           group: notification-service
           contentType: application/json

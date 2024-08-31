@@ -5,6 +5,12 @@ spring:
     name: gateway-service
   profiles:
     active: default
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lowerCaseServiceId: true
 
 gateway-service:
   /prefix: /api/v1
@@ -15,8 +21,17 @@ gateway-service:
     /identity/users/registration
 
 identity-service:
-  domain: http://localhost:8080
+  domain: lb://identity-service
 video-streaming-service:
   domain: http://wjbu.online:8888
 comment-service:
   domain: http://localhost:8887
+
+eureka:
+  client:
+    server-url:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true

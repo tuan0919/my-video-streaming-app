@@ -15,6 +15,14 @@ spring:
       ddl-auto: update
     show-sql: true
 
+eureka:
+  client:
+    server-url:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
 
 identity-service:
-  domain: http://localhost:8080
+  domain: lb://identity-service
