@@ -20,7 +20,9 @@
       "transforms.outbox.route.topic.replacement": "user_${routedByValue}",
 
       "schema.history.internal.kafka.bootstrap.servers": "broker1:9092,broker2:9092,broker3:9092",
-      "schema.history.internal.kafka.topic": "schema.identity"
+      "schema.history.internal.kafka.topic": "schema.identity",
+
+      "snapshot.mode": "never"
     }
   },
   {
@@ -44,7 +46,9 @@
       "transforms.outbox.route.topic.replacement": "comment_${routedByValue}",
 
       "schema.history.internal.kafka.bootstrap.servers": "broker1:9092,broker2:9092,broker3:9092",
-      "schema.history.internal.kafka.topic": "schema.comments"
+      "schema.history.internal.kafka.topic": "schema.comments",
+
+      "snapshot.mode": "never"
     }
   },
   {
@@ -68,7 +72,9 @@
       "transforms.outbox.route.topic.replacement": "notification_${routedByValue}",
 
       "schema.history.internal.kafka.bootstrap.servers": "broker1:9092,broker2:9092,broker3:9092",
-      "schema.history.internal.kafka.topic": "schema.notifications"
+      "schema.history.internal.kafka.topic": "schema.notifications",
+
+      "snapshot.mode": "never"
     }
   }
 ]
