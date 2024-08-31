@@ -5,6 +5,15 @@ server:
 spring:
   application:
     name: notification-service
+  datasource:
+    url: jdbc:mysql://localhost:33062/notifications
+    username: nqat0919
+    password: secret
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
   cloud:
     function:
         definition: userCreationEvent;commentRepliedEvent
@@ -13,11 +22,13 @@ spring:
         userCreationEvent-in-0:
           consumer:
             concurrency: 3
+            max-attempts: 3
+            back-off-multiplier: 1.2
+            back-off-initial-interval: 1000
+            back-off-max-interval: 10000
           destination: user_created
+          error-handler-definition: myErrorHandler
           group: notification-service
-          contentType: application/json
-        userCreationEvent-out-0:
-          destination: notification_created
           contentType: application/json
         commentRepliedEvent-in-0:
           consumer:
@@ -25,12 +36,6 @@ spring:
           destination: comment_replied
           group: notification-service
           contentType: application/json
-        commentRepliedEvent-out-0:
-          destination: notification_created
-          contentType: application/json
-        userCreationEvent-dlq:
-          destination: dlq_user_created
-          content-type: application/json
       kafka:
         binder:
           brokers:
@@ -53,10 +58,3 @@ spring:
               ack-mode: manual_immediate
               enable-dlq: true
               dlq-name: dlq_user_created
-          userCreationEvent-dlq:
-            producer:
-              message-key-expression: headers['myKey']
-
-  data:
-    mongodb:
-      uri: mongodb://nqat0919:secret@localhost:27018/notifications-db?authSource=admin

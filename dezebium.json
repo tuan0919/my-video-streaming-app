@@ -9,7 +9,7 @@
       "database.user": "root",
       "database.password": "secret",
       "database.dbname": "identity",
-      "database.server.id": 165131216,
+      "database.server.id": 10001,
       "table.include.list": "identity.outbox",
       "topic.prefix": "identity_db",
 
@@ -33,7 +33,7 @@
       "database.user": "root",
       "database.password": "secret",
       "database.dbname": "comments",
-      "database.server.id": 165131216,
+      "database.server.id": 10002,
       "table.include.list": "comments.outbox",
       "topic.prefix": "comments_db",
 
@@ -45,6 +45,30 @@
 
       "schema.history.internal.kafka.bootstrap.servers": "broker1:9092,broker2:9092,broker3:9092",
       "schema.history.internal.kafka.topic": "schema.comments"
+    }
+  },
+  {
+    "name": "debezium_notification-connector",
+    "config": {
+      "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+      "tasks.max": "1",
+      "database.hostname": "mysql-notifications",
+      "database.port": "3306",
+      "database.user": "root",
+      "database.password": "secret",
+      "database.dbname": "notifications",
+      "database.server.id": 10003,
+      "table.include.list": "notifications.outbox",
+      "topic.prefix": "notifications_db",
+
+      "transforms": "outbox",
+      "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
+      "transforms.outbox.table.fields.additional.placement": "aggregateid:header:userid",
+      "transforms.outbox.route.by.field": "aggregatetype",
+      "transforms.outbox.route.topic.replacement": "notification_${routedByValue}",
+
+      "schema.history.internal.kafka.bootstrap.servers": "broker1:9092,broker2:9092,broker3:9092",
+      "schema.history.internal.kafka.topic": "schema.notifications"
     }
   }
 ]
