@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: cloud-config-service
+  cloud:
+    config:
+      server:
+        git:
+          uri: ${HOME}/Desktop/my-video-streaming-app
+          search-paths: configuration/
+server:
+  port: 18181
+
+eureka:
+  client:
+    server-url:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
