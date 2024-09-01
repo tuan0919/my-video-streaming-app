@@ -1,25 +1,17 @@
 server:
   port: 8080
-  servlet:
-    context-path: /identity
 spring:
   application:
     name: identity-service
   profiles:
     active: default
-  datasource:
-    url: jdbc:mysql://localhost:3307/identity
-    username: nqat0919
-    password: secret
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-jwt:
-  signerKey: "1TjXchw5FloESb63Kc+DFhTARvpWL4jUGCwfGWxuG5SIf/1y/LgJxHnMqaF6A/ij"
-  valid-duration: 3600 # in second
-  refreshable-duration: 36000 # in seconds
+  config:
+    import: optional:configserver:http://cloud-config-service
+  cloud:
+    config:
+      discovery:
+        enabled: true
+        service-id: cloud-config-service
 
 eureka:
   client:
@@ -29,4 +21,3 @@ eureka:
     register-with-eureka: true
   instance:
     prefer-ip-address: true
-

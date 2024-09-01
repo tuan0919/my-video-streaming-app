@@ -1,19 +1,17 @@
 server:
   port: 8887
-  servlet:
-    context-path: /comment
 spring:
   application:
     name: comment-service
-  datasource:
-    url: jdbc:mysql://localhost:33061/comments
-    username: nqat0919
-    password: secret
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
+  profiles:
+    active: default
+  config:
+    import: optional:configserver:http://cloud-config-service
+  cloud:
+    config:
+      discovery:
+        enabled: true
+        service-id: cloud-config-service
 
 eureka:
   client:
@@ -23,6 +21,3 @@ eureka:
     register-with-eureka: true
   instance:
     prefer-ip-address: true
-
-identity-service:
-  domain: lb://identity-service
