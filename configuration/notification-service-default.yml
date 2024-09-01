@@ -1,0 +1,54 @@
+server:
+  servlet:
+    context-path: /notification
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:33062/notifications
+    username: nqat0919
+    password: secret
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  cloud:
+    function:
+      definition: userCreationEvent;commentRepliedEvent
+    stream:
+      bindings:
+        userCreationEvent-in-0:
+          consumer:
+            max-attempts: 3
+            back-off-multiplier: 1.2
+            back-off-initial-interval: 1000
+            back-off-max-interval: 10000
+          destination: user_created
+          error-handler-definition: myErrorHandler
+          group: notification-service
+          contentType: application/json
+        commentRepliedEvent-in-0:
+          destination: comment_replied
+          group: notification-service
+          contentType: application/json
+      kafka:
+        binder:
+          brokers:
+            - localhost:19092
+            - localhost:29092
+            - localhost:39092
+          consumer-properties:
+            spring:
+              json:
+                trusted:
+                  packages: '*'
+        bindings:
+          commentRepliedEvent-in-0:
+            consumer:
+              ack-mode: manual_immediate
+              enable-dlq: true
+              dlq-name: dlq_comment_replied
+          userCreationEvent-in-0:
+            consumer:
+              ack-mode: manual_immediate
+              enable-dlq: true
+              dlq-name: dlq_user_created
