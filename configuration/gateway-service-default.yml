@@ -11,4 +11,4 @@ identity-service:
 video-streaming-service:
   domain: http://wjbu.online:8888
 comment-service:
-  domain: http://localhost:8887
+  domain: lb://comment-service

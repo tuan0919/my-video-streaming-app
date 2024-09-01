@@ -1,0 +1,23 @@
+server:
+  servlet:
+    context-path: /video-streaming
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/video-streaming
+    username: nqat0919
+    password: secret
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+#aws credentials
+amazon:
+  s3:
+    bucket: nqat0919-bucket
+  cloudfront:
+    url: https://cdn.wjbu.online
+    public-key: KELN0DV2RMYI1
+    secret-key-location: ${HOME}/resource/pk-APKAZQ3DSOCM42AQIJCR.pem
+identity-service:
+  domain: lb://identity-service
