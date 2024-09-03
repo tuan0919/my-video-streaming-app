@@ -2,7 +2,11 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/comment-service/comment-service.iml" filepath="$PROJECT_DIR$/comment-service/comment-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/common-dtos/common-dtos.iml" filepath="$PROJECT_DIR$/common-dtos/common-dtos.iml" />
+      <module fileurl="file://$PROJECT_DIR$/identity-service/identity-service.iml" filepath="$PROJECT_DIR$/identity-service/identity-service.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/my-video-streaming-app.iml" filepath="$PROJECT_DIR$/.idea/my-video-streaming-app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/notification-service/notification-service.iml" filepath="$PROJECT_DIR$/notification-service/notification-service.iml" />
     </modules>
   </component>
 </project>
