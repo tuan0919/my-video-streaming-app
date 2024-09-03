@@ -7,6 +7,11 @@ spring:
         git:
           uri: ${HOME}/Desktop/my-video-streaming-app
           search-paths: configuration/
+  zipkin:
+    base-url: http://localhost:9411
+  sleuth:
+    sampler:
+      probability: 1.0
 server:
   port: 18181
 
