@@ -55,13 +55,26 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
 
-  zipkin:
-    image: ghcr.io/openzipkin/zipkin-slim
-    container_name: zipkin
-    environment:
-      - STORAGE_TYPE=mem
+  jaeger-service:
+    container_name: jaeger-service
+    hostname: jaeger-service
+    image: jaegertracing/all-in-one:latest
     ports:
-      - 9411:9411
+      - "16686:16686"
+      - "14250"
+
+  otel-agent:
+    container_name: otel-agent
+    image: otel/opentelemetry-collector:0.72.0
+    command: [
+      "--config=/etc/otel-config.yaml"
+    ]
+    volumes:
+      - ./env/otel-config.yaml:/etc/otel-config.yaml
+    ports:
+      - "4317:4317"
+      - "55679:55679"
+    depends_on: [jaeger-service]
 
   broker1:
     container_name: broker1
