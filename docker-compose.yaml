@@ -74,6 +74,7 @@ services:
     ports:
       - "4317:4317"
       - "55679:55679"
+      - "4318:4318"
     depends_on: [jaeger-service]
 
   broker1:
