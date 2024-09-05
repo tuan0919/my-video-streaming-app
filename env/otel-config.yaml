@@ -2,7 +2,9 @@ receivers:
   otlp:
     protocols:
       grpc:
+        endpoint: 0.0.0.0:4317
       http:
+        endpoint: 0.0.0.0:4318
 
 processors:
   batch:
@@ -14,6 +16,9 @@ exporters:
     endpoint: jaeger-service:14250
     tls:
       insecure: true
+  prometheus:
+    endpoint: 0.0.0.0:9464
+    namespace: otelcol
 
 service:
   pipelines:
@@ -21,3 +26,7 @@ service:
       receivers:  [ otlp ]
       processors: [ batch ]
       exporters:  [ logging, jaeger ]
+    metrics:
+      receivers:  [ otlp ]
+      processors: [ batch ]
+      exporters:  [ prometheus ]
