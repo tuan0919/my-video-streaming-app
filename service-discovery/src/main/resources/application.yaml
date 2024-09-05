@@ -19,12 +19,21 @@ management:
   tracing:
     sampling:
       probability: 1.0
+  metrics:
+    distribution:
+      percentiles-histogram:
+        enabled: true
+    tags:
+      service: eureka_server
   otlp:
     tracing:
       endpoint: http://localhost:4318/v1/traces
     metrics:
       export:
-        enabled: false
+        enabled: true
+        in-memory: true
+        url: http://localhost:4318/v1/metrics
+
 server:
   port: 8761
 eureka:
