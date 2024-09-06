@@ -22,6 +22,7 @@ management:
     web:
       exposure:
         include: "*"
+      base-path: /identity/actuator
   endpoint:
     health:
       show-components: always
