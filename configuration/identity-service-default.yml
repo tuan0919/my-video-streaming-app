@@ -34,7 +34,7 @@ management:
       percentiles-histogram:
         enabled: true
     tags:
-      service: eureka_server
+      service: identity_service
   otlp:
     tracing:
       endpoint: http://localhost:4318/v1/traces
