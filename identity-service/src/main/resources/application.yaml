@@ -1,8 +1,10 @@
 server:
-  port: 8080
+  port: 18080
 spring:
   application:
     name: identity-service
+  servlet:
+    context-path: /identity
   profiles:
     active: default
   config:
