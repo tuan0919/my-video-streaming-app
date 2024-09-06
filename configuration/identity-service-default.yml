@@ -1,12 +1,16 @@
-server:
-  servlet:
-    context-path: /identity
 spring:
   datasource:
     url: jdbc:mysql://localhost:3307/identity
     username: nqat0919
     password: secret
     driver-class-name: com.mysql.cj.jdbc.Driver
+  sleuth:
+    otel:
+      config:
+        trace-id-ratio-based: 1.0
+      exporter:
+        otlp:
+          endpoint: http://collector:4317
   jpa:
     hibernate:
       ddl-auto: update
