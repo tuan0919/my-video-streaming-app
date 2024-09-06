@@ -75,6 +75,17 @@ services:
     ports:
       - "9090:9090"
 
+  tempo:
+    image: grafana/tempo:2.2.2
+    container_name: tempo
+    hostname: tempo
+    command:
+      - --config.file=/etc/tempo/tempo.yaml
+    volumes:
+      - ./env/tempo-config.yaml:/etc/tempo/tempo.yaml:ro
+    ports:
+      - "3100:3100"
+
   otel-agent:
     container_name: otel-agent
     image: otel/opentelemetry-collector:0.72.0
@@ -90,6 +101,15 @@ services:
       - "4318:4318"
       - "9464:9464"
     depends_on: [jaeger-service, prometheus-service]
+
+  grafana:
+    image: grafana/grafana:10.1.0
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    ports:
+      - "3000:3000"
 
   broker1:
     container_name: broker1
