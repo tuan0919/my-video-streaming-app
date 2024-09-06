@@ -16,6 +16,10 @@ exporters:
     endpoint: jaeger-service:14250
     tls:
       insecure: true
+  otlp:
+    endpoint: tempo:3100
+    tls:
+      insecure: true
   prometheus:
     endpoint: 0.0.0.0:9464
     namespace: otelcol
@@ -25,7 +29,7 @@ service:
     traces:
       receivers:  [ otlp ]
       processors: [ batch ]
-      exporters:  [ logging, jaeger ]
+      exporters:  [ logging, jaeger, otlp ]
     metrics:
       receivers:  [ otlp ]
       processors: [ batch ]
