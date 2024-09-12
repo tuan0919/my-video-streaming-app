@@ -13,6 +13,7 @@
         <option value="$PROJECT_DIR$/config-service/pom.xml" />
         <option value="$PROJECT_DIR$/service-discovery/pom.xml" />
         <option value="$PROJECT_DIR$/cloud-config-service/pom.xml" />
+        <option value="$PROJECT_DIR$/profile-service/pom.xml" />
       </list>
     </option>
   </component>

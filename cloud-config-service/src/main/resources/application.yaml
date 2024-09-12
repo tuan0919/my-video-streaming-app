@@ -10,37 +10,37 @@ spring:
 server:
   port: 18181
 
-logging:
-  level:
-    io:
-      opentelemetry: DEBUG
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-  endpoint:
-    health:
-      show-components: always
-      show-details: always
-  tracing:
-    sampling:
-      probability: 1.0
-  metrics:
-    distribution:
-      percentiles-histogram:
-        enabled: true
-    tags:
-      service: config-server
-  otlp:
-    tracing:
-      endpoint: http://localhost:4318/v1/traces
-    metrics:
-      export:
-        enabled: true
-        in-memory: true
-        url: http://localhost:4318/v1/metrics
+#logging:
+#  level:
+#    io:
+#      opentelemetry: DEBUG
+#
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: "*"
+#  endpoint:
+#    health:
+#      show-components: always
+#      show-details: always
+#  tracing:
+#    sampling:
+#      probability: 1.0
+#  metrics:
+#    distribution:
+#      percentiles-histogram:
+#        enabled: true
+#    tags:
+#      service: config-server
+#  otlp:
+#    tracing:
+#      endpoint: http://localhost:4318/v1/traces
+#    metrics:
+#      export:
+#        enabled: true
+#        in-memory: true
+#        url: http://localhost:4318/v1/metrics
 
 
 eureka:
