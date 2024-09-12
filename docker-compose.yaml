@@ -46,6 +46,17 @@ services:
       - '33062:3306'
     command: --default-authentication-plugin=mysql_native_password
 
+  mysql-profile:
+    container_name: mysql-profile
+    image: mysql:8.0.19
+    env_file:
+      - profile-service/env/mysql.env
+    volumes:
+      - profile-service-mysql-volumes:/var/lib/mysql
+    ports:
+      - '33063:3306'
+    command: --default-authentication-plugin=mysql_native_password
+
   zookeeper:
     image: confluentinc/cp-zookeeper:5.4.0
     hostname: zookeeper
@@ -55,61 +66,66 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
 
-  jaeger-service:
-    container_name: jaeger-service
-    hostname: jaeger-service
-    image: jaegertracing/all-in-one:latest
-    ports:
-      - "16686:16686"
-      - "14250"
-
-  prometheus-service:
-    image: prom/prometheus:v2.46.0
-    container_name: prometheus-service
-    hostname: prometheus-service
-    command:
-      - --enable-feature=exemplar-storage otlp-write-receiver
-      - --config.file=/etc/prometheus/prometheus.yaml
-    volumes:
-      - ./env/prometheus-config.yaml:/etc/prometheus/prometheus.yaml:ro
-    ports:
-      - "9090:9090"
-
-  tempo:
-    image: grafana/tempo:2.2.2
-    container_name: tempo
-    hostname: tempo
-    command:
-      - --config.file=/etc/tempo/tempo.yaml
-    volumes:
-      - ./env/tempo-config.yaml:/etc/tempo/tempo.yaml:ro
-    ports:
-      - "3100:3100"
-
-  otel-agent:
-    container_name: otel-agent
-    image: otel/opentelemetry-collector:0.72.0
-    hostname: otel-agent
-    command: [
-      "--config=/etc/otel-config.yaml"
-    ]
-    volumes:
-      - ./env/otel-config.yaml:/etc/otel-config.yaml
-    ports:
-      - "4317:4317"
-      - "55679:55679"
-      - "4318:4318"
-      - "9464:9464"
-    depends_on: [jaeger-service, prometheus-service]
-
-  grafana:
-    image: grafana/grafana:10.1.0
-    environment:
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-      - GF_AUTH_DISABLE_LOGIN_FORM=true
-    ports:
-      - "3000:3000"
+#  jaeger-service:
+#    container_name: jaeger-service
+#    hostname: jaeger-service
+#    image: jaegertracing/all-in-one:latest
+#    ports:
+#      - "16686:16686"
+#      - "14250"
+#
+#  prometheus:
+#    image: prom/prometheus:v2.46.0
+#    container_name: prometheus
+#    hostname: prometheus
+#    command:
+#      - --enable-feature=exemplar-storage otlp-write-receiver
+#      - --config.file=/etc/prometheus/prometheus.yaml
+#    volumes:
+#      - ./env/prometheus-config.yaml:/etc/prometheus/prometheus.yaml:ro
+#    ports:
+#      - "9090:9090"
+#  loki:
+#    image: grafana/loki:main
+#    command: ["-config.file=/etc/loki/local-config-yaml"]
+#    ports:
+#      - "3100:3100"
+#
+#  tempo:
+#    image: grafana/tempo:2.2.2
+#    container_name: tempo
+#    hostname: tempo
+#    command:
+#      - --config.file=/etc/tempo/tempo.yaml
+#    volumes:
+#      - ./env/tempo-config.yaml:/etc/tempo/tempo.yaml:ro
+#    ports:
+#      - "3200:3100"
+#
+#  otel-agent:
+#    container_name: otel-agent
+#    image: otel/opentelemetry-collector:0.72.0
+#    hostname: otel-agent
+#    command: [
+#      "--config=/etc/otel-config.yaml"
+#    ]
+#    volumes:
+#      - ./env/otel-config.yaml:/etc/otel-config.yaml
+#    ports:
+#      - "4317:4317"
+#      - "55679:55679"
+#      - "4318:4318"
+#      - "9464:9464"
+#    depends_on: [jaeger-service, prometheus]
+#
+#  grafana:
+#    image: grafana/grafana:10.1.0
+#    environment:
+#      - GF_AUTH_ANONYMOUS_ENABLED=true
+#      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+#      - GF_AUTH_DISABLE_LOGIN_FORM=true
+#    ports:
+#      - "3000:3000"
 
   broker1:
     container_name: broker1
@@ -163,3 +179,4 @@ volumes:
   identity-service-mysql-volumes:
   comments-service-mysql-volumes:
   notifications-service-mysql-volumes:
+  profile-service-mysql-volumes:

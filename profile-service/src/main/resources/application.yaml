@@ -5,7 +5,7 @@ spring:
   application:
     name: profile-service
   datasource:
-    url: jdbc:mysql://localhost:3307/identity
+    url: jdbc:mysql://localhost:33063/profile
     username: nqat0919
     password: secret
     driver-class-name: com.mysql.cj.jdbc.Driver
