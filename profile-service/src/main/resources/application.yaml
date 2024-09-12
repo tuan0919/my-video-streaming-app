@@ -1,0 +1,33 @@
+server:
+  servlet:
+    context-path: /profile
+spring:
+  application:
+    name: profile-service
+  datasource:
+    url: jdbc:mysql://localhost:3307/identity
+    username: nqat0919
+    password: secret
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  profiles:
+    active: default
+  config:
+    import: optional:configserver:http://cloud-config-service
+  cloud:
+    config:
+      discovery:
+        enabled: true
+        service-id: cloud-config-service
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+eureka:
+  client:
+    server-url:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
