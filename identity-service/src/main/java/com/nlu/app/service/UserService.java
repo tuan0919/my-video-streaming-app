@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nlu.app.common.dto.UserCreationDTO;
 import com.nlu.app.common.event.UserCreationEvent;
+import com.nlu.app.dto.AppResponse;
 import com.nlu.app.entity.Outbox;
 import com.nlu.app.repository.OutboxRepository;
 import org.springframework.cloud.stream.function.StreamBridge;
