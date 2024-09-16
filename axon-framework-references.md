@@ -79,3 +79,15 @@ Khi gửi một event trên `Event Bus`, cần đóng gói nó trong một `Even
 
 4. **[Unit of Work](/my-notes/unit-of-work.md)**
 </details>
+
+<details>
+<summary>
+<b>Command Message</b>
+</summary>
+
+Loại message đầu tiên mà một ứng dụng Axon thường liên quan đến là Command Message (hay gọi tắt là Command).
+
+### Các section liên quan:
+1. **[Aggregate](/my-notes/aggregate.md)**
+
+</details>
