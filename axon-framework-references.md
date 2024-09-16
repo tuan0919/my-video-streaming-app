@@ -76,4 +76,6 @@ Khi gửi một event trên `Event Bus`, cần đóng gói nó trong một `Even
 2. **[Message Correlation](/my-notes/message-correlation.md)**
 
 3. **[Message Intercepting - part 01](/my-notes/message-intercepting-01.md)**
+
+4. **[Unit of Work](/my-notes/unit-of-work.md)**
 </details>
