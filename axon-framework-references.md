@@ -10,5 +10,5 @@
 
 2. **[Message Correlation](/my-notes/message-correlation.md)**
 
-3. **[Message Intercepting](/my-notes/message-intercepting.md)**
+3. **[Message Intercepting - part 01](/my-notes/message-intercepting-01.md)**
 </details>
