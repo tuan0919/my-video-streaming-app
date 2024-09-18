@@ -70,7 +70,7 @@ Mặc dù không bắt buộc, nhưng nên thiết kế các `domain event` là 
 #### Gửi Event
 Khi gửi một event trên `Event Bus`, cần đóng gói nó trong một `EventMessage`. `GenericEventMessage` là một triển khai cho phép đóng gói Event của mình trong một Message. Chúng ta có thể sử dụng constructor hoặc phương thức static `asEventMessage()`. Phương thức này sẽ kiểm tra xem tham số đã triển khai interface `Message` hay chưa. Nếu có, nó sẽ được trả về trực tiếp (nếu nó triển khai `EventMessage`) hoặc nó sẽ trả về một `GenericEventMessage` mới sử dụng `payload` và `metadata` của `Message` đã cho. Nếu một Event được áp dụng (xuất bản - publish) bởi một Aggregate, Axon sẽ tự động đóng gói Event trong một `DomainEventMessage` chứa `Identifier`, `Type` và `Sequence Number` của Aggregate.
 
-### Các section liên quan khác:
+### Các section liên quan
 1. **[Anatomy of Message](/my-notes/anatomy-of-message.md)**
 
 2. **[Message Correlation](/my-notes/message-correlation.md)**
@@ -87,7 +87,8 @@ Khi gửi một event trên `Event Bus`, cần đóng gói nó trong một `Even
 
 Loại message đầu tiên mà một ứng dụng Axon thường liên quan đến là Command Message (hay gọi tắt là Command).
 
-### Các section liên quan:
+### Các section liên quan
 1. **[Aggregate](/my-notes/aggregate.md)**
 
+2. **[State Stored Aggregates](/my-notes/state-stored-aggregates.md)**
 </details>
