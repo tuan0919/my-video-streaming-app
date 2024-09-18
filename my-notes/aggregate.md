@@ -32,7 +32,7 @@ public class GiftCard {
 }
 ```
 **Giải thích các khái niệm**:
-1. `@AggregateIdentifier`: Đây là điểm tham chiếu bên ngoài để trỏ vào Aggregate `GiftCard`. Truờng này là bắt buộc., vì nếu không có nó, Axon sẽ không biết `Command` nào được nhắm mục tiêu vào Aggregate nào. Annotation này có thể được đặt trên một trường hoặc một phương thức.
+1. `@AggregateIdentifier`: Đây là điểm tham chiếu bên ngoài để trỏ vào Aggregate `GiftCard`. Truờng này là bắt buộc., vì nếu không có nó, Axon sẽ không biết `Command` nào được nhắm vào Aggregate nào. Annotation này có thể được đặt trên một trường hoặc một phương thức.
 2. Constructor được đánh dấu `@CommandHandler`: Annotation này cho framework biết rằng constructor này có khả năng xử lý `IssueCardCommand`. Các hàm được đánh dấu `@CommandHandler` là nơi bạn đặt logic nghiệp vụ/quyết định của mình.
 3. `AggregateLifecycle.apply(Object...)`: Được sử dụng khi một `Event Message` cần được phát hành. Khi gọi hàm này, các đối tượng được cung cấp sẽ được phát hành dưới dạng `EventMessage` trong phạm vi của Aggregate mà chúng được áp dụng.
 4. `@EventSourcingHandler`: cho framework biết rằng hàm được đánh dấu này nên được gọi khi Aggregate được 'tạo nguồn từ các sự kiện của nó'. Vì tất cả các **Event Sourcing Handler** khi  kết hợp với nhau sẽ tạo thành Aggregate, đây là nơi tất cả các thay đổi trạng thái xảy ra. Lưu ý rằng `Aggregate Identifier` phải được đặt trong `@EventSourcingHandler` của Event đầu tiên được phát hành bởi aggregate (thường là sự kiện tạo).
