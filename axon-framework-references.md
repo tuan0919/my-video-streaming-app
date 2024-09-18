@@ -92,3 +92,15 @@ Loại message đầu tiên mà một ứng dụng Axon thường liên quan đ�
 
 2. **[State Stored Aggregates](/my-notes/state-stored-aggregates.md)**
 </details>
+
+<details>
+<summary>
+<b>Sagas</b>
+</summary>
+
+Loại message đầu tiên mà một ứng dụng Axon thường liên quan đến là Command Message (hay gọi tắt là Command).
+
+### Các section liên quan
+1. **[Implement Sagas using Axon Framework](/my-notes/implement-sagas.md)**
+
+</details>
