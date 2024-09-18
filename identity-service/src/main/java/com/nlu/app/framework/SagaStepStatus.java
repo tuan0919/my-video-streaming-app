@@ -1,7 +1,11 @@
 package com.nlu.app.framework;
 
 public enum SagaStepStatus {
-    STARTED, FAILED, SUCCEEDED, COMPENSATING, COMPENSATED;
+    STARTED,
+    FAILED,
+    SUCCEEDED,
+    COMPENSATING,
+    COMPENSATED;
 
     public boolean isSucceeded() {
         return SUCCEEDED == this;
@@ -10,5 +14,4 @@ public enum SagaStepStatus {
     public boolean isFailedOrCompensated() {
         return this == FAILED || this == COMPENSATED;
     }
-
 }

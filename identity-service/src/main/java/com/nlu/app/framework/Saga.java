@@ -9,9 +9,11 @@ public abstract class Saga {
     }
 
     public enum PayloadType {
-        REQUEST, CANCEL
+        REQUEST,
+        CANCEL
     }
 
     public abstract void goNext();
+
     public abstract void goBack();
 }

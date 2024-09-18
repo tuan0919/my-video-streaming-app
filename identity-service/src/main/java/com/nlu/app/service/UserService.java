@@ -3,31 +3,29 @@ package com.nlu.app.service;
 import java.util.HashSet;
 import java.util.List;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nlu.app.common.dto.UserCreationDTO;
-import com.nlu.app.common.event.UserCreationEvent;
-import com.nlu.app.dto.AppResponse;
-import com.nlu.app.entity.Outbox;
-import com.nlu.app.repository.OutboxRepository;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nlu.app.common.dto.UserCreationDTO;
+import com.nlu.app.common.event.UserCreationEvent;
 import com.nlu.app.constant.PredefinedRole;
 import com.nlu.app.dto.request.UserCreationRequest;
 import com.nlu.app.dto.request.UserUpdateRequest;
 import com.nlu.app.dto.response.UserResponse;
+import com.nlu.app.entity.Outbox;
 import com.nlu.app.entity.Role;
 import com.nlu.app.entity.User;
 import com.nlu.app.exception.ApplicationException;
 import com.nlu.app.exception.ErrorCode;
 import com.nlu.app.mapper.ProfileMapper;
 import com.nlu.app.mapper.UserMapper;
+import com.nlu.app.repository.OutboxRepository;
 import com.nlu.app.repository.RoleRepository;
 import com.nlu.app.repository.UserRepository;
 
@@ -49,7 +47,6 @@ public class UserService {
     PasswordEncoder passwordEncoder;
     StreamBridge streamBridge;
 
-
     public UserResponse createUser(UserCreationRequest request) {
         User user = userMapper.toUser(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -66,9 +63,9 @@ public class UserService {
             throw new ApplicationException(ErrorCode.USER_ALREADY_EXISTED);
         }
         UserCreationDTO creationDTO = UserCreationDTO.builder()
-                        .userId(user.getId())
-                        .username(user.getUsername())
-                        .timestamp(System.currentTimeMillis())
+                .userId(user.getId())
+                .username(user.getUsername())
+                .timestamp(System.currentTimeMillis())
                 .build();
         UserCreationEvent event = new UserCreationEvent(creationDTO);
         ObjectMapper objectMapper = new ObjectMapper();

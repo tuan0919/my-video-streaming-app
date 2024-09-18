@@ -2,10 +2,7 @@ package com.nlu.app.configuration;
 
 import java.util.HashSet;
 
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,10 +27,13 @@ public class ApplicationInitConfig {
     UserRepository userRepository;
     RoleRepository roleRepository;
     PasswordEncoder passwordEncoder;
+
     @NonFinal
     static final String ADMIN_USER_NAME = "admin";
+
     @NonFinal
     static final String ADMIN_PASSWORD = "admin";
+
     @EventListener(ApplicationReadyEvent.class)
     void applicationRunner() {
         log.info("Initializing application.....");

@@ -20,7 +20,6 @@
 		<lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
 		<spotless.version>2.43.0</spotless.version>
 		<spring-cloud.version>2023.0.3</spring-cloud.version>
-		<axon.version>4.11.0-SNAPSHOT</axon.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -128,6 +127,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-aop</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.axonframework</groupId>
+			<artifactId>axon-spring-boot-starter</artifactId>
+			<version>4.10.0</version>
+		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
@@ -144,32 +148,6 @@
 				<version>${micrometer-tracing.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.axonframework</groupId>
-				<artifactId>axon-spring-boot-autoconfigure</artifactId>
-				<version>${axon.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.axonframework</groupId>
-				<artifactId>axon-messaging</artifactId>
-				<version>${axon.version}</version>
-				<type>test-jar</type>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.axonframework</groupId>
-				<artifactId>axon-eventsourcing</artifactId>
-				<version>${axon.version}</version>
-				<type>test-jar</type>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.axonframework</groupId>
-				<artifactId>axon-spring</artifactId>
-				<version>${axon.version}</version>
-				<type>test-jar</type>
-				<scope>test</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
