@@ -9,7 +9,7 @@ import org.axonframework.spring.stereotype.Aggregate;
 import org.springframework.stereotype.Component;
 
 import com.nlu.app.commandSide.commands.CreateRoleCommand;
-import com.nlu.app.commandSide.events.RoleCreatedEvent;
+import com.nlu.app.share.events.RoleCreatedEvent;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;

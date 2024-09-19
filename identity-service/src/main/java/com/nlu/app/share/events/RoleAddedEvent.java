@@ -1,4 +1,4 @@
-package com.nlu.app.commandSide.events;
+package com.nlu.app.share.events;
 
 import lombok.AccessLevel;
 import lombok.Builder;

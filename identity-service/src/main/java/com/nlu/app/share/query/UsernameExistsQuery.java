@@ -1,4 +1,4 @@
-package com.nlu.app.commandSide.query;
+package com.nlu.app.share.query;
 
 import lombok.AccessLevel;
 import lombok.Builder;

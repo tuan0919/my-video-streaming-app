@@ -14,16 +14,15 @@ import org.axonframework.spring.stereotype.Aggregate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.nlu.app.commandSide.commands.AddAdminRoleCommand;
+import com.nlu.app.commandSide.commands.AddRoleCommand;
 import com.nlu.app.commandSide.commands.CreateUserCommand;
-import com.nlu.app.commandSide.events.RoleAddedEvent;
-import com.nlu.app.commandSide.events.UserCreatedEvent;
-import com.nlu.app.commandSide.query.EmailExistsQuery;
-import com.nlu.app.commandSide.query.RoleExistsQuery;
-import com.nlu.app.commandSide.query.UsernameExistsQuery;
-import com.nlu.app.querySide.entity.Role;
 import com.nlu.app.querySide.exception.ApplicationException;
 import com.nlu.app.querySide.exception.ErrorCode;
+import com.nlu.app.share.events.RoleAddedEvent;
+import com.nlu.app.share.events.UserCreatedEvent;
+import com.nlu.app.share.query.EmailExistsQuery;
+import com.nlu.app.share.query.RoleExistsQuery;
+import com.nlu.app.share.query.UsernameExistsQuery;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -47,7 +46,7 @@ public class UserAggregate {
     String lastName;
     LocalDate dob;
     String city;
-    Set<Role> roles;
+    Set<String> roles;
 
     @Autowired
     public void setQueryGateway(QueryGateway queryGateway) {
@@ -60,11 +59,15 @@ public class UserAggregate {
         String email = createUserCmd.getEmail();
         var queryUsername = UsernameExistsQuery.builder().username(username).build();
         var queryEmail = EmailExistsQuery.builder().email(email).build();
-        if (queryGateway.query(queryUsername, Boolean.class).join()) {
-            throw new ApplicationException(ErrorCode.USER_ALREADY_EXISTED);
-        }
-        if (queryGateway.query(queryEmail, Boolean.class).join()) {
-            throw new ApplicationException(ErrorCode.USER_ALREADY_EXISTED);
+        try {
+            if (queryGateway.query(queryUsername, Boolean.class).join()) {
+                throw new ApplicationException(ErrorCode.USER_ALREADY_EXISTED);
+            }
+            if (queryGateway.query(queryEmail, Boolean.class).join()) {
+                throw new ApplicationException(ErrorCode.USER_ALREADY_EXISTED);
+            }
+        } catch (Exception e) {
+            throw new ApplicationException(ErrorCode.UNKNOWN_EXCEPTION);
         }
         var event = UserCreatedEvent.builder()
                 .username(username)
@@ -76,19 +79,6 @@ public class UserAggregate {
                 .password(createUserCmd.getPassword())
                 .build();
         apply(event);
-    }
-
-    @CommandHandler
-    public void addRoleHandler(AddAdminRoleCommand cmd) {
-        var roleQuery = RoleExistsQuery.builder().name("ADMIN").build();
-        var queryResult = queryGateway.query(roleQuery, Role.class).join();
-        if (queryResult != null) {
-            var event = RoleAddedEvent.builder()
-                    .userId(cmd.getUserId())
-                    .role(queryResult)
-                    .build();
-            apply(event);
-        }
     }
 
     @EventSourcingHandler
@@ -104,8 +94,26 @@ public class UserAggregate {
         this.roles = Set.of();
     }
 
+    @CommandHandler
+    public void addRoleHandler(AddRoleCommand cmd) {
+        var roleName = cmd.getRoleName();
+        var roleQuery = RoleExistsQuery.builder().name(roleName).build();
+        try {
+            if (!queryGateway.query(roleQuery, Boolean.class).join()) {
+                throw new ApplicationException(ErrorCode.ROLE_NOT_EXISTED);
+            }
+        } catch (Exception e) {
+            throw new ApplicationException(ErrorCode.UNKNOWN_EXCEPTION);
+        }
+        var event = RoleAddedEvent.builder()
+                .userId(cmd.getUserId())
+                .roleName(roleName)
+                .build();
+        apply(event);
+    }
+
     @EventSourcingHandler
     public void on(RoleAddedEvent event) {
-        this.roles.add(event.getRole());
+        this.roles.add(event.getRoleName());
     }
 }

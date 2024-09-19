@@ -10,7 +10,7 @@ import lombok.experimental.FieldDefaults;
 @Value
 @Builder
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-public class AddAdminRoleCommand {
+public class AddRoleCommand {
     @TargetAggregateIdentifier
     String userId;
 
