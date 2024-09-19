@@ -7,13 +7,13 @@ spring:
     username: nqat0919
     password: secret
     driver-class-name: com.mysql.cj.jdbc.Driver
-  sleuth:
-    otel:
-      config:
-        trace-id-ratio-based: 1.0
-      exporter:
-        otlp:
-          endpoint: http://collector:4317
+#  sleuth:
+#    otel:
+#      config:
+#        trace-id-ratio-based: 1.0
+#      exporter:
+#        otlp:
+#          endpoint: http://collector:4317
   jpa:
     hibernate:
       ddl-auto: update
@@ -24,32 +24,32 @@ logging:
     io:
       opentelemetry: DEBUG
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-  endpoint:
-    health:
-      show-components: always
-      show-details: always
-  tracing:
-    sampling:
-      probability: 1.0
-  metrics:
-    distribution:
-      percentiles-histogram:
-        enabled: true
-    tags:
-      service: identity_service
-  otlp:
-    tracing:
-      endpoint: http://localhost:4318/v1/traces
-    metrics:
-      export:
-        enabled: true
-        in-memory: true
-        url: http://localhost:4318/v1/metrics
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: "*"
+#  endpoint:
+#    health:
+#      show-components: always
+#      show-details: always
+#  tracing:
+#    sampling:
+#      probability: 1.0
+#  metrics:
+#    distribution:
+#      percentiles-histogram:
+#        enabled: true
+#    tags:
+#      service: identity_service
+#  otlp:
+#    tracing:
+#      endpoint: http://localhost:4318/v1/traces
+#    metrics:
+#      export:
+#        enabled: true
+#        in-memory: true
+#        url: http://localhost:4318/v1/metrics
 
 jwt:
   signerKey: "1TjXchw5FloESb63Kc+DFhTARvpWL4jUGCwfGWxuG5SIf/1y/LgJxHnMqaF6A/ij"
