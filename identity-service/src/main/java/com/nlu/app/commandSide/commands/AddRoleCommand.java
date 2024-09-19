@@ -13,4 +13,6 @@ import lombok.experimental.FieldDefaults;
 public class AddAdminRoleCommand {
     @TargetAggregateIdentifier
     String userId;
+
+    String roleName;
 }
