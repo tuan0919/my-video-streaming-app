@@ -1,5 +1,7 @@
 package com.nlu.app.commandSide.commands;
 
+import java.util.Set;
+
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Value;
@@ -11,4 +13,5 @@ import lombok.experimental.FieldDefaults;
 public class CreateRoleCommand {
     String name;
     String description;
+    Set<String> permissions;
 }
