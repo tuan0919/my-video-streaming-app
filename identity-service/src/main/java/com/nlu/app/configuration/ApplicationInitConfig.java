@@ -1,4 +1,4 @@
-package com.nlu.app.querySide.configuration;
+package com.nlu.app.configuration;
 
 import java.util.HashSet;
 
@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.nlu.app.commandSide.service.RoleCommandService;
+import com.nlu.app.commandSide.service.UserCommandService;
 import com.nlu.app.querySide.constant.PredefinedRole;
 import com.nlu.app.querySide.entity.Role;
 import com.nlu.app.querySide.entity.User;
@@ -25,7 +27,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ApplicationInitConfig {
     UserRepository userRepository;
+    UserCommandService userCommandService;
     RoleRepository roleRepository;
+    RoleCommandService roleCommandService;
     PasswordEncoder passwordEncoder;
 
     @NonFinal

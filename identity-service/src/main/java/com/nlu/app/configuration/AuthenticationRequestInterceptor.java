@@ -1,4 +1,4 @@
-package com.nlu.app.querySide.configuration;
+package com.nlu.app.configuration;
 
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;

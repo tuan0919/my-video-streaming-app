@@ -1,4 +1,4 @@
-package com.nlu.app.querySide.configuration;
+package com.nlu.app.configuration;
 
 import java.io.IOException;
 
