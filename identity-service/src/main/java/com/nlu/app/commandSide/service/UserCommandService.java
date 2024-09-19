@@ -10,11 +10,11 @@ import com.nlu.app.commandSide.commands.CreateUserCommand;
 import com.nlu.app.querySide.dto.request.UserCreationRequest;
 
 @Service
-public class UserService {
+public class UserCommandService {
     private CommandGateway commandGateway;
 
     @Autowired
-    public void setCommandGateway(CommandGateway commandGateway) {
+    private void setCommandGateway(CommandGateway commandGateway) {
         this.commandGateway = commandGateway;
     }
 
