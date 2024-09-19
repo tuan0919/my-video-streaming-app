@@ -15,6 +15,10 @@ spring:
         enabled: true
         service-id: cloud-config-service
 
+axon:
+  axonserver:
+    enabled: false
+
 eureka:
   client:
     server-url:
