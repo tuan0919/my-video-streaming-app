@@ -1,14 +1,14 @@
 package com.nlu.app.commandSide.controller;
 
+import java.util.concurrent.CompletableFuture;
+
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.*;
 
+import com.nlu.app.commandSide.service.UserCommandService;
 import com.nlu.app.querySide.dto.AppResponse;
 import com.nlu.app.querySide.dto.request.UserCreationRequest;
-import com.nlu.app.querySide.dto.request.UserUpdateRequest;
-import com.nlu.app.querySide.dto.response.UserResponse;
-import com.nlu.app.querySide.service.UserService;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -21,25 +21,12 @@ import lombok.extern.slf4j.Slf4j;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class UserController {
-    UserService userService;
+    UserCommandService userCommandService;
 
     @PostMapping("/registration")
-    AppResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
-        return AppResponse.<UserResponse>builder()
-                .result(userService.createUser(request))
-                .build();
-    }
-
-    @DeleteMapping("/{userId}")
-    AppResponse<String> deleteUser(@PathVariable String userId) {
-        userService.deleteUser(userId);
-        return AppResponse.<String>builder().result("User has been deleted").build();
-    }
-
-    @PutMapping("/{userId}")
-    AppResponse<UserResponse> updateUser(@PathVariable String userId, @RequestBody UserUpdateRequest request) {
-        return AppResponse.<UserResponse>builder()
-                .result(userService.updateUser(userId, request))
-                .build();
+    CompletableFuture<AppResponse<String>> createUser(@RequestBody @Valid UserCreationRequest request) {
+        return userCommandService.createUser(request).thenApply(result -> AppResponse.<String>builder()
+                .result(result)
+                .build());
     }
 }
