@@ -77,13 +77,14 @@ public class UserAggregate {
                 .firstName(createUserCmd.getFirstName())
                 .lastName(createUserCmd.getLastName())
                 .password(createUserCmd.getPassword())
+                .userId(UUID.randomUUID().toString())
                 .build();
         apply(event);
     }
 
     @EventSourcingHandler
     public void on(UserCreatedEvent event) {
-        this.userId = UUID.randomUUID().toString();
+        this.userId = event.getUserId();
         this.username = event.getUsername();
         this.password = event.getPassword();
         this.email = event.getEmail();
