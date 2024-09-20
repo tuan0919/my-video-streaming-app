@@ -19,12 +19,10 @@ import com.nlu.app.share.events.RoleCreatedEvent;
 import com.nlu.app.share.query.FindAllPermissionByNamesQuery;
 
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 @Aggregate
 @RequiredArgsConstructor
-@NoArgsConstructor
 @AllArgsConstructor
 @Component
 public class RoleAggregate {

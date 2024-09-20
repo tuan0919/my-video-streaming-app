@@ -2,6 +2,8 @@ package com.nlu.app.querySide.handler;
 
 import java.util.Set;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.axonframework.eventhandling.EventHandler;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -19,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserEventsHandler {
     UserRepository userRepository;
     PasswordEncoder passwordEncoder;
@@ -32,7 +35,7 @@ public class UserEventsHandler {
                 .roles(Set.of())
                 .emailVerified(false)
                 .username(event.getUsername())
-                .password(passwordEncoder.encode(passwordEncoder.encode(event.getPassword())))
+                .password(passwordEncoder.encode(event.getPassword()))
                 .email(event.getEmail())
                 .build();
         userRepository.save(user);

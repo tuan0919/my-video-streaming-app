@@ -7,6 +7,7 @@ spring:
         git:
           uri: ${HOME}/Desktop/my-video-streaming-app
           search-paths: configuration/
+          default-label: feature/issue-5-apply-cqrs-pattern
 server:
   port: 18181
 

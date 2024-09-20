@@ -25,19 +25,15 @@ import com.nlu.app.share.query.RoleExistsQuery;
 import com.nlu.app.share.query.UsernameExistsQuery;
 
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 @Aggregate
 @RequiredArgsConstructor
-@NoArgsConstructor
 @AllArgsConstructor
 @Component
 public class UserAggregate {
     @AggregateIdentifier
     private String userId;
-
-    private QueryGateway queryGateway;
 
     String username;
     String password;
@@ -48,27 +44,24 @@ public class UserAggregate {
     String city;
     Set<String> roles;
 
-    @Autowired
-    public void setQueryGateway(QueryGateway queryGateway) {
-        this.queryGateway = queryGateway;
-    }
 
     @CommandHandler
     public UserAggregate(CreateUserCommand createUserCmd) {
         String username = createUserCmd.getUsername();
         String email = createUserCmd.getEmail();
-        var queryUsername = UsernameExistsQuery.builder().username(username).build();
-        var queryEmail = EmailExistsQuery.builder().email(email).build();
-        try {
-            if (queryGateway.query(queryUsername, Boolean.class).join()) {
-                throw new ApplicationException(ErrorCode.USER_ALREADY_EXISTED);
-            }
-            if (queryGateway.query(queryEmail, Boolean.class).join()) {
-                throw new ApplicationException(ErrorCode.USER_ALREADY_EXISTED);
-            }
-        } catch (Exception e) {
-            throw new ApplicationException(ErrorCode.UNKNOWN_EXCEPTION);
-        }
+//        var queryUsername = UsernameExistsQuery.builder().username(username).build();
+//        var queryEmail = EmailExistsQuery.builder().email(email).build();
+//        try {
+//            if (queryGateway.query(queryUsername, Boolean.class).join()) {
+//                throw new ApplicationException(ErrorCode.USER_ALREADY_EXISTED);
+//            }
+//            if (queryGateway.query(queryEmail, Boolean.class).join()) {
+//                throw new ApplicationException(ErrorCode.USER_ALREADY_EXISTED);
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            throw new ApplicationException(ErrorCode.UNKNOWN_EXCEPTION);
+//        }
         var event = UserCreatedEvent.builder()
                 .username(username)
                 .email(email)
@@ -98,14 +91,14 @@ public class UserAggregate {
     @CommandHandler
     public void addRoleHandler(AddRoleCommand cmd) {
         var roleName = cmd.getRoleName();
-        var roleQuery = RoleExistsQuery.builder().name(roleName).build();
-        try {
-            if (!queryGateway.query(roleQuery, Boolean.class).join()) {
-                throw new ApplicationException(ErrorCode.ROLE_NOT_EXISTED);
-            }
-        } catch (Exception e) {
-            throw new ApplicationException(ErrorCode.UNKNOWN_EXCEPTION);
-        }
+//        var roleQuery = RoleExistsQuery.builder().name(roleName).build();
+//        try {
+//            if (!queryGateway.query(roleQuery, Boolean.class).join()) {
+//                throw new ApplicationException(ErrorCode.ROLE_NOT_EXISTED);
+//            }
+//        } catch (Exception e) {
+//            throw new ApplicationException(ErrorCode.UNKNOWN_EXCEPTION);
+//        }
         var event = RoleAddedEvent.builder()
                 .userId(cmd.getUserId())
                 .roleName(roleName)
