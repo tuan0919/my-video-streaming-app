@@ -2,12 +2,9 @@ package com.nlu.app.querySide.controller;
 
 import java.util.List;
 
-import jakarta.validation.Valid;
-
 import org.springframework.web.bind.annotation.*;
 
 import com.nlu.app.querySide.dto.AppResponse;
-import com.nlu.app.querySide.dto.request.UserCreationRequest;
 import com.nlu.app.querySide.dto.request.UserUpdateRequest;
 import com.nlu.app.querySide.dto.response.UserResponse;
 import com.nlu.app.querySide.service.UserService;
@@ -24,13 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UserController {
     UserService userService;
-
-    @PostMapping("/registration")
-    AppResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
-        return AppResponse.<UserResponse>builder()
-                .result(userService.createUser(request))
-                .build();
-    }
 
     @GetMapping
     AppResponse<List<UserResponse>> getUsers() {
