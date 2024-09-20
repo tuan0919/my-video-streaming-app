@@ -24,9 +24,9 @@ public class CommandUserController {
     CommandUserService commandUserService;
 
     @PostMapping("/registration")
-    CompletableFuture<AppResponse<String>> createUser(@RequestBody @Valid UserCreationRequest request) {
-        return commandUserService.createUser(request).thenApply(result -> AppResponse.<String>builder()
-                .result(result)
-                .build());
+    AppResponse<String> createUser(@RequestBody @Valid UserCreationRequest request) {
+        return AppResponse.<String>builder()
+                .result(commandUserService.createUser(request))
+                .build();
     }
 }
