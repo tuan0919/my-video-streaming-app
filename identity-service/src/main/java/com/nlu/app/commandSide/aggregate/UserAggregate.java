@@ -25,12 +25,10 @@ import com.nlu.app.share.query.RoleExistsQuery;
 import com.nlu.app.share.query.UsernameExistsQuery;
 
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 @Aggregate
 @RequiredArgsConstructor
-@NoArgsConstructor
 @AllArgsConstructor
 @Component
 public class UserAggregate {
