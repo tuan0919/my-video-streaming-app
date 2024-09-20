@@ -10,7 +10,7 @@ import com.nlu.app.commandSide.commands.CreateRoleCommand;
 import com.nlu.app.querySide.dto.request.RoleRequest;
 
 @Service
-public class RoleCommandService {
+public class CommandRoleService {
     private CommandGateway commandGateway;
 
     @Autowired

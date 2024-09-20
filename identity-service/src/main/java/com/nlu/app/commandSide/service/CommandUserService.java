@@ -10,7 +10,7 @@ import com.nlu.app.commandSide.commands.CreateUserCommand;
 import com.nlu.app.querySide.dto.request.UserCreationRequest;
 
 @Service
-public class UserCommandService {
+public class CommandUserService {
     private CommandGateway commandGateway;
 
     @Autowired
@@ -27,6 +27,7 @@ public class UserCommandService {
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .build();
-        return commandGateway.send(command).thenApply(x -> "OK");
+        return commandGateway.send(command)
+                .thenApply(x -> "OK");
     }
 }
