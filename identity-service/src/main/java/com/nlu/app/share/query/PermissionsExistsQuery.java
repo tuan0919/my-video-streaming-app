@@ -9,6 +9,6 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @RequiredArgsConstructor
-public class FindAllPermissionByNamesQuery {
+public class PermissionsExistsQuery {
     Set<String> names;
 }

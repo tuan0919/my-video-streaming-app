@@ -1,5 +1,6 @@
 package com.nlu.app.querySide.dto.request;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import lombok.*;
@@ -13,5 +14,6 @@ import lombok.experimental.FieldDefaults;
 public class RoleRequest {
     String name;
     String description;
-    Set<String> permissions;
+    @Builder.Default
+    Set<String> permissions = new HashSet<>();
 }

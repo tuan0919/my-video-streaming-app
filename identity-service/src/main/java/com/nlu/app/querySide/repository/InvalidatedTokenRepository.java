@@ -8,5 +8,5 @@ import com.nlu.app.querySide.entity.InvalidatedToken;
 import io.micrometer.observation.annotation.Observed;
 
 @Repository
-@Observed
+//@Observed
 public interface InvalidatedTokenRepository extends JpaRepository<InvalidatedToken, String> {}

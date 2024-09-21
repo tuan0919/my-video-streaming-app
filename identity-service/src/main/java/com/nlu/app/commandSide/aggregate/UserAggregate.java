@@ -47,30 +47,16 @@ public class UserAggregate {
 
     @CommandHandler
     public UserAggregate(CreateUserCommand createUserCmd) {
-        String username = createUserCmd.getUsername();
-        String email = createUserCmd.getEmail();
-//        var queryUsername = UsernameExistsQuery.builder().username(username).build();
-//        var queryEmail = EmailExistsQuery.builder().email(email).build();
-//        try {
-//            if (queryGateway.query(queryUsername, Boolean.class).join()) {
-//                throw new ApplicationException(ErrorCode.USER_ALREADY_EXISTED);
-//            }
-//            if (queryGateway.query(queryEmail, Boolean.class).join()) {
-//                throw new ApplicationException(ErrorCode.USER_ALREADY_EXISTED);
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            throw new ApplicationException(ErrorCode.UNKNOWN_EXCEPTION);
-//        }
         var event = UserCreatedEvent.builder()
-                .username(username)
-                .email(email)
+                .username(createUserCmd.getUsername())
+                .email(createUserCmd.getEmail())
                 .dob(createUserCmd.getDob())
                 .city(createUserCmd.getCity())
                 .firstName(createUserCmd.getFirstName())
                 .lastName(createUserCmd.getLastName())
                 .password(createUserCmd.getPassword())
                 .userId(UUID.randomUUID().toString())
+                .roles(createUserCmd.getRoles())
                 .build();
         apply(event);
     }
@@ -85,7 +71,7 @@ public class UserAggregate {
         this.firstName = event.getFirstName();
         this.lastName = event.getLastName();
         this.dob = event.getDob();
-        this.roles = Set.of();
+        this.roles = event.getRoles();
     }
 
     @CommandHandler

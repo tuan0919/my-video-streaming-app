@@ -1,6 +1,7 @@
 package com.nlu.app.share.events;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -19,4 +20,5 @@ public class UserCreatedEvent {
     String lastName;
     LocalDate dob;
     String city;
+    Set<String> roles;
 }
