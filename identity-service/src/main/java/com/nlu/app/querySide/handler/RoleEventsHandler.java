@@ -2,6 +2,8 @@ package com.nlu.app.querySide.handler;
 
 import java.util.HashSet;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.axonframework.eventhandling.EventHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class RoleEventsHandler {
     RoleRepository roleRepository;
     PermissionRepository permissionRepository;

@@ -1,12 +1,10 @@
-package com.nlu.app.commandSide.controller;
-
-import java.util.concurrent.CompletableFuture;
+package com.nlu.app.rest.controller;
 
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.*;
 
-import com.nlu.app.commandSide.service.CommandUserService;
+import com.nlu.app.rest.service.CommandUserService;
 import com.nlu.app.querySide.dto.AppResponse;
 import com.nlu.app.querySide.dto.request.UserCreationRequest;
 

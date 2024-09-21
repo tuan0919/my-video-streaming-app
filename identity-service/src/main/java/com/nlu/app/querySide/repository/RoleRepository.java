@@ -8,5 +8,5 @@ import com.nlu.app.querySide.entity.Role;
 import io.micrometer.observation.annotation.Observed;
 
 @Repository
-@Observed
+//@Observed
 public interface RoleRepository extends JpaRepository<Role, String> {}

@@ -1,4 +1,4 @@
-package com.nlu.app.commandSide.controller;
+package com.nlu.app.rest.controller;
 
 import org.springframework.web.bind.annotation.*;
 
