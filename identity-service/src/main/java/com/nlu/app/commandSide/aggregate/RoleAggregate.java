@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.nlu.app.commandSide.commands.CreateRoleCommand;
-import com.nlu.app.share.events.RoleCreatedEvent;
+import com.nlu.app.domain.events.RoleCreatedEvent;
 
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
