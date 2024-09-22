@@ -1,4 +1,4 @@
-package com.nlu.app.share.query;
+package com.nlu.app.domain.query;
 
 import java.util.Set;
 

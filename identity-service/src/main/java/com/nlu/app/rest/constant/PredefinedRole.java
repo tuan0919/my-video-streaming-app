@@ -1,4 +1,4 @@
-package com.nlu.app.querySide.constant;
+package com.nlu.app.rest.constant;
 
 public class PredefinedRole {
     public static final String USER_ROLE = "USER";

@@ -1,4 +1,4 @@
-package com.nlu.app.querySide.exception;
+package com.nlu.app.rest.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -14,8 +14,7 @@ public enum ErrorCode {
     USER_ALREADY_EXISTED(1004, "User is already existed!", HttpStatus.BAD_REQUEST),
     ROLE_NOT_EXISTED(1005, "Role is not existed!", HttpStatus.NOT_FOUND),
     ROLE_ALREADY_EXISTED(1006, "Role is already existed!", HttpStatus.BAD_REQUEST),
-    PERMISSION_NOT_EXISTED(1007, "Permission is not existed!", HttpStatus.NOT_FOUND)
-    ;
+    PERMISSION_NOT_EXISTED(1007, "Permission is not existed!", HttpStatus.NOT_FOUND);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

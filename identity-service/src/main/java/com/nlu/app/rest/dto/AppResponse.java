@@ -1,4 +1,4 @@
-package com.nlu.app.querySide.dto;
+package com.nlu.app.rest.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 

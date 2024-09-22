@@ -4,10 +4,10 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.*;
 
-import com.nlu.app.querySide.dto.AppResponse;
-import com.nlu.app.querySide.dto.request.PermissionRequest;
-import com.nlu.app.querySide.dto.response.PermissionResponse;
 import com.nlu.app.querySide.service.PermissionService;
+import com.nlu.app.rest.dto.AppResponse;
+import com.nlu.app.rest.dto.request.PermissionRequest;
+import com.nlu.app.rest.dto.response.PermissionResponse;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

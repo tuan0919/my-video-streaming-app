@@ -1,4 +1,4 @@
-package com.nlu.app.querySide.exception;
+package com.nlu.app.rest.exception;
 
 import lombok.AccessLevel;
 import lombok.Builder;

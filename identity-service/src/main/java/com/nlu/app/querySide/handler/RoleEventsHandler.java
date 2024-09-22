@@ -2,20 +2,20 @@ package com.nlu.app.querySide.handler;
 
 import java.util.HashSet;
 
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
 import org.axonframework.eventhandling.EventHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.nlu.app.querySide.entity.Role;
-import com.nlu.app.querySide.exception.ApplicationException;
-import com.nlu.app.querySide.exception.ErrorCode;
-import com.nlu.app.querySide.repository.PermissionRepository;
-import com.nlu.app.querySide.repository.RoleRepository;
-import com.nlu.app.share.events.RoleCreatedEvent;
+import com.nlu.app.commandSide.state.entity.Role;
+import com.nlu.app.commandSide.state.repository.PermissionRepository;
+import com.nlu.app.commandSide.state.repository.RoleRepository;
+import com.nlu.app.domain.events.RoleCreatedEvent;
+import com.nlu.app.rest.exception.ApplicationException;
+import com.nlu.app.rest.exception.ErrorCode;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 @Component
 @RequiredArgsConstructor

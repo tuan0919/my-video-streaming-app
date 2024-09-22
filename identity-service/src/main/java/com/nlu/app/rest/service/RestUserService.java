@@ -1,20 +1,27 @@
 package com.nlu.app.rest.service;
-import com.nlu.app.querySide.constant.PredefinedRole;
-import com.nlu.app.querySide.exception.ApplicationException;
-import com.nlu.app.querySide.exception.ErrorCode;
-import com.nlu.app.share.query.EmailExistsQuery;
-import com.nlu.app.share.query.RoleExistsQuery;
-import com.nlu.app.share.query.UsernameExistsQuery;
+
+import java.time.Duration;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+
 import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.messaging.responsetypes.ResponseTypes;
 import org.axonframework.queryhandling.QueryGateway;
+import org.axonframework.queryhandling.SubscriptionQueryResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.nlu.app.commandSide.commands.CreateUserCommand;
-import com.nlu.app.querySide.dto.request.UserCreationRequest;
+import com.nlu.app.domain.query.*;
+import com.nlu.app.rest.constant.PredefinedRole;
+import com.nlu.app.rest.dto.request.UserCreationRequest;
+import com.nlu.app.rest.dto.response.UserResponse;
+import com.nlu.app.rest.exception.ApplicationException;
+import com.nlu.app.rest.exception.ErrorCode;
 
 @Service
-public class CommandUserService {
+public class RestUserService {
     private CommandGateway commandGateway;
     private QueryGateway queryGateway;
 
@@ -28,7 +35,7 @@ public class CommandUserService {
         this.queryGateway = queryGateway;
     }
 
-    public String createUser(UserCreationRequest request) {
+    public UserResponse createUser(UserCreationRequest request) {
         var command = CreateUserCommand.builder()
                 .dob(request.getDob())
                 .email(request.getEmail())
@@ -37,6 +44,7 @@ public class CommandUserService {
                 .username(request.getUsername())
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
+                .roles(new HashSet<>(List.of(PredefinedRole.USER_ROLE)))
                 .build();
         String username = request.getUsername();
         String email = request.getEmail();
@@ -53,6 +61,14 @@ public class CommandUserService {
             throw new ApplicationException(ErrorCode.ROLE_NOT_EXISTED);
         }
         commandGateway.sendAndWait(command);
-        return "OK";
+        var queryByUsername =
+                GetUserByUsernameQuery.builder().username(username).build();
+        SubscriptionQueryResult<Optional<UserResponse>, UserResponse> subscription = queryGateway.subscriptionQuery(
+                queryByUsername,
+                ResponseTypes.optionalInstanceOf(UserResponse.class),
+                ResponseTypes.instanceOf(UserResponse.class));
+        var response = subscription.updates().blockFirst(Duration.ofSeconds(3)); // timeout in 3 seconds
+        subscription.close();
+        return response;
     }
 }

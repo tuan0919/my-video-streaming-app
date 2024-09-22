@@ -1,4 +1,4 @@
-package com.nlu.app.rest.service;
+package com.nlu.app.querySide.service;
 
 import java.text.ParseException;
 import java.time.Instant;
@@ -19,10 +19,10 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.nlu.app.querySide.entity.InvalidatedToken;
-import com.nlu.app.querySide.entity.User;
-import com.nlu.app.querySide.repository.InvalidatedTokenRepository;
-import com.nlu.app.querySide.repository.UserRepository;
+import com.nlu.app.commandSide.state.entity.InvalidatedToken;
+import com.nlu.app.commandSide.state.entity.User;
+import com.nlu.app.commandSide.state.repository.InvalidatedTokenRepository;
+import com.nlu.app.commandSide.state.repository.UserRepository;
 import com.nlu.app.rest.dto.request.*;
 import com.nlu.app.rest.dto.response.AuthenticationResponse;
 import com.nlu.app.rest.dto.response.IntrospectResponse;

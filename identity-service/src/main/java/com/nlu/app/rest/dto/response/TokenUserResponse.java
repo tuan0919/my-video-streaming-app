@@ -1,4 +1,4 @@
-package com.nlu.app.querySide.dto.response;
+package com.nlu.app.rest.dto.response;
 
 import java.util.List;
 

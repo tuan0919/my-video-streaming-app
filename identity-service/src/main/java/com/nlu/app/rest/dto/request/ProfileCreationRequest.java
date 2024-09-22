@@ -1,4 +1,4 @@
-package com.nlu.app.querySide.dto.request;
+package com.nlu.app.rest.dto.request;
 
 import java.time.LocalDate;
 

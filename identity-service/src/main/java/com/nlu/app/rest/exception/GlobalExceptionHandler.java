@@ -1,10 +1,10 @@
-package com.nlu.app.querySide.exception;
+package com.nlu.app.rest.exception;
 
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.nlu.app.querySide.dto.AppResponse;
+import com.nlu.app.rest.dto.AppResponse;
 
 import lombok.extern.slf4j.Slf4j;
 

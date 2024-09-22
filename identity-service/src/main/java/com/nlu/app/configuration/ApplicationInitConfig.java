@@ -1,16 +1,16 @@
 package com.nlu.app.configuration;
 
-import com.nlu.app.querySide.constant.PredefinedRole;
-import com.nlu.app.querySide.dto.request.RoleRequest;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.nlu.app.rest.service.CommandRoleService;
-import com.nlu.app.rest.service.CommandUserService;
-import com.nlu.app.querySide.repository.RoleRepository;
-import com.nlu.app.querySide.repository.UserRepository;
+import com.nlu.app.commandSide.state.repository.RoleRepository;
+import com.nlu.app.commandSide.state.repository.UserRepository;
+import com.nlu.app.rest.constant.PredefinedRole;
+import com.nlu.app.rest.dto.request.RoleRequest;
+import com.nlu.app.rest.service.RestRoleService;
+import com.nlu.app.rest.service.RestUserService;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -24,9 +24,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ApplicationInitConfig {
     UserRepository userRepository;
-    CommandUserService commandUserService;
+    RestUserService restUserService;
     RoleRepository roleRepository;
-    CommandRoleService commandRoleService;
+    RestRoleService restRoleService;
     PasswordEncoder passwordEncoder;
 
     @NonFinal
@@ -37,12 +37,12 @@ public class ApplicationInitConfig {
 
     @EventListener(ApplicationReadyEvent.class)
     void applicationRunner() {
-                log.info("Initializing application.....");
-                var request = RoleRequest.builder()
-                        .name(PredefinedRole.USER_ROLE)
-                        .description("User role")
-                        .build();
-                commandRoleService.createRole(request);
+        log.info("Initializing application.....");
+        var request = RoleRequest.builder()
+                .name(PredefinedRole.USER_ROLE)
+                .description("User role")
+                .build();
+        restRoleService.createRole(request);
         //        if (userRepository.findByUsername(ADMIN_USER_NAME).isEmpty()) {
         //            roleRepository.save(Role.builder()
         //                    .name(PredefinedRole.USER_ROLE)
@@ -67,6 +67,6 @@ public class ApplicationInitConfig {
         //            userRepository.save(user);
         //            log.warn("admin user has been created with default password: admin, please change it");
         //        }
-                log.info("Application initialization completed .....");
+        log.info("Application initialization completed .....");
     }
 }

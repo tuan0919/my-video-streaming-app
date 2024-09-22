@@ -1,23 +1,19 @@
 package com.nlu.app.rest.service;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import com.nlu.app.querySide.exception.ApplicationException;
-import com.nlu.app.querySide.exception.ErrorCode;
-import com.nlu.app.share.query.PermissionsExistsQuery;
-import com.nlu.app.share.query.RoleExistsQuery;
 import org.axonframework.commandhandling.gateway.CommandGateway;
-import org.axonframework.messaging.responsetypes.ResponseTypes;
 import org.axonframework.queryhandling.QueryGateway;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.nlu.app.commandSide.commands.CreateRoleCommand;
-import com.nlu.app.querySide.dto.request.RoleRequest;
+import com.nlu.app.domain.query.PermissionsExistsQuery;
+import com.nlu.app.domain.query.RoleExistsQuery;
+import com.nlu.app.rest.dto.request.RoleRequest;
+import com.nlu.app.rest.exception.ApplicationException;
+import com.nlu.app.rest.exception.ErrorCode;
 
 @Service
-public class CommandRoleService {
+public class RestRoleService {
     private CommandGateway commandGateway;
     private QueryGateway queryGateway;
 
@@ -37,9 +33,7 @@ public class CommandRoleService {
                 .name(request.getName())
                 .permissions(request.getPermissions())
                 .build();
-        var roleQuery = RoleExistsQuery.builder()
-                        .name(request.getName())
-                        .build();
+        var roleQuery = RoleExistsQuery.builder().name(request.getName()).build();
         if (queryGateway.query(roleQuery, Boolean.class).join()) {
             throw new ApplicationException(ErrorCode.ROLE_ALREADY_EXISTED);
         }

@@ -1,12 +1,14 @@
 package com.nlu.app.querySide.handler;
 
-import com.nlu.app.querySide.repository.PermissionRepository;
-import com.nlu.app.share.query.PermissionsExistsQuery;
+import org.axonframework.queryhandling.QueryHandler;
+import org.springframework.stereotype.Component;
+
+import com.nlu.app.commandSide.state.repository.PermissionRepository;
+import com.nlu.app.domain.query.PermissionsExistsQuery;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.axonframework.queryhandling.QueryHandler;
-import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
@@ -15,7 +17,8 @@ public class PermissionQueryHandler {
     PermissionRepository permissionRepository;
 
     @QueryHandler
-    public boolean handle (PermissionsExistsQuery query) {
-        return permissionRepository.allExistsById(query.getNames(), (long) query.getNames().size());
+    public boolean handle(PermissionsExistsQuery query) {
+        return permissionRepository.allExistsById(
+                query.getNames(), (long) query.getNames().size());
     }
 }

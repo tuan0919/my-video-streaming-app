@@ -1,7 +1,7 @@
 package com.nlu.app.commandSide.commands;
 
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.HashSet;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -19,5 +19,5 @@ public class CreateUserCommand {
     String lastName;
     LocalDate dob;
     String city;
-    Set<String> roles;
+    HashSet<String> roles;
 }

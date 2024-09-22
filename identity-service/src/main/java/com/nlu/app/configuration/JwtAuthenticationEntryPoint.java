@@ -10,8 +10,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nlu.app.querySide.dto.AppResponse;
-import com.nlu.app.querySide.exception.ErrorCode;
+import com.nlu.app.rest.dto.AppResponse;
+import com.nlu.app.rest.exception.ErrorCode;
 
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override

@@ -5,11 +5,11 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.nlu.app.querySide.dto.request.RoleRequest;
-import com.nlu.app.querySide.dto.response.RoleResponse;
-import com.nlu.app.querySide.mapper.RoleMapper;
-import com.nlu.app.querySide.repository.PermissionRepository;
-import com.nlu.app.querySide.repository.RoleRepository;
+import com.nlu.app.commandSide.state.mapper.RoleMapper;
+import com.nlu.app.commandSide.state.repository.PermissionRepository;
+import com.nlu.app.commandSide.state.repository.RoleRepository;
+import com.nlu.app.rest.dto.request.RoleRequest;
+import com.nlu.app.rest.dto.response.RoleResponse;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

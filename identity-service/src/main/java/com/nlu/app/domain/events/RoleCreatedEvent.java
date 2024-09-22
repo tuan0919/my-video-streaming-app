@@ -1,4 +1,4 @@
-package com.nlu.app.share.events;
+package com.nlu.app.domain.events;
 
 import java.util.Set;
 

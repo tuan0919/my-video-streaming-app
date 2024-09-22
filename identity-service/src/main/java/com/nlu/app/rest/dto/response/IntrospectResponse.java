@@ -1,4 +1,4 @@
-package com.nlu.app.querySide.dto.response;
+package com.nlu.app.rest.dto.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

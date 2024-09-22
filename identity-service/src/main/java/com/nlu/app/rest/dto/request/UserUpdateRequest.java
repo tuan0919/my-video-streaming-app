@@ -1,9 +1,9 @@
-package com.nlu.app.querySide.dto.request;
+package com.nlu.app.rest.dto.request;
 
 import java.time.LocalDate;
 import java.util.List;
 
-import com.nlu.app.querySide.validator.DobConstraint;
+import com.nlu.app.commandSide.state.validator.DobConstraint;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
