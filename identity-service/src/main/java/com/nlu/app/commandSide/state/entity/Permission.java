@@ -1,4 +1,4 @@
-package com.nlu.app.querySide.entity;
+package com.nlu.app.commandSide.state.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

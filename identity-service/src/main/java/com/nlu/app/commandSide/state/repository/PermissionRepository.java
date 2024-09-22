@@ -1,4 +1,4 @@
-package com.nlu.app.querySide.repository;
+package com.nlu.app.commandSide.state.repository;
 
 import java.util.Set;
 
@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import com.nlu.app.querySide.entity.Permission;
+import com.nlu.app.commandSide.state.entity.Permission;
 
 import feign.Param;
 

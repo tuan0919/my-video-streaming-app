@@ -1,4 +1,4 @@
-package com.nlu.app.querySide.mapper;
+package com.nlu.app.commandSide.state.mapper;
 
 import org.mapstruct.Mapper;
 

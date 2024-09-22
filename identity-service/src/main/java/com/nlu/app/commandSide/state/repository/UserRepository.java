@@ -1,11 +1,11 @@
-package com.nlu.app.querySide.repository;
+package com.nlu.app.commandSide.state.repository;
 
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.nlu.app.querySide.entity.User;
+import com.nlu.app.commandSide.state.entity.User;
 
 @Repository
 // @Observed

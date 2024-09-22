@@ -1,4 +1,4 @@
-package com.nlu.app.querySide.validator;
+package com.nlu.app.commandSide.state.validator;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;

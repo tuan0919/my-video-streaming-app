@@ -1,4 +1,4 @@
-package com.nlu.app.querySide.validator;
+package com.nlu.app.commandSide.state.validator;
 
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
