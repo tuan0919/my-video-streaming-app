@@ -4,10 +4,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-import com.nlu.app.querySide.dto.request.UserCreationRequest;
-import com.nlu.app.querySide.dto.request.UserUpdateRequest;
-import com.nlu.app.querySide.dto.response.UserResponse;
-import com.nlu.app.querySide.entity.User;
+import com.nlu.app.commandSide.state.entity.User;
+import com.nlu.app.rest.dto.request.UserCreationRequest;
+import com.nlu.app.rest.dto.request.UserUpdateRequest;
+import com.nlu.app.rest.dto.response.UserResponse;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {

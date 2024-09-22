@@ -1,4 +1,4 @@
-package com.nlu.app.querySide.service;
+package com.nlu.app.rest.service;
 
 import java.text.ParseException;
 import java.time.Instant;
@@ -19,16 +19,16 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.nlu.app.querySide.dto.request.*;
-import com.nlu.app.querySide.dto.response.AuthenticationResponse;
-import com.nlu.app.querySide.dto.response.IntrospectResponse;
-import com.nlu.app.querySide.dto.response.TokenUserResponse;
 import com.nlu.app.querySide.entity.InvalidatedToken;
 import com.nlu.app.querySide.entity.User;
-import com.nlu.app.querySide.exception.ApplicationException;
-import com.nlu.app.querySide.exception.ErrorCode;
 import com.nlu.app.querySide.repository.InvalidatedTokenRepository;
 import com.nlu.app.querySide.repository.UserRepository;
+import com.nlu.app.rest.dto.request.*;
+import com.nlu.app.rest.dto.response.AuthenticationResponse;
+import com.nlu.app.rest.dto.response.IntrospectResponse;
+import com.nlu.app.rest.dto.response.TokenUserResponse;
+import com.nlu.app.rest.exception.ApplicationException;
+import com.nlu.app.rest.exception.ErrorCode;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

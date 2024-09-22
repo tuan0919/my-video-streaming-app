@@ -8,12 +8,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nimbusds.jose.JOSEException;
-import com.nlu.app.querySide.dto.AppResponse;
-import com.nlu.app.querySide.dto.request.*;
-import com.nlu.app.querySide.dto.response.AuthenticationResponse;
-import com.nlu.app.querySide.dto.response.IntrospectResponse;
-import com.nlu.app.querySide.dto.response.TokenUserResponse;
-import com.nlu.app.querySide.service.AuthenticationService;
+import com.nlu.app.rest.dto.AppResponse;
+import com.nlu.app.rest.dto.request.*;
+import com.nlu.app.rest.dto.response.AuthenticationResponse;
+import com.nlu.app.rest.dto.response.IntrospectResponse;
+import com.nlu.app.rest.dto.response.TokenUserResponse;
+import com.nlu.app.rest.service.AuthenticationService;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
