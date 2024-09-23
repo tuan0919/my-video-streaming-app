@@ -1,4 +1,4 @@
-package com.nlu.app.domain.identity;
+package com.nlu.app.application.identity.query.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

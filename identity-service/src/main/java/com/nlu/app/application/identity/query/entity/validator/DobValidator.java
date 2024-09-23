@@ -1,4 +1,4 @@
-package com.nlu.app.domain.identity.validator;
+package com.nlu.app.application.identity.query.entity.validator;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;

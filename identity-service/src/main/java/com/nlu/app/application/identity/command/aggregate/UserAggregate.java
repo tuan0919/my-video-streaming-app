@@ -3,6 +3,7 @@ package com.nlu.app.application.identity.command.aggregate;
 import static org.axonframework.modelling.command.AggregateLifecycle.apply;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
 
@@ -28,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Component
-public class UserAggregate {
+class UserAggregate {
     @AggregateIdentifier
     private String userId;
 
@@ -98,6 +99,7 @@ public class UserAggregate {
             var event = UserLoggedInEvent.builder()
                     .userId(loginCommand.getUserId())
                     .username(loginCommand.getPassword())
+                    .roles(new ArrayList<>(this.roles))
                     .build();
             apply(event);
         }

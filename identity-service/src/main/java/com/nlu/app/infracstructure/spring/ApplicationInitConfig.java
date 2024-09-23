@@ -5,8 +5,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.nlu.app.domain.identity.RoleRepository;
-import com.nlu.app.domain.identity.UserRepository;
+import com.nlu.app.application.identity.query.repository.RoleRepository;
+import com.nlu.app.application.identity.query.repository.UserRepository;
 import com.nlu.app.rest.constant.PredefinedRole;
 import com.nlu.app.rest.dto.request.RoleRequest;
 import com.nlu.app.rest.service.RestRoleService;

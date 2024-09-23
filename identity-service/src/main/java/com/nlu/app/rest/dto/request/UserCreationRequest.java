@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-import com.nlu.app.domain.identity.validator.DobConstraint;
+import com.nlu.app.application.identity.query.entity.validator.DobConstraint;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

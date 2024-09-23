@@ -9,10 +9,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.nlu.app.domain.identity.User;
-import com.nlu.app.domain.identity.UserMapper;
-import com.nlu.app.domain.identity.RoleRepository;
-import com.nlu.app.domain.identity.UserRepository;
+import com.nlu.app.application.identity.query.entity.User;
+import com.nlu.app.application.identity.query.entity.UserMapper;
+import com.nlu.app.application.identity.query.repository.RoleRepository;
+import com.nlu.app.application.identity.query.repository.UserRepository;
 import com.nlu.app.domain.identity.event.UserCreatedEvent;
 import com.nlu.app.application.identity.query.GetUserByUsernameQuery;
 import com.nlu.app.rest.exception.ApplicationException;

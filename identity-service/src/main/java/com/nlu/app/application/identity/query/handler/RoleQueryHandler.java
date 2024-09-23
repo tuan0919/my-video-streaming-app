@@ -3,7 +3,7 @@ package com.nlu.app.application.identity.query.handler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.springframework.stereotype.Component;
 
-import com.nlu.app.domain.identity.RoleRepository;
+import com.nlu.app.application.identity.query.repository.RoleRepository;
 import com.nlu.app.application.identity.query.RoleExistsQuery;
 
 import lombok.AccessLevel;

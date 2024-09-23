@@ -16,7 +16,7 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.nlu.app.domain.identity.User;
+import com.nlu.app.application.identity.query.entity.User;
 import com.nlu.app.rest.exception.ApplicationException;
 import com.nlu.app.rest.exception.ErrorCode;
 

@@ -1,4 +1,4 @@
-package com.nlu.app.domain.authenticate;
+package com.nlu.app.querySide.service;
 
 import java.text.ParseException;
 import java.time.Instant;
@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.UUID;
 
+import com.nlu.app.domain.authenticate.InvalidatedToken;
+import com.nlu.app.domain.authenticate.InvalidatedTokenRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,8 +21,8 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.nlu.app.domain.identity.User;
-import com.nlu.app.domain.identity.UserRepository;
+import com.nlu.app.application.identity.query.entity.User;
+import com.nlu.app.application.identity.query.repository.UserRepository;
 import com.nlu.app.rest.dto.request.*;
 import com.nlu.app.rest.dto.response.AuthenticationResponse;
 import com.nlu.app.rest.dto.response.IntrospectResponse;

@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.nlu.app.domain.identity.RoleMapper;
-import com.nlu.app.domain.identity.PermissionRepository;
-import com.nlu.app.domain.identity.RoleRepository;
+import com.nlu.app.application.identity.query.entity.RoleMapper;
+import com.nlu.app.application.identity.query.repository.PermissionRepository;
+import com.nlu.app.application.identity.query.repository.RoleRepository;
 import com.nlu.app.rest.dto.request.RoleRequest;
 import com.nlu.app.rest.dto.response.RoleResponse;
 
