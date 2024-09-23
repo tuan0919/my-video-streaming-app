@@ -4,9 +4,10 @@ import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.*;
 
-import com.nlu.app.rest.service.CommandUserService;
-import com.nlu.app.querySide.dto.AppResponse;
-import com.nlu.app.querySide.dto.request.UserCreationRequest;
+import com.nlu.app.rest.dto.AppResponse;
+import com.nlu.app.rest.dto.request.UserCreationRequest;
+import com.nlu.app.rest.dto.response.UserResponse;
+import com.nlu.app.rest.service.RestUserService;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +20,12 @@ import lombok.extern.slf4j.Slf4j;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class CommandUserController {
-    CommandUserService commandUserService;
+    RestUserService restUserService;
 
     @PostMapping("/registration")
-    AppResponse<String> createUser(@RequestBody @Valid UserCreationRequest request) {
-        return AppResponse.<String>builder()
-                .result(commandUserService.createUser(request))
+    AppResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
+        return AppResponse.<UserResponse>builder()
+                .result(restUserService.createUser(request))
                 .build();
     }
 }
