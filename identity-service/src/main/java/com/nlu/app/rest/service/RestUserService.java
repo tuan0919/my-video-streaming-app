@@ -5,6 +5,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
+import com.nlu.app.application.identity.query.EmailExistsQuery;
+import com.nlu.app.application.identity.query.GetUserByUsernameQuery;
+import com.nlu.app.application.identity.query.RoleExistsQuery;
+import com.nlu.app.application.identity.query.UsernameExistsQuery;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.messaging.responsetypes.ResponseTypes;
 import org.axonframework.queryhandling.QueryGateway;
@@ -12,8 +16,7 @@ import org.axonframework.queryhandling.SubscriptionQueryResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.nlu.app.commandSide.commands.CreateUserCommand;
-import com.nlu.app.domain.query.*;
+import com.nlu.app.application.identity.command.CreateUserCommand;
 import com.nlu.app.rest.constant.PredefinedRole;
 import com.nlu.app.rest.dto.request.UserCreationRequest;
 import com.nlu.app.rest.dto.response.UserResponse;

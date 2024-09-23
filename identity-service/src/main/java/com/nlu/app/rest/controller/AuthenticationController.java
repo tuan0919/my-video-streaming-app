@@ -2,13 +2,14 @@ package com.nlu.app.rest.controller;
 
 import java.text.ParseException;
 
+import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nimbusds.jose.JOSEException;
-import com.nlu.app.querySide.service.AuthenticationService;
+import com.nlu.app.domain.authenticate.AuthenticationService;
 import com.nlu.app.rest.dto.AppResponse;
 import com.nlu.app.rest.dto.request.*;
 import com.nlu.app.rest.dto.response.AuthenticationResponse;
@@ -25,7 +26,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationController {
     AuthenticationService authenticationService;
-
+    CommandGateway commandGateway;
     @PostMapping("/token")
     AppResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
         var result = authenticationService.authenticate(request);

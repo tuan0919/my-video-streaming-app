@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.nlu.app.commandSide.state.entity.Permission;
-import com.nlu.app.commandSide.state.mapper.PermissionMapper;
-import com.nlu.app.commandSide.state.repository.PermissionRepository;
+import com.nlu.app.domain.identity.Permission;
+import com.nlu.app.domain.identity.PermissionMapper;
+import com.nlu.app.domain.identity.PermissionRepository;
 import com.nlu.app.rest.dto.request.PermissionRequest;
 import com.nlu.app.rest.dto.response.PermissionResponse;
 

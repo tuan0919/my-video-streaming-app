@@ -5,9 +5,9 @@ import org.axonframework.queryhandling.QueryGateway;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.nlu.app.commandSide.commands.CreateRoleCommand;
-import com.nlu.app.domain.query.PermissionsExistsQuery;
-import com.nlu.app.domain.query.RoleExistsQuery;
+import com.nlu.app.application.identity.command.CreateRoleCommand;
+import com.nlu.app.application.identity.query.PermissionsExistsQuery;
+import com.nlu.app.application.identity.query.RoleExistsQuery;
 import com.nlu.app.rest.dto.request.RoleRequest;
 import com.nlu.app.rest.exception.ApplicationException;
 import com.nlu.app.rest.exception.ErrorCode;
