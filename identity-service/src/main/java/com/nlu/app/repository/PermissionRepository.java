@@ -8,5 +8,4 @@ import com.nlu.app.entity.Permission;
 import io.micrometer.observation.annotation.Observed;
 
 @Repository
-@Observed
 public interface PermissionRepository extends JpaRepository<Permission, String> {}
