@@ -5,7 +5,5 @@ import org.springframework.stereotype.Repository;
 
 import com.nlu.app.entity.Permission;
 
-import io.micrometer.observation.annotation.Observed;
-
 @Repository
 public interface PermissionRepository extends JpaRepository<Permission, String> {}

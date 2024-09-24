@@ -5,7 +5,5 @@ import org.springframework.stereotype.Repository;
 
 import com.nlu.app.entity.InvalidatedToken;
 
-import io.micrometer.observation.annotation.Observed;
-
 @Repository
 public interface InvalidatedTokenRepository extends JpaRepository<InvalidatedToken, String> {}

@@ -3,7 +3,6 @@ package com.nlu.app.service;
 import java.util.HashSet;
 import java.util.List;
 
-import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,7 +22,6 @@ import com.nlu.app.entity.Role;
 import com.nlu.app.entity.User;
 import com.nlu.app.exception.ApplicationException;
 import com.nlu.app.exception.ErrorCode;
-import com.nlu.app.mapper.ProfileMapper;
 import com.nlu.app.mapper.UserMapper;
 import com.nlu.app.repository.OutboxRepository;
 import com.nlu.app.repository.RoleRepository;
@@ -43,9 +41,7 @@ public class UserService {
     RoleRepository roleRepository;
     OutboxRepository outboxRepository;
     UserMapper userMapper;
-    ProfileMapper profileMapper;
     PasswordEncoder passwordEncoder;
-    StreamBridge streamBridge;
 
     public UserResponse createUser(UserCreationRequest request) {
         User user = userMapper.toUser(request);
