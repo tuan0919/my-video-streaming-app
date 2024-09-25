@@ -1,5 +1,6 @@
-package com.nlu.app.domain.identity;
+package com.nlu.app.application.identity.query.repository;
 
+import com.nlu.app.application.identity.query.entity.Permission;
 import org.mapstruct.Mapper;
 
 import com.nlu.app.rest.dto.request.PermissionRequest;

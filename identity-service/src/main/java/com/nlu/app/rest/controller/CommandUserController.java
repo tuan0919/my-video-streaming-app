@@ -2,6 +2,7 @@ package com.nlu.app.rest.controller;
 
 import jakarta.validation.Valid;
 
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.web.bind.annotation.*;
 
 import com.nlu.app.rest.dto.AppResponse;
@@ -14,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -23,9 +26,9 @@ public class CommandUserController {
     RestUserService restUserService;
 
     @PostMapping("/registration")
-    AppResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
-        return AppResponse.<UserResponse>builder()
-                .result(restUserService.createUser(request))
+    AppResponse<String> createUser(@RequestBody @Valid UserCreationRequest request) {
+        return AppResponse.<String>builder()
+                .result(restUserService.createUser(request, UUID.randomUUID().toString()))
                 .build();
     }
 }

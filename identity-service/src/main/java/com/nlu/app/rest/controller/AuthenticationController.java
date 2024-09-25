@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nimbusds.jose.JOSEException;
-import com.nlu.app.domain.authenticate.AuthenticationService;
+import com.nlu.app.querySide.service.AuthenticationService;
 import com.nlu.app.rest.dto.AppResponse;
 import com.nlu.app.rest.dto.request.*;
 import com.nlu.app.rest.dto.response.AuthenticationResponse;

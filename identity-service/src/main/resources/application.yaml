@@ -1,5 +1,9 @@
 server:
   port: 18080
+logging:
+  level:
+    springframework:
+      security: DEBUG
 spring:
   application:
     name: identity-service

@@ -3,7 +3,7 @@ package com.nlu.app.rest.dto.request;
 import java.time.LocalDate;
 import java.util.List;
 
-import com.nlu.app.domain.identity.validator.DobConstraint;
+import com.nlu.app.application.identity.query.entity.validator.DobConstraint;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

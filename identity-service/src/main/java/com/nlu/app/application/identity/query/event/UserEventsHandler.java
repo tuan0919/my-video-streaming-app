@@ -5,14 +5,15 @@ import java.util.HashSet;
 import com.nlu.app.domain.identity.event.RoleAddedEvent;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryUpdateEmitter;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.nlu.app.domain.identity.User;
-import com.nlu.app.domain.identity.UserMapper;
-import com.nlu.app.domain.identity.RoleRepository;
-import com.nlu.app.domain.identity.UserRepository;
+import com.nlu.app.application.identity.query.entity.User;
+import com.nlu.app.application.identity.query.entity.UserMapper;
+import com.nlu.app.application.identity.query.repository.RoleRepository;
+import com.nlu.app.application.identity.query.repository.UserRepository;
 import com.nlu.app.domain.identity.event.UserCreatedEvent;
 import com.nlu.app.application.identity.query.GetUserByUsernameQuery;
 import com.nlu.app.rest.exception.ApplicationException;
@@ -31,6 +32,7 @@ public class UserEventsHandler {
     RoleRepository roleRepository;
     QueryUpdateEmitter queryUpdateEmitter;
     UserMapper userMapper;
+    SimpMessagingTemplate messagingTemplate;
 
     @EventHandler
     @Transactional
@@ -49,6 +51,8 @@ public class UserEventsHandler {
                 GetUserByUsernameQuery.class,
                 query -> query.getUsername().equals(event.getUsername()),
                 userMapper.toUserResponse(user));
+        String requestId = event.getRequestId();
+        messagingTemplate.convertAndSendToUser(requestId, "/topic/user-created", userMapper.toUserResponse(user));
     }
 
     @EventHandler

@@ -1,7 +1,8 @@
-package com.nlu.app.domain.identity;
+package com.nlu.app.application.identity.query.repository;
 
 import java.util.Set;
 
+import com.nlu.app.application.identity.query.entity.Permission;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

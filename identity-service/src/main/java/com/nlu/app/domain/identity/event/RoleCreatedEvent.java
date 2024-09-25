@@ -14,4 +14,5 @@ public class RoleCreatedEvent {
     String name;
     String description;
     Set<String> permissions;
+    String requestId;
 }

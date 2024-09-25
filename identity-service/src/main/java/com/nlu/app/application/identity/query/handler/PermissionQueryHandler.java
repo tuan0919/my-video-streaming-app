@@ -3,7 +3,7 @@ package com.nlu.app.application.identity.query.handler;
 import org.axonframework.queryhandling.QueryHandler;
 import org.springframework.stereotype.Component;
 
-import com.nlu.app.domain.identity.PermissionRepository;
+import com.nlu.app.application.identity.query.repository.PermissionRepository;
 import com.nlu.app.application.identity.query.PermissionsExistsQuery;
 
 import lombok.AccessLevel;

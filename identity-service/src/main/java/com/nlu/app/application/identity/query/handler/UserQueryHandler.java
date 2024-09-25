@@ -6,8 +6,8 @@ import org.axonframework.queryhandling.QueryHandler;
 import org.axonframework.queryhandling.QueryUpdateEmitter;
 import org.springframework.stereotype.Component;
 
-import com.nlu.app.domain.identity.UserMapper;
-import com.nlu.app.domain.identity.UserRepository;
+import com.nlu.app.application.identity.query.entity.UserMapper;
+import com.nlu.app.application.identity.query.repository.UserRepository;
 import com.nlu.app.application.identity.query.EmailExistsQuery;
 import com.nlu.app.application.identity.query.GetUserByUsernameQuery;
 import com.nlu.app.application.identity.query.GetUserQuery;

@@ -1,4 +1,4 @@
-package com.nlu.app.domain.identity;
+package com.nlu.app.application.identity.query.entity;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

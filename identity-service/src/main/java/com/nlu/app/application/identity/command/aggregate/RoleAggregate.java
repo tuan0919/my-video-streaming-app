@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Component
-public class RoleAggregate {
+class RoleAggregate {
     @AggregateIdentifier
     private String name;
 

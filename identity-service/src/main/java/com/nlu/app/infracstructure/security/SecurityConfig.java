@@ -24,7 +24,8 @@ public class SecurityConfig {
         "/auth/logout",
         "/auth/refresh",
         "/auth/userinfo",
-        "/actuator/**"
+        "/actuator/**",
+        "/ws/**"
     };
 
     private final CustomJwtDecoder customJwtDecoder;
@@ -35,10 +36,12 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(PUBLIC_ENDPOINTS)
+        httpSecurity
+                .authorizeHttpRequests(request -> request.requestMatchers(PUBLIC_ENDPOINTS)
                 .permitAll()
                 .anyRequest()
-                .authenticated());
+                .authenticated()
+        );
 
         httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
                         .decoder(customJwtDecoder)

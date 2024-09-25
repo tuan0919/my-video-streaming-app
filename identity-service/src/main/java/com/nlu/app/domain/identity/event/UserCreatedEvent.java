@@ -21,4 +21,5 @@ public class UserCreatedEvent {
     LocalDate dob;
     String city;
     Set<String> roles;
+    String requestId;
 }

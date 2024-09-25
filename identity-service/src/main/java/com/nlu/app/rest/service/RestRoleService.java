@@ -42,6 +42,7 @@ public class RestRoleService {
             throw new ApplicationException(ErrorCode.PERMISSION_NOT_EXISTED);
         }
         commandGateway.sendAndWait(command);
+        //block thread...
         return "OK";
     }
 }

@@ -1,4 +1,4 @@
-package com.nlu.app.domain.identity.validator;
+package com.nlu.app.application.identity.query.entity.validator;
 
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
