@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     AppResponse<String> handleRuntimeException(RuntimeException ex) {
-        log.error("exception: ", ex);
+        ex.printStackTrace();
         return AppResponse.<String>builder()
                 .message(ErrorCode.UNKNOWN_EXCEPTION.getMessage())
                 .code(ErrorCode.UNKNOWN_EXCEPTION.getCode())
@@ -21,6 +21,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ApplicationException.class)
     AppResponse<String> handleApplicationException(ApplicationException ex) {
+        ex.printStackTrace();
         return AppResponse.<String>builder()
                 .message(ex.getErrorCode().getMessage())
                 .code(ex.getErrorCode().getCode())
