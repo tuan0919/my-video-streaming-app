@@ -1,6 +1,6 @@
 package com.nlu.app.common.event;
 
-import com.nlu.app.common.dto.IdentityCreationDTO;
+import com.nlu.app.common.dto.UserCreationDTO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -10,12 +10,12 @@ import java.util.UUID;
 @NoArgsConstructor
 public class ProfileCreatedEvent {
     private String eventId = UUID.randomUUID().toString();
-    private IdentityCreationDTO identityCreationDTO;
+    private UserCreationDTO userCreateDTO;
     private Long timestamp = System.currentTimeMillis();
     private String sagaId;
 
-    public ProfileCreatedEvent(IdentityCreationDTO userCreateDTO, String sagaId) {
-        this.identityCreationDTO = identityCreationDTO;
+    public ProfileCreatedEvent(UserCreationDTO userCreateDTO, String sagaId) {
+        this.userCreateDTO = userCreateDTO;
         this.sagaId = sagaId;
     }
 }
