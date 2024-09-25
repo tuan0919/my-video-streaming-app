@@ -19,6 +19,8 @@ public class Routes {
     String videoStreamingDomain;
     @Value("${comment-service.domain}")
     String commentDomain;
+    @Value("${profile-service.domain}")
+    String profileDomain;
     @Value("${gateway-service./prefix}")
     String prefix;
     @Value("${gateway-service.strip}")
@@ -46,6 +48,11 @@ public class Routes {
                 .route(r -> r.path(prefix+"/video-streaming/**")
                         .filters(f -> f.stripPrefix(PREFIX_STRIP).filter(authFilter))
                         .uri(videoStreamingDomain)
-                ).build();
+                )
+                .route(r -> r.path(prefix+"/profile/**")
+                        .filters(f -> f.stripPrefix(PREFIX_STRIP).filter(authFilter))
+                        .uri(profileDomain)
+                )
+                .build();
     }
 }
