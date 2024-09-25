@@ -1,11 +1,11 @@
 spring:
-  sleuth:
-    otel:
-      config:
-        trace-id-ratio-based: 1.0
-      exporter:
-        otlp:
-          endpoint: http://collector:4317
+#  sleuth:
+#    otel:
+#      config:
+#        trace-id-ratio-based: 1.0
+#      exporter:
+#        otlp:
+#          endpoint: http://collector:4317
 gateway-service:
   /prefix: /api/v1
   strip: 2
@@ -14,32 +14,32 @@ gateway-service:
     /identity/auth/introspect,
     /identity/users/registration
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-  endpoint:
-    health:
-      show-components: always
-      show-details: always
-  tracing:
-    sampling:
-      probability: 1.0
-  metrics:
-    distribution:
-      percentiles-histogram:
-        enabled: true
-    tags:
-      service: gateway_service
-  otlp:
-    tracing:
-      endpoint: http://localhost:4318/v1/traces
-    metrics:
-      export:
-        enabled: true
-        in-memory: true
-        url: http://localhost:4318/v1/metrics
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: "*"
+#  endpoint:
+#    health:
+#      show-components: always
+#      show-details: always
+#  tracing:
+#    sampling:
+#      probability: 1.0
+#  metrics:
+#    distribution:
+#      percentiles-histogram:
+#        enabled: true
+#    tags:
+#      service: gateway_service
+#  otlp:
+#    tracing:
+#      endpoint: http://localhost:4318/v1/traces
+#    metrics:
+#      export:
+#        enabled: true
+#        in-memory: true
+#        url: http://localhost:4318/v1/metrics
 
 identity-service:
   domain: lb://identity-service
@@ -47,3 +47,5 @@ video-streaming-service:
   domain: http://wjbu.online:8888
 comment-service:
   domain: lb://comment-service
+profile-service:
+  domain: lb://profile-service
