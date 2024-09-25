@@ -14,6 +14,7 @@ import org.axonframework.messaging.responsetypes.ResponseTypes;
 import org.axonframework.queryhandling.QueryGateway;
 import org.axonframework.queryhandling.SubscriptionQueryResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.nlu.app.application.identity.command.CreateUserCommand;
@@ -27,6 +28,7 @@ import com.nlu.app.rest.exception.ErrorCode;
 public class RestUserService {
     private CommandGateway commandGateway;
     private QueryGateway queryGateway;
+    private SimpMessagingTemplate messagingTemplate;
 
     @Autowired
     private void setCommandGateway(CommandGateway commandGateway) {
@@ -38,7 +40,12 @@ public class RestUserService {
         this.queryGateway = queryGateway;
     }
 
-    public UserResponse createUser(UserCreationRequest request) {
+    @Autowired
+    public void setMessagingTemplate(SimpMessagingTemplate messagingTemplate) {
+        this.messagingTemplate = messagingTemplate;
+    }
+
+    public String createUser(UserCreationRequest request, String sessionId) {
         var command = CreateUserCommand.builder()
                 .dob(request.getDob())
                 .email(request.getEmail())
@@ -48,6 +55,7 @@ public class RestUserService {
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .roles(new HashSet<>(List.of(PredefinedRole.USER_ROLE)))
+                .requestId(sessionId)
                 .build();
         String username = request.getUsername();
         String email = request.getEmail();
@@ -64,14 +72,6 @@ public class RestUserService {
             throw new ApplicationException(ErrorCode.ROLE_NOT_EXISTED);
         }
         commandGateway.sendAndWait(command);
-        var queryByUsername =
-                GetUserByUsernameQuery.builder().username(username).build();
-        SubscriptionQueryResult<Optional<UserResponse>, UserResponse> subscription = queryGateway.subscriptionQuery(
-                queryByUsername,
-                ResponseTypes.optionalInstanceOf(UserResponse.class),
-                ResponseTypes.instanceOf(UserResponse.class));
-        var response = subscription.updates().blockFirst(Duration.ofSeconds(3)); // timeout in 3 seconds
-        subscription.close();
-        return response;
+        return sessionId;
     }
 }

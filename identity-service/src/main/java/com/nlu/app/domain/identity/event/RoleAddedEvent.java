@@ -11,4 +11,5 @@ import lombok.experimental.FieldDefaults;
 public class RoleAddedEvent {
     String userId;
     String roleName;
+    String requestId;
 }

@@ -5,6 +5,7 @@ import java.util.HashSet;
 import com.nlu.app.domain.identity.event.RoleAddedEvent;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryUpdateEmitter;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,7 @@ public class UserEventsHandler {
     RoleRepository roleRepository;
     QueryUpdateEmitter queryUpdateEmitter;
     UserMapper userMapper;
+    SimpMessagingTemplate messagingTemplate;
 
     @EventHandler
     @Transactional
@@ -49,6 +51,8 @@ public class UserEventsHandler {
                 GetUserByUsernameQuery.class,
                 query -> query.getUsername().equals(event.getUsername()),
                 userMapper.toUserResponse(user));
+        String requestId = event.getRequestId();
+        messagingTemplate.convertAndSendToUser(requestId, "/topic/user-created", userMapper.toUserResponse(user));
     }
 
     @EventHandler

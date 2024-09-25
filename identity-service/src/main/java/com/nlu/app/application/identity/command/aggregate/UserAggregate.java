@@ -57,6 +57,7 @@ class UserAggregate {
                 .password(createUserCmd.getPassword())
                 .userId(UUID.randomUUID().toString())
                 .roles(createUserCmd.getRoles())
+                .requestId(createUserCmd.getRequestId())
                 .build();
         apply(event);
     }

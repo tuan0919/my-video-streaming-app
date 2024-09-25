@@ -20,4 +20,5 @@ public class CreateUserCommand {
     LocalDate dob;
     String city;
     HashSet<String> roles;
+    String requestId;
 }
