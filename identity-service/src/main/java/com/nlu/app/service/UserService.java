@@ -2,15 +2,19 @@ package com.nlu.app.service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 
+import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nlu.app.common.axon.UserCreationCommand;
 import com.nlu.app.common.dto.UserCreationDTO;
 import com.nlu.app.common.event.UserCreationEvent;
 import com.nlu.app.constant.PredefinedRole;
@@ -42,6 +46,7 @@ public class UserService {
     OutboxRepository outboxRepository;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
+    CommandGateway commandGateway;
 
     public UserResponse createUser(UserCreationRequest request) {
         User user = userMapper.toUser(request);
@@ -77,6 +82,20 @@ public class UserService {
             throw new RuntimeException(e);
         }
         return userMapper.toUserResponse(user);
+    }
+
+    @Transactional
+    public String test(UserCreationRequest request) {
+        var command = UserCreationCommand.builder()
+                .id(UUID.randomUUID().toString())
+                .email(request.getEmail())
+                .username(request.getUsername())
+                .password(request.getPassword())
+                .username(request.getUsername())
+                .verified(false)
+                .build();
+        commandGateway.sendAndWait(command);
+        return "OK";
     }
 
     public UserResponse getMyInfo() {
