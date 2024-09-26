@@ -13,6 +13,21 @@ spring:
         enabled: true
         service-id: cloud-config-service
 
+axon:
+  kafka:
+    client-id: kafka-axon
+    default-topic: notification_topic
+    producer:
+      retries: 0
+      client-id: axon-producer
+      bootstrap-servers: localhost:19092
+    consumer:
+      group-id: "local.event.consumer-group"
+      event-processor-mode: subscribing
+      bootstrap-servers: localhost:19092
+    properties:
+      security.protocol: PLAINTEXT
+
 eureka:
   client:
     server-url:
