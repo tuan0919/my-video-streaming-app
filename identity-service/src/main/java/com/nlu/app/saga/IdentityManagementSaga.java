@@ -11,9 +11,9 @@ import org.axonframework.spring.stereotype.Saga;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.nlu.app.common.axon.NotificationCreatedEvent;
-import com.nlu.app.common.axon.NotificationCreationCommand;
-import com.nlu.app.common.axon.UserCreatedEvent;
+import com.nlu.app.common.axon.event.NotificationCreatedEvent;
+import com.nlu.app.common.axon.command.NotificationCreationCommand;
+import com.nlu.app.common.axon.event.UserCreatedEvent;
 
 @Saga
 @Component
@@ -35,7 +35,7 @@ public class UserCreationSaga {
                 .notificationId(notificationId)
                 .content("Welcome user " + event.getUsername())
                 .build();
-        commandGateway.send(notificationCommand);
+        commandGateway.send(notificationCommand); // create notification
     }
 
     @SagaEventHandler(associationProperty = "notificationId")
