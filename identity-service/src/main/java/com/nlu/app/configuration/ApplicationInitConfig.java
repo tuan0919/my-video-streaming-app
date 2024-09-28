@@ -1,6 +1,7 @@
 package com.nlu.app.configuration;
 
 import java.util.HashSet;
+import java.util.UUID;
 
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Configuration;
@@ -54,6 +55,7 @@ public class ApplicationInitConfig {
             User user = User.builder()
                     .username(ADMIN_USER_NAME)
                     .emailVerified(true)
+                    .id(UUID.randomUUID().toString())
                     .password(passwordEncoder.encode(ADMIN_PASSWORD))
                     .roles(roles)
                     .build();
