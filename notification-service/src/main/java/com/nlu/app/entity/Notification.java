@@ -11,10 +11,11 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "notifications")
+@Entity
 public class Notification {
-    @Id @GeneratedValue(strategy = GenerationType.UUID)
-    String id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    String notificationId;
     String userId;
     LocalDateTime time;
     String content;
