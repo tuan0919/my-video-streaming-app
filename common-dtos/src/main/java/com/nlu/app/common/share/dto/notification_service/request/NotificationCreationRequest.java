@@ -1,4 +1,4 @@
-package com.nlu.app.common.axon.command;
+package com.nlu.app.common.axon.dto.notification_service.request;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -8,9 +8,10 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @Value
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-public class ProfileCreationCommand {
-    String profileId;
+public class NotificationCreationRequest {
+    String notificationId;
     String userId;
-    String fullName;
-    String country;
+    String content;
+    Boolean isRead = false;
+    String type;
 }
