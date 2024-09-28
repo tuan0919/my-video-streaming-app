@@ -3,6 +3,8 @@ server:
 spring:
   application:
     name: notification-service
+  servlet:
+    context-path: /notification
   profiles:
     active: default
   config:
