@@ -46,16 +46,6 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.axonframework</groupId>
-			<artifactId>axon-spring-boot-starter</artifactId>
-			<version>4.10.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.axonframework.extensions.kafka</groupId>
-			<artifactId>axon-kafka-spring-boot-starter</artifactId>
-			<version>4.10.0</version>
-		</dependency>
 	</dependencies>
 
 	<build>
