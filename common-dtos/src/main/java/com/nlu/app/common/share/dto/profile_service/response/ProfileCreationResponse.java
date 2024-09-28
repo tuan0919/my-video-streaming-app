@@ -1,4 +1,4 @@
-package com.nlu.app.common.axon.dto.profile_service.response;
+package com.nlu.app.common.share.dto.profile_service.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

@@ -1,4 +1,4 @@
-package com.nlu.app.common.axon.event;
+package com.nlu.app.common.share.event;
 
 import lombok.AccessLevel;
 import lombok.Builder;
