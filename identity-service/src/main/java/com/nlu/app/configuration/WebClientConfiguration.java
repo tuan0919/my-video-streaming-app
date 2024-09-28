@@ -1,5 +1,6 @@
 package com.nlu.app.configuration;
 
+import com.nlu.app.repository.webclient.NotificationWebClient;
 import com.nlu.app.repository.webclient.ProfileWebClient;
 import io.netty.resolver.DefaultAddressResolverGroup;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +16,11 @@ import reactor.netty.http.client.HttpClient;
 @Configuration
 public class WebClientConfiguration {
     @Value("${profile-service.domain}")
-    String identityBaseURI;
+    private String profileBaseURI;
+
+    @Value("${notification-service.domain}")
+    private String notificationBaseURI;
+
     @Bean
     @LoadBalanced
     public WebClient.Builder webClientBuilder() {
@@ -23,17 +28,37 @@ public class WebClientConfiguration {
     }
 
     @Bean
-    WebClient webClient(WebClient.Builder builder) {
-        HttpClient httpClient = HttpClient.create().resolver(DefaultAddressResolverGroup.INSTANCE);
-        return builder
-                .clientConnector(new ReactorClientHttpConnector(httpClient))
-                .baseUrl(identityBaseURI)
-                .build();
+    public WebClient profileWebClient(WebClient.Builder builder) {
+        return createWebClient(builder, profileBaseURI);
     }
+
     @Bean
-    ProfileWebClient profileWebClient(WebClient webClient) {
-        var factory = HttpServiceProxyFactory
-                .builderFor(WebClientAdapter.create(webClient)).build();
-        return factory.createClient(ProfileWebClient.class);
+    public WebClient notificationWebClient(WebClient.Builder builder) {
+        return createWebClient(builder, notificationBaseURI);
+    }
+
+    @Bean
+    public ProfileWebClient profileServiceClient(WebClient profileWebClient) {
+        return createClient(profileWebClient, ProfileWebClient.class);
+    }
+
+    @Bean
+    public NotificationWebClient notificationServiceClient(WebClient notificationWebClient) {
+        return createClient(notificationWebClient, NotificationWebClient.class);
+    }
+
+
+
+
+    private <T> T createClient(WebClient webClient, Class<T> clientClass) {
+        var factory = HttpServiceProxyFactory.builderFor(WebClientAdapter.create(webClient)).build();
+        return factory.createClient(clientClass);
+    }
+
+    private WebClient createWebClient(WebClient.Builder builder, String baseURI) {
+        return builder
+                .baseUrl(baseURI) // Thiết lập base URL cho WebClient
+                .clientConnector(new ReactorClientHttpConnector(HttpClient.create()))
+                .build();
     }
 }
