@@ -2,6 +2,7 @@ package com.nlu.app.saga;
 import java.time.Duration;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nlu.app.common.share.Saga;
 import com.nlu.app.common.share.dto.notification_service.request.NotificationCreationRequest;
 import com.nlu.app.common.share.dto.profile_service.request.ProfileCreationRequest;
 import com.nlu.app.common.share.event.NotificationCreatedEvent;
@@ -13,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 import com.nlu.app.common.share.event.UserCreatedEvent;
@@ -40,33 +43,54 @@ public class IdentityManagementSaga {
         this.objectMapper = objectMapper;
     }
 
-    @KafkaListener(topics = "user_created", groupId = "identity-service")
-    public void userCreated(@Payload String payload, Acknowledgment ack) throws JsonProcessingException {
-        log.info("Saga user start: {}", payload);
-        UserCreatedEvent event = objectMapper.readValue(payload, UserCreatedEvent.class);
-        var profileCreate = ProfileCreationRequest.builder()
-                .bio("none")
-                .userId(event.getUserId())
-                .country("vn")
-                .fullName("")
-                .build();
-        try {
-            profileWebClient.createProfile(profileCreate).block();
-            ack.acknowledge();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+    @KafkaListener(topics = "identity.topics", groupId = "identity-service")
+    public void userCreated(@Payload String payload,
+                            @Header ("event") String eventType,
+                            @Header ("id") String eventId,
+                            @Header ("sagaId") String sagaId,
+                            Acknowledgment ack ) throws JsonProcessingException {
+        log.info("eventType: {}, eventId: {}, sagaId: {}", eventType, eventId, sagaId);
+        // TODO: checking if eventId is consumed or not
+        switch (eventType) {
+            case Saga.IDENTITY_CREATED_SUCCESS:
+                log.info("Saga user start: {}", payload);
+                UserCreatedEvent event = objectMapper.readValue(payload, UserCreatedEvent.class);
+                var profileCreate = ProfileCreationRequest.builder()
+                        .bio("none")
+                        .userId(event.getUserId())
+                        .country("vn")
+                        .fullName("")
+                        .build();
+                try {
+                    profileWebClient.createProfile(profileCreate).block();
+                    ack.acknowledge();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                break;
         }
     }
 
     @KafkaListener(topics = "notification_created", groupId = "identity-service")
-    public void notificationCreated(@Payload String payload, Acknowledgment ack) throws JsonProcessingException {
-        NotificationCreatedEvent event = objectMapper.readValue(payload, NotificationCreatedEvent.class);
-        try {
-            // TODO: do something to announce end this saga
-            log.info("notification created: {}", event);
-            ack.acknowledge();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+    public void notificationCreated(@Payload String payload,
+                                    @Header ("event") String eventType,
+                                    @Header (KafkaHeaders.KEY) String key,
+                                    Acknowledgment ack) throws JsonProcessingException {
+        // TODO: checking if key is already exists (this event is consumed)
+        switch (eventType) {
+            case Saga.NOTIFICATION_CREATED_FAILED:
+                log.error("Notification created failed: {}", payload);
+                // TODO: do compensation for other services
+
+                // TODO: do something to announce about the errors
+                ack.acknowledge();
+                break;
+            case Saga.NOTIFICATION_CREATED_SUCCESS:
+                NotificationCreatedEvent event = objectMapper.readValue(payload, NotificationCreatedEvent.class);
+                log.info("Notification created successfully: {}", payload);
+                // TODO: do something to announce about the success
+                ack.acknowledge();
+                break;
         }
     }
 

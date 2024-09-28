@@ -1,6 +1,5 @@
 package com.nlu.app.entity;
 
-import com.nlu.app.common.share.command.ProfileCreationCommand;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

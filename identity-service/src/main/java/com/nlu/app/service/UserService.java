@@ -2,7 +2,9 @@ package com.nlu.app.service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 
+import com.nlu.app.common.share.Saga;
 import com.nlu.app.common.share.event.UserCreatedEvent;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -69,8 +71,8 @@ public class UserService {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             Outbox outbox = Outbox.builder()
-                    .type("insert")
                     .aggregateType("created")
+                    .sagaId(UUID.randomUUID().toString())
                     .aggregateId(user.getId())
                     .payload(objectMapper.writeValueAsString(event))
                     .build();
@@ -100,8 +102,9 @@ public class UserService {
                 .build();
         try {
             Outbox outbox = Outbox.builder()
-                    .type("users")
-                    .aggregateType("created")
+                    .aggregateType("identity")
+                    .sagaId(UUID.randomUUID().toString())
+                    .event(Saga.IDENTITY_CREATED_SUCCESS)
                     .aggregateId(user.getId())
                     .payload(objectMapper.writeValueAsString(event))
                     .build();

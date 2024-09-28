@@ -1,8 +1,8 @@
 package com.nlu.app.controller;
 
+import com.nlu.app.common.share.dto.profile_service.request.ProfileCreationRequest;
+import com.nlu.app.common.share.dto.profile_service.response.ProfileCreationResponse;
 import com.nlu.app.dto.AppResponse;
-import com.nlu.app.dto.request.ProfileCreationRequest;
-import com.nlu.app.dto.response.ProfileCreationResponse;
 import com.nlu.app.service.ProfileService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

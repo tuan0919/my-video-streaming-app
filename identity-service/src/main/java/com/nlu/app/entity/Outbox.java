@@ -18,13 +18,12 @@ public class Outbox {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id = UUID.randomUUID().toString();
-
     @Column(name = "aggregatetype")
     String aggregateType;
-
     @Column(name = "aggregateid")
     String aggregateId;
-
-    String type;
+    String event;
+    @Column(name = "sagaId")
+    String sagaId;
     String payload;
 }
