@@ -1,5 +1,6 @@
 package com.nlu.app.entity;
 
+import com.nlu.app.common.share.command.ProfileCreationCommand;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class Profile {
     @Id @GeneratedValue(strategy = GenerationType.UUID)
-    String id;
+    String profileId;
     @Column
     String userId;
     @Column
