@@ -1,0 +1,52 @@
+server:
+  port: 18886
+spring:
+  application:
+    name: notification-service
+  servlet:
+    context-path: /notification
+  profiles:
+    active: default
+  config:
+    import: optional:configserver:http://cloud-config-service
+  cloud:
+    config:
+      discovery:
+        enabled: true
+        service-id: cloud-config-service
+
+axon:
+  axonserver:
+    servers: localhost:8124
+    enabled: true
+#  kafka:
+#    bootstrap-servers:
+#      - localhost:19092
+#      - localhost:29092
+#      - localhost:39092
+#    client-id: kafka-axon
+#    default-topic: local.event
+#    publisher:
+#      confirmation-mode: transactional
+#    producer:
+#      retries: 2
+#      event-processor-mode: subscribing
+#      transaction-id-prefix: axon-kafka
+#      properties:
+#        enable.idempotence: true
+#    consumer:
+#      event-processor-mode: subscribing
+#      enable-auto-commit: true
+#      auto-commit-interval: 3000
+
+    properties:
+      security.protocol: PLAINTEXT
+
+eureka:
+  client:
+    server-url:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true

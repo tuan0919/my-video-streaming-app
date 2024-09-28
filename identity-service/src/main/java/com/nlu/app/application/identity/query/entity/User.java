@@ -1,8 +1,10 @@
 package com.nlu.app.application.identity.query.entity;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import jakarta.persistence.*;
+
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -31,5 +33,6 @@ public class User {
     boolean emailVerified;
 
     @ManyToMany
-    Set<Role> roles;
+    Set<Role> roles = new HashSet<>();
+
 }

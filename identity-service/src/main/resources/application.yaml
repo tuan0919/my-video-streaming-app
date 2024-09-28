@@ -18,6 +18,19 @@ spring:
       discovery:
         enabled: true
         service-id: cloud-config-service
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:19092,localhost:29092,localhost:39092
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: '*'
+      enable-auto-commit: false
+    listener:
+      ack-mode: manual
 
 eureka:
   client:
@@ -27,3 +40,8 @@ eureka:
     register-with-eureka: true
   instance:
     prefer-ip-address: true
+
+profile-service:
+  domain: lb://profile-service
+notification-service:
+  domain: lb://notification-service

@@ -1,13 +1,16 @@
-package com.nlu.app.querySide.controller;
+package com.nlu.app.controller;
 
 import java.util.List;
 
+import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.*;
 
-import com.nlu.app.querySide.service.UserService;
-import com.nlu.app.rest.dto.AppResponse;
-import com.nlu.app.rest.dto.request.UserUpdateRequest;
-import com.nlu.app.rest.dto.response.UserResponse;
+import com.nlu.app.dto.AppResponse;
+import com.nlu.app.dto.request.UserCreationRequest;
+import com.nlu.app.dto.request.UserUpdateRequest;
+import com.nlu.app.dto.response.UserResponse;
+import com.nlu.app.service.UserService;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +24,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class UserController {
     UserService userService;
+
+    @PostMapping("/registration")
+    AppResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
+        return AppResponse.<UserResponse>builder()
+                .result(userService.createUser(request))
+                .build();
+    }
+
+    @PostMapping("/test")
+    AppResponse<String> createTest(@RequestBody @Valid UserCreationRequest request) {
+        return AppResponse.<String>builder().result(userService.test(request)).build();
+    }
 
     @GetMapping
     AppResponse<List<UserResponse>> getUsers() {

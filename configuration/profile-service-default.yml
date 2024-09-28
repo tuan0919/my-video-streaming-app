@@ -1,0 +1,15 @@
+server:
+  servlet:
+    context-path: /profile
+spring:
+  application:
+    name: profile-service
+  datasource:
+    url: jdbc:mysql://localhost:33063/profile
+    username: nqat0919
+    password: secret
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true

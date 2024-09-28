@@ -1,31 +1,33 @@
-package com.nlu.app.querySide.service;
+package com.nlu.app.service;
 
 import java.util.HashSet;
 import java.util.List;
 
+import com.nlu.app.common.share.event.UserCreatedEvent;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nlu.app.application.identity.query.entity.Outbox;
-import com.nlu.app.application.identity.query.entity.Role;
-import com.nlu.app.application.identity.query.entity.User;
-import com.nlu.app.application.identity.query.entity.UserMapper;
-import com.nlu.app.application.identity.query.repository.OutboxRepository;
-import com.nlu.app.application.identity.query.repository.RoleRepository;
-import com.nlu.app.application.identity.query.repository.UserRepository;
 import com.nlu.app.common.dto.UserCreationDTO;
 import com.nlu.app.common.event.UserCreationEvent;
-import com.nlu.app.rest.constant.PredefinedRole;
-import com.nlu.app.rest.dto.request.UserCreationRequest;
-import com.nlu.app.rest.dto.request.UserUpdateRequest;
-import com.nlu.app.rest.dto.response.UserResponse;
-import com.nlu.app.rest.exception.ApplicationException;
-import com.nlu.app.rest.exception.ErrorCode;
+import com.nlu.app.constant.PredefinedRole;
+import com.nlu.app.dto.request.UserCreationRequest;
+import com.nlu.app.dto.request.UserUpdateRequest;
+import com.nlu.app.dto.response.UserResponse;
+import com.nlu.app.entity.Outbox;
+import com.nlu.app.entity.Role;
+import com.nlu.app.entity.User;
+import com.nlu.app.exception.ApplicationException;
+import com.nlu.app.exception.ErrorCode;
+import com.nlu.app.mapper.UserMapper;
+import com.nlu.app.repository.OutboxRepository;
+import com.nlu.app.repository.RoleRepository;
+import com.nlu.app.repository.UserRepository;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -77,6 +79,37 @@ public class UserService {
             throw new RuntimeException(e);
         }
         return userMapper.toUserResponse(user);
+    }
+
+    @Transactional
+    public String test(UserCreationRequest request) {
+        User user = userMapper.toUser(request);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        HashSet<Role> roles = new HashSet<>();
+        roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
+        user.setRoles(roles);
+        user.setEmailVerified(false);
+        userRepository.save(user);
+        ObjectMapper objectMapper = new ObjectMapper();
+        var event = UserCreatedEvent.builder()
+                .verified(false)
+                .email(user.getEmail())
+                .password(user.getPassword())
+                .username(user.getUsername())
+                .userId(user.getId())
+                .build();
+        try {
+            Outbox outbox = Outbox.builder()
+                    .type("users")
+                    .aggregateType("created")
+                    .aggregateId(user.getId())
+                    .payload(objectMapper.writeValueAsString(event))
+                    .build();
+            outboxRepository.save(outbox);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return "OK";
     }
 
     public UserResponse getMyInfo() {

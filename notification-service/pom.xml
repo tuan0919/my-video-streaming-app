@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.3.2</version>
+		<version>3.3.3</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.nlu.app</groupId>
@@ -28,8 +28,8 @@
 	</scm>
 	<properties>
 		<java.version>22</java.version>
-		<spring-cloud.version>2023.0.1</spring-cloud.version>
-		<springboot-jpa-version>3.3.2</springboot-jpa-version>
+		<spring-cloud.version>2023.0.3</spring-cloud.version>
+		<springboot-jpa-version>3.3.3</springboot-jpa-version>
 		<mysql-connector-version>9.0.0</mysql-connector-version>
 	</properties>
 	<dependencies>
@@ -37,7 +37,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
-			<version>${springboot-jpa-version}</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.mysql/mysql-connector-j -->
@@ -51,12 +50,8 @@
 			<artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-stream-binder-kafka</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-stream</artifactId>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -90,16 +85,6 @@
 			<groupId>com.nlu.app</groupId>
 			<artifactId>common-dtos</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-sleuth</artifactId>
-			<version>3.1.11</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-sleuth-zipkin</artifactId>
-			<version>3.1.11</version>
 		</dependency>
 	</dependencies>
 	<dependencyManagement>

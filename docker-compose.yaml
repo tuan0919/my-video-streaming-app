@@ -66,6 +66,19 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
 
+  axon-server:
+    container_name: axon-server
+    hostname: axon-server
+    image: axoniq/axonserver:2024.1.2
+    ports:
+      - "8024:8024"
+      - "8124:8124"
+    environment:
+      AXONIQ_AXONSERVER_HOSTNAME: axon-server
+    volumes:
+      - data:/axonserver/data
+      - events:/axonserver/events
+
 #  jaeger-service:
 #    container_name: jaeger-service
 #    hostname: jaeger-service
@@ -180,3 +193,7 @@ volumes:
   comments-service-mysql-volumes:
   notifications-service-mysql-volumes:
   profile-service-mysql-volumes:
+  data:
+    driver: local
+  events:
+    driver: local
