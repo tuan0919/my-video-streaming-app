@@ -2,12 +2,10 @@ package com.nlu.app.rest.controller;
 
 import jakarta.validation.Valid;
 
-import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.web.bind.annotation.*;
 
-import com.nlu.app.rest.dto.AppResponse;
-import com.nlu.app.rest.dto.request.UserCreationRequest;
-import com.nlu.app.rest.dto.response.UserResponse;
+import com.nlu.app.dto.AppResponse;
+import com.nlu.app.dto.request.UserCreationRequest;
 import com.nlu.app.rest.service.RestUserService;
 
 import lombok.AccessLevel;

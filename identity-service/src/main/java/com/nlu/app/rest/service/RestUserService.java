@@ -1,12 +1,9 @@
 package com.nlu.app.rest.service;
 
-import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 
 import com.nlu.app.application.identity.query.EmailExistsQuery;
-import com.nlu.app.application.identity.query.GetUserByUsernameQuery;
 import com.nlu.app.application.identity.query.RoleExistsQuery;
 import com.nlu.app.application.identity.query.UsernameExistsQuery;
 import org.axonframework.commandhandling.gateway.CommandGateway;
@@ -18,11 +15,10 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.nlu.app.application.identity.command.CreateUserCommand;
-import com.nlu.app.rest.constant.PredefinedRole;
-import com.nlu.app.rest.dto.request.UserCreationRequest;
-import com.nlu.app.rest.dto.response.UserResponse;
-import com.nlu.app.rest.exception.ApplicationException;
-import com.nlu.app.rest.exception.ErrorCode;
+import com.nlu.app.constant.PredefinedRole;
+import com.nlu.app.dto.request.UserCreationRequest;
+import com.nlu.app.exception.ApplicationException;
+import com.nlu.app.exception.ErrorCode;
 
 @Service
 public class RestUserService {

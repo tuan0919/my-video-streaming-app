@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 import com.nlu.app.application.identity.command.CreateRoleCommand;
 import com.nlu.app.application.identity.query.PermissionsExistsQuery;
 import com.nlu.app.application.identity.query.RoleExistsQuery;
-import com.nlu.app.rest.dto.request.RoleRequest;
-import com.nlu.app.rest.exception.ApplicationException;
-import com.nlu.app.rest.exception.ErrorCode;
+import com.nlu.app.dto.request.RoleRequest;
+import com.nlu.app.exception.ApplicationException;
+import com.nlu.app.exception.ErrorCode;
 
 @Service
 public class RestRoleService {

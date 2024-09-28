@@ -2,11 +2,11 @@ package com.nlu.app.rest.service;
 
 import com.nlu.app.application.identity.command.LoginCommand;
 import com.nlu.app.application.identity.query.GetUserByUsernameQuery;
-import com.nlu.app.rest.dto.request.AuthenticationRequest;
-import com.nlu.app.rest.dto.response.AuthenticationResponse;
-import com.nlu.app.rest.dto.response.UserResponse;
-import com.nlu.app.rest.exception.ApplicationException;
-import com.nlu.app.rest.exception.ErrorCode;
+import com.nlu.app.dto.request.AuthenticationRequest;
+import com.nlu.app.dto.response.AuthenticationResponse;
+import com.nlu.app.dto.response.UserResponse;
+import com.nlu.app.exception.ApplicationException;
+import com.nlu.app.exception.ErrorCode;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.messaging.responsetypes.ResponseTypes;
 import org.axonframework.queryhandling.QueryGateway;
