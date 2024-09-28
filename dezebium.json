@@ -1,6 +1,6 @@
 [
   {
-    "name": "debezium_identity-connector",
+    "name": "debezium_identity-connector-v3",
     "config": {
       "connector.class": "io.debezium.connector.mysql.MySqlConnector",
       "tasks.max": "1",
@@ -9,15 +9,16 @@
       "database.user": "root",
       "database.password": "secret",
       "database.dbname": "identity",
-      "database.server.id": 10001,
+      "database.server.id": 10002,
       "table.include.list": "identity.outbox",
       "topic.prefix": "identity_db",
 
       "transforms": "outbox",
       "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
-      "transforms.outbox.table.fields.additional.placement": "aggregateid:header:userid",
+      "transforms.outbox.additional.fields": "saga_id:event",
+      "transforms.outbox.table.fields.additional.placement": "aggregateid:header:userid,saga_id:header:sagaId,event:header",
       "transforms.outbox.route.by.field": "aggregatetype",
-      "transforms.outbox.route.topic.replacement": "user_${routedByValue}",
+      "transforms.outbox.route.topic.replacement": "${routedByValue}.topics",
 
       "schema.history.internal.kafka.bootstrap.servers": "broker1:9092,broker2:9092,broker3:9092",
       "schema.history.internal.kafka.topic": "schema.identity",
@@ -41,9 +42,10 @@
 
       "transforms": "outbox",
       "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
-      "transforms.outbox.table.fields.additional.placement": "aggregateid:header:userid",
+      "transforms.outbox.additional.fields": "saga_id:event",
+      "transforms.outbox.table.fields.additional.placement": "aggregateid:header:userid,saga_id:header:sagaId,event:header",
       "transforms.outbox.route.by.field": "aggregatetype",
-      "transforms.outbox.route.topic.replacement": "comment_${routedByValue}",
+      "transforms.outbox.route.topic.replacement": "${routedByValue}.topics",
 
       "schema.history.internal.kafka.bootstrap.servers": "broker1:9092,broker2:9092,broker3:9092",
       "schema.history.internal.kafka.topic": "schema.comments",
@@ -67,9 +69,10 @@
 
       "transforms": "outbox",
       "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
-      "transforms.outbox.table.fields.additional.placement": "aggregateid:header:userid",
+      "transforms.outbox.additional.fields": "saga_id:event",
+      "transforms.outbox.table.fields.additional.placement": "aggregateid:header:userid,saga_id:header:sagaId,event:header",
       "transforms.outbox.route.by.field": "aggregatetype",
-      "transforms.outbox.route.topic.replacement": "notification_${routedByValue}",
+      "transforms.outbox.route.topic.replacement": "${routedByValue}.topics",
 
       "schema.history.internal.kafka.bootstrap.servers": "broker1:9092,broker2:9092,broker3:9092",
       "schema.history.internal.kafka.topic": "schema.notifications",
@@ -93,9 +96,10 @@
 
       "transforms": "outbox",
       "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
-      "transforms.outbox.table.fields.additional.placement": "aggregateid:header:userid",
+      "transforms.outbox.additional.fields": "saga_id:event",
+      "transforms.outbox.table.fields.additional.placement": "aggregateid:header:userid,saga_id:header:sagaId,event:header",
       "transforms.outbox.route.by.field": "aggregatetype",
-      "transforms.outbox.route.topic.replacement": "profile_${routedByValue}",
+      "transforms.outbox.route.topic.replacement": "${routedByValue}.topics",
 
       "schema.history.internal.kafka.bootstrap.servers": "broker1:9092,broker2:9092,broker3:9092",
       "schema.history.internal.kafka.topic": "schema.profile",
