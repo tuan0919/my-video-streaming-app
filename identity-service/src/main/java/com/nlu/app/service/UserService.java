@@ -2,9 +2,8 @@ package com.nlu.app.service;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.UUID;
 
-import org.axonframework.commandhandling.gateway.CommandGateway;
+import com.nlu.app.common.share.event.UserCreatedEvent;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nlu.app.common.axon.UserCreationCommand;
 import com.nlu.app.common.dto.UserCreationDTO;
 import com.nlu.app.common.event.UserCreationEvent;
 import com.nlu.app.constant.PredefinedRole;
@@ -46,7 +44,6 @@ public class UserService {
     OutboxRepository outboxRepository;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
-    CommandGateway commandGateway;
 
     public UserResponse createUser(UserCreationRequest request) {
         User user = userMapper.toUser(request);
@@ -86,15 +83,32 @@ public class UserService {
 
     @Transactional
     public String test(UserCreationRequest request) {
-        var command = UserCreationCommand.builder()
-                .id(UUID.randomUUID().toString())
-                .email(request.getEmail())
-                .username(request.getUsername())
-                .password(request.getPassword())
-                .username(request.getUsername())
+        User user = userMapper.toUser(request);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        HashSet<Role> roles = new HashSet<>();
+        roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
+        user.setRoles(roles);
+        user.setEmailVerified(false);
+        userRepository.save(user);
+        ObjectMapper objectMapper = new ObjectMapper();
+        var event = UserCreatedEvent.builder()
                 .verified(false)
+                .email(user.getEmail())
+                .password(user.getPassword())
+                .username(user.getUsername())
+                .userId(user.getId())
                 .build();
-        commandGateway.sendAndWait(command);
+        try {
+            Outbox outbox = Outbox.builder()
+                    .type("users")
+                    .aggregateType("created")
+                    .aggregateId(user.getId())
+                    .payload(objectMapper.writeValueAsString(event))
+                    .build();
+            outboxRepository.save(outbox);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         return "OK";
     }
 
