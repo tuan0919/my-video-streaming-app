@@ -22,8 +22,9 @@ public class Outbox {
     String aggregateType;
     @Column(name = "aggregateid")
     String aggregateId;
-    String event;
-    @Column(name = "sagaId")
+    String sagaAction;
+    String sagaStep;
+    Boolean sagaStepStatus;
     String sagaId;
     String payload;
 }
