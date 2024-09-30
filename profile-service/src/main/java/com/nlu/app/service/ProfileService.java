@@ -52,7 +52,7 @@ public class ProfileService {
                     .aggregateId(profile.getProfileId())
                     .payload(objectMapper.writeValueAsString(event))
                     .build();
-            throw new Exception("My exception");
+            outboxRepository.save(outbox);
         } catch (Exception e) {
             // tell other services to roll back the saga
             Outbox outbox = Outbox.builder()

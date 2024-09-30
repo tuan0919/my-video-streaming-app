@@ -32,6 +32,8 @@ import com.nlu.app.common.share.event.UserCreatedEvent;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Component
@@ -45,16 +47,25 @@ public class IdentityManagementSaga {
     SagaLogService sagaLogService;
     CompensationService compensationService;
 
-    private static final Set<String> SUCCESS_STEPS = Set.of(
+    private static final Set<String> PROCEED_STEPS = Set.of(
             SagaAdvancedStep.IDENTITY_CREATE,
             SagaAdvancedStep.PROFILE_CREATE,
             SagaAdvancedStep.NOTIFICATION_CREATE
     );
 
-    private static final Set<String> ABORT_STEPS = Set.of(
-            SagaCompensationStep.COMPENSATION_IDENTITY_CREATE,
-            SagaCompensationStep.COMPENSATION_PROFILE_CREATE,
-            SagaCompensationStep.COMPENSATION_NOTIFICATION_CREATE
+    private static final Map<String, List<String>> COMPENSATION_MAP = Map.of(
+            SagaAdvancedStep.NOTIFICATION_CREATE, List.of(
+                    SagaCompensationStep.COMPENSATION_NOTIFICATION_CREATE,
+                    SagaCompensationStep.COMPENSATION_PROFILE_CREATE,
+                    SagaCompensationStep.COMPENSATION_IDENTITY_CREATE
+            ),
+            SagaAdvancedStep.PROFILE_CREATE, List.of(
+                    SagaCompensationStep.COMPENSATION_PROFILE_CREATE,
+                    SagaCompensationStep.COMPENSATION_IDENTITY_CREATE
+            ),
+            SagaAdvancedStep.IDENTITY_CREATE, List.of(
+                    SagaCompensationStep.COMPENSATION_IDENTITY_CREATE
+            )
     );
 
     @Transactional
@@ -86,22 +97,17 @@ public class IdentityManagementSaga {
                         .country("vn")
                         .fullName("")
                         .build();
-                var createNotification = NotificationCreationRequest.builder()
-                        .type("INFO")
-                        .userId(event.getUserId())
-                        .content(String.format("Welcome userId %s to our service", event.getUserId()))
-                        .sagaId(sagaId)
-                        .sagaAction(SagaAction.CREATE_NEW_USER)
-                        .build();
                 try {
                     profileWebClient
-                            .createProfile(profileCreate)
-                            .then(notificationWebClient.createNotification(createNotification))
-                            .block();
+                            .createProfile(profileCreate).block();
                     ack.acknowledge();
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
+            }
+            case SagaStatus.FAILED -> {
+                handleCompensation(sagaStep, sagaId);
+                ack.acknowledge();
             }
         }
     }
@@ -131,9 +137,7 @@ public class IdentityManagementSaga {
             }
             case SagaStatus.FAILED -> {
                 try {
-                    compensationForIdentity(sagaId);
-                    compensationForProfile(sagaId);
-                    compensationForNotification(sagaId);
+                    handleCompensation(sagaStep, sagaId);
                     ack.acknowledge();
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -163,17 +167,47 @@ public class IdentityManagementSaga {
                 ProfileCreatedEvent event = objectMapper.readValue(payload, ProfileCreatedEvent.class);
                 log.info("profile created: {}", event);
                 try {
-                    // checking if saga is finished
+                    var createNotification = NotificationCreationRequest.builder()
+                            .type("INFO")
+                            .userId(event.getUserId())
+                            .content(String.format("Welcome userId %s to our service", event.getUserId()))
+                            .sagaId(sagaId)
+                            .sagaAction(SagaAction.CREATE_NEW_USER)
+                            .build();
+                    notificationWebClient.createNotification(createNotification).block();
                     ack.acknowledge();
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             }
             case SagaStatus.FAILED -> {
-                compensationForProfile(sagaId);
-                compensationForIdentity(sagaId);
-                compensationForNotification(sagaId);
+                handleCompensation(sagaStep, sagaId);
                 ack.acknowledge();
+            }
+        }
+    }
+
+    public void handleCompensation(String sagaStep, String sagaId) throws JsonProcessingException {
+        List<String> compensationSteps = COMPENSATION_MAP.get(sagaStep);
+        if (compensationSteps != null) {
+            for (String step : compensationSteps) {
+                // Gọi các service thực hiện từng bước bồi thường
+                executeCompensationStep(step, sagaId);
+            }
+        }
+    }
+
+    private void executeCompensationStep(String step, String sagaId) throws JsonProcessingException {
+        // Thực hiện bồi thường cho từng step
+        switch (step) {
+            case SagaCompensationStep.COMPENSATION_NOTIFICATION_CREATE -> {
+                compensationForNotification(sagaId);
+            }
+            case SagaCompensationStep.COMPENSATION_PROFILE_CREATE -> {
+                compensationForProfile(sagaId);
+            }
+            case SagaCompensationStep.COMPENSATION_IDENTITY_CREATE -> {
+                compensationForIdentity(sagaId);
             }
         }
     }
@@ -189,7 +223,7 @@ public class IdentityManagementSaga {
         compensationService.doCompensation(sagaId);
     }
 
-    private void compensationForNotification(String sagaId) throws JsonProcessingException {
+    private void compensationForNotification(String sagaId) {
         var rollbackRequest = CompensationRequest.builder()
                 .sagaId(sagaId)
                 .build();
@@ -206,6 +240,6 @@ public class IdentityManagementSaga {
                 .updateAt(LocalDateTime.now())
                 .sagaAction(sagaAction)
                 .build();
-        sagaLogService.addSagaLog(sagaLog, ABORT_STEPS, SUCCESS_STEPS);
+        sagaLogService.addSagaLog(sagaLog, PROCEED_STEPS, COMPENSATION_MAP);
     }
 }

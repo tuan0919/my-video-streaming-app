@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -24,7 +26,7 @@ public class SagaLogService {
     SagaLogRepository sagaLogRepository;
     SagaRepository sagaRepository;
 
-    public synchronized boolean checkSagaDone(String sagaId, Set<String> stepSet) {
+    public synchronized boolean checkAllSteps(String sagaId, Set<String> stepSet) {
         Set<SagaLog> sagaLogs = sagaLogRepository
                 .findSagaLogsBySagaIdAndSagaStepInAndStatusEqualsIgnoreCase(sagaId, stepSet, SagaStatus.SUCCESS);
         // Lọc ra các sagaStep đã xảy ra
@@ -35,26 +37,21 @@ public class SagaLogService {
         return happenedSteps.containsAll(stepSet);
     }
 
-    public synchronized boolean checkSagaAborted(String sagaId, Set<String> abortSet) {
-        Set<SagaLog> sagaLogs = sagaLogRepository
-                .findSagaLogsBySagaIdAndSagaStepInAndStatusEqualsIgnoreCase(sagaId, abortSet, SagaStatus.SUCCESS);
-        // Lọc ra các sagaStep đã xảy ra
-        Set<String> happenedSteps = sagaLogs.stream()
-                .map(SagaLog::getSagaStep)
-                .collect(Collectors.toSet());
-        // So sánh trực tiếp 2 tập hợp để kiểm tra xem tất cả các bước abort có xảy ra hay không
-        return happenedSteps.containsAll(abortSet);
+    private String getFailedStep(String sagaId) {
+        var log = sagaLogRepository.findSagaLogByStatusIsAndSagaIdIs(SagaStatus.FAILED, sagaId);
+        if (log == null) return null;
+        return log.getSagaStep();
     }
 
     @Transactional
-    public synchronized void addSagaLog (SagaLog sLog, Set<String> abortSet, Set<String> processSet) {
+    public synchronized void addSagaLog (SagaLog sLog, Set<String> proceedSet, Map<String, List<String>> compensationMap) {
         if (sagaLogRepository.findById(sLog.getId()).isEmpty()) {
             sagaLogRepository.save(sLog);
-            updateSaga(sLog.getSagaId(), sLog.getSagaAction(), abortSet, processSet);
+            updateSaga(sLog.getSagaId(), sLog.getSagaAction(), proceedSet, compensationMap);
         }
     }
 
-    public synchronized void updateSaga(String sagaId, String sagaAction, Set<String> abortSet, Set<String> processSet) {
+    public synchronized void updateSaga(String sagaId, String sagaAction, Set<String> processSet, Map<String, List<String>> compensationMap) {
         if (sagaRepository.findById(sagaId).isEmpty()) {
             var saga = Saga.builder()
                     .sagaId(sagaId)
@@ -74,18 +71,28 @@ public class SagaLogService {
             var saga = sagaRepository.findById(sagaId).get();
             String currentStep = sagaLog.getSagaStep();
             saga.setCurrentStep(currentStep);
-            if (checkSagaDone(sagaId, processSet)) {
+            if (checkAllSteps(sagaId, processSet)) {
                 saga.setState("COMPLETED");
+                saga.setCurrentStep("NONE");
+                // TODO: do something to announce
                 log.info("{} saga is successfully completed.", saga.getSagaAction());
-            } else if (checkSagaAborted(sagaId, abortSet)) {
-                saga.setState("ABORTED");
-                log.info("{} saga is safely aborted.", saga.getSagaAction());
             } else {
-                if (abortSet.contains(currentStep) && !checkSagaAborted(sagaId, abortSet)) {
-                    saga.setState("ABORTING");
-                }
-                else
+                String failedStep = getFailedStep(sagaId);
+                if (failedStep == null) {
                     saga.setState("PROCESSING");
+                } else {
+                    Set<String> compensationSet = compensationMap
+                            .get(failedStep)
+                            .stream().collect(Collectors.toSet());
+                    if (checkAllSteps(sagaId, compensationSet)) {
+                        saga.setCurrentStep("NONE");
+                        saga.setState("ABORTED");
+                        // TODO: do something to announce
+                        log.info("{} saga is safely aborted.", saga.getSagaAction());
+                    }
+                    else
+                        saga.setState("ABORTING");
+                }
             }
             saga.setUpdateAt(LocalDateTime.now());
             sagaRepository.save(saga);
