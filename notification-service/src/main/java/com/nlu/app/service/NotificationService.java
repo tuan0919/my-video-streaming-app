@@ -3,6 +3,8 @@ package com.nlu.app.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.nlu.app.common.share.SagaAction;
+import com.nlu.app.common.share.SagaStep;
 import com.nlu.app.common.share.dto.notification_service.request.NotificationCreationRequest;
 import com.nlu.app.common.share.event.NotificationCreatedEvent;
 import com.nlu.app.constant.NotificationType;
@@ -34,7 +36,6 @@ public class NotificationService {
                 .userId(request.getUserId())
                 .build();
         var entity = repository.save(notification);
-        var outbox = new Outbox();
         NotificationCreatedEvent event = NotificationCreatedEvent.builder()
                 .userId(notification.getUserId())
                 .content(notification.getContent())
@@ -42,10 +43,16 @@ public class NotificationService {
                 .notificationId(notification.getNotificationId())
                 .build();
         try {
-            outbox.setPayload(objectMapper.writeValueAsString(event));
-            outbox.setType("notification");
-            outbox.setAggregateType("created");
-            outbox.setAggregateId(entity.getUserId());
+            Outbox outbox = Outbox.builder()
+                    .payload(objectMapper.writeValueAsString(event))
+                    .aggregateType("notification.created")
+                    .sagaId(request.getSagaId())
+                    .sagaAction(request.getSagaAction())
+                    .aggregateId(entity.getUserId())
+                    .sagaAction(SagaAction.CREATE_NEW_USER)
+                    .sagaStep(SagaStep.NOTIFICATION_CREATE)
+                    .sagaStepStatus(true)
+                    .build();
             outboxRepository.save(outbox);
         } catch (Exception e) {
             //TODO: thêm các event compensation tại đây

@@ -4,7 +4,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
-import com.nlu.app.common.share.Saga;
+import com.nlu.app.common.share.SagaAction;
+import com.nlu.app.common.share.SagaStep;
 import com.nlu.app.common.share.event.UserCreatedEvent;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -102,9 +103,11 @@ public class UserService {
                 .build();
         try {
             Outbox outbox = Outbox.builder()
-                    .aggregateType("identity")
+                    .aggregateType("identity.created")
                     .sagaId(UUID.randomUUID().toString())
-                    .event(Saga.IDENTITY_CREATED_SUCCESS)
+                    .sagaAction(SagaAction.CREATE_NEW_USER)
+                    .sagaStep(SagaStep.IDENTITY_CREATE)
+                    .sagaStepStatus(true)
                     .aggregateId(user.getId())
                     .payload(objectMapper.writeValueAsString(event))
                     .build();

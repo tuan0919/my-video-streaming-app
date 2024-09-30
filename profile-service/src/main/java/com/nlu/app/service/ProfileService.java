@@ -1,6 +1,8 @@
 package com.nlu.app.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nlu.app.common.share.SagaAction;
+import com.nlu.app.common.share.SagaStep;
 import com.nlu.app.common.share.dto.profile_service.request.ProfileCreationRequest;
 import com.nlu.app.common.share.dto.profile_service.response.ProfileCreationResponse;
 import com.nlu.app.common.share.event.ProfileCreatedEvent;
@@ -35,10 +37,16 @@ public class ProfileService {
                         .country(request.getCountry())
                         .build();
         ObjectMapper objectMapper = new ObjectMapper();
+        // TODO: will move this logic to separate command handler folder later.
         try {
             Outbox outbox = Outbox.builder()
-                    .type("profile")
-                    .aggregateType("created")
+                    .aggregateType("profile.created")
+                    .sagaId(null)
+                    .sagaStep(SagaStep.PROFILE_CREATE)
+                    .sagaAction(SagaAction.CREATE_NEW_USER)
+                    .sagaId(request.getSagaId())
+                    .sagaAction(request.getSagaAction())
+                    .sagaStepStatus(true)
                     .aggregateId(profile.getProfileId())
                     .payload(objectMapper.writeValueAsString(event))
                     .build();
