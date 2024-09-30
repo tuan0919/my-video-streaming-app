@@ -1,8 +1,10 @@
 package com.nlu.app.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nlu.app.common.share.SagaAction;
-import com.nlu.app.common.share.SagaStep;
+import com.nlu.app.common.share.SagaAdvancedStep;
+import com.nlu.app.common.share.SagaStatus;
 import com.nlu.app.common.share.dto.profile_service.request.ProfileCreationRequest;
 import com.nlu.app.common.share.dto.profile_service.response.ProfileCreationResponse;
 import com.nlu.app.common.share.event.ProfileCreatedEvent;
@@ -20,7 +22,7 @@ public class ProfileService {
     private final ProfileRepository profileRepository;
     private final OutboxRepository outboxRepository;
     @Transactional
-    public ProfileCreationResponse insert(ProfileCreationRequest request)  {
+    public ProfileCreationResponse insert(ProfileCreationRequest request) throws JsonProcessingException {
         var profile = Profile.builder()
             .userId(request.getUserId())
             .avatarId(null)
@@ -42,17 +44,29 @@ public class ProfileService {
             Outbox outbox = Outbox.builder()
                     .aggregateType("profile.created")
                     .sagaId(null)
-                    .sagaStep(SagaStep.PROFILE_CREATE)
+                    .sagaStep(SagaAdvancedStep.PROFILE_CREATE)
                     .sagaAction(SagaAction.CREATE_NEW_USER)
                     .sagaId(request.getSagaId())
                     .sagaAction(request.getSagaAction())
-                    .sagaStepStatus(true)
+                    .sagaStepStatus(SagaStatus.SUCCESS)
+                    .aggregateId(profile.getProfileId())
+                    .payload(objectMapper.writeValueAsString(event))
+                    .build();
+            throw new Exception("My exception");
+        } catch (Exception e) {
+            // tell other services to roll back the saga
+            Outbox outbox = Outbox.builder()
+                    .aggregateType("profile.created")
+                    .sagaId(null)
+                    .sagaStep(SagaAdvancedStep.PROFILE_CREATE)
+                    .sagaAction(SagaAction.CREATE_NEW_USER)
+                    .sagaId(request.getSagaId())
+                    .sagaAction(request.getSagaAction())
+                    .sagaStepStatus(SagaStatus.FAILED)
                     .aggregateId(profile.getProfileId())
                     .payload(objectMapper.writeValueAsString(event))
                     .build();
             outboxRepository.save(outbox);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
         return ProfileCreationResponse.builder()
                 .userId(profile.getUserId())

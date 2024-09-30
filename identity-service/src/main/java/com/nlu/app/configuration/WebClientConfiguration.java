@@ -47,8 +47,6 @@ public class WebClientConfiguration {
     }
 
 
-
-
     private <T> T createClient(WebClient webClient, Class<T> clientClass) {
         var factory = HttpServiceProxyFactory.builderFor(WebClientAdapter.create(webClient)).build();
         return factory.createClient(clientClass);

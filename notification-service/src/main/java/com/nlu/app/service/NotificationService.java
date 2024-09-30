@@ -1,10 +1,10 @@
 package com.nlu.app.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.nlu.app.common.share.SagaAction;
-import com.nlu.app.common.share.SagaStep;
+import com.nlu.app.common.share.SagaAdvancedStep;
+import com.nlu.app.common.share.SagaStatus;
 import com.nlu.app.common.share.dto.notification_service.request.NotificationCreationRequest;
 import com.nlu.app.common.share.event.NotificationCreatedEvent;
 import com.nlu.app.constant.NotificationType;
@@ -48,10 +48,10 @@ public class NotificationService {
                     .aggregateType("notification.created")
                     .sagaId(request.getSagaId())
                     .sagaAction(request.getSagaAction())
-                    .aggregateId(entity.getUserId())
+                    .aggregateId(entity.getNotificationId())
                     .sagaAction(SagaAction.CREATE_NEW_USER)
-                    .sagaStep(SagaStep.NOTIFICATION_CREATE)
-                    .sagaStepStatus(true)
+                    .sagaStep(SagaAdvancedStep.NOTIFICATION_CREATE)
+                    .sagaStepStatus(SagaStatus.SUCCESS)
                     .build();
             outboxRepository.save(outbox);
         } catch (Exception e) {

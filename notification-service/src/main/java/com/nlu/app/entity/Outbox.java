@@ -23,7 +23,7 @@ public class Outbox {
     String aggregateId;
     String sagaAction;
     String sagaStep;
-    Boolean sagaStepStatus;
+    String sagaStepStatus;
     String sagaId;
     String payload;
 }

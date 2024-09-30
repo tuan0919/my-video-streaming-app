@@ -5,7 +5,8 @@ import java.util.List;
 import java.util.UUID;
 
 import com.nlu.app.common.share.SagaAction;
-import com.nlu.app.common.share.SagaStep;
+import com.nlu.app.common.share.SagaAdvancedStep;
+import com.nlu.app.common.share.SagaStatus;
 import com.nlu.app.common.share.event.UserCreatedEvent;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -106,8 +107,8 @@ public class UserService {
                     .aggregateType("identity.created")
                     .sagaId(UUID.randomUUID().toString())
                     .sagaAction(SagaAction.CREATE_NEW_USER)
-                    .sagaStep(SagaStep.IDENTITY_CREATE)
-                    .sagaStepStatus(true)
+                    .sagaStep(SagaAdvancedStep.IDENTITY_CREATE)
+                    .sagaStepStatus(SagaStatus.SUCCESS)
                     .aggregateId(user.getId())
                     .payload(objectMapper.writeValueAsString(event))
                     .build();
