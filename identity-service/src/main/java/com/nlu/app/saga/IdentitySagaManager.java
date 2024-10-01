@@ -1,19 +1,9 @@
 package com.nlu.app.saga;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nlu.app.common.share.SagaAction;
-import com.nlu.app.common.share.SagaAdvancedStep;
-import com.nlu.app.common.share.SagaCompensationStep;
 import com.nlu.app.common.share.SagaStatus;
-import com.nlu.app.common.share.dto.notification_service.request.NotificationCreationRequest;
-import com.nlu.app.common.share.dto.profile_service.request.ProfileCreationRequest;
-import com.nlu.app.common.share.dto.CompensationRequest;
-import com.nlu.app.common.share.event.ProfileCreatedEvent;
-import com.nlu.app.entity.SagaLog;
-import com.nlu.app.repository.webclient.NotificationWebClient;
-import com.nlu.app.repository.webclient.ProfileWebClient;
-import com.nlu.app.service.CompensationService;
-import com.nlu.app.service.SagaLogService;
+import com.nlu.app.saga.processor.CreateNewUserSaga;
+import com.nlu.app.saga.processor.UpdateIdentitySaga;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -23,40 +13,42 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
-import com.nlu.app.common.share.event.UserCreatedEvent;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class CreateNewUserSaga {
+public class IdentitySagaManager {
+    CreateNewUserSaga NEW_USER_SAGA;
+    UpdateIdentitySaga UPDATE_IDENTITY_SAGA;
 
-
-    @Transactional
-    @KafkaListener(topics = {"identity.created", "notification.created", "profile.created"}, groupId = "saga.create_new_user")
+    @KafkaListener(topics = {"identity.topics", "notification.topics", "profile.topics"}, groupId = "identity-service.saga")
     public void handleSagaEvent(@Payload String payload,
                                 @Header("sagaAction") String sagaAction,
                                 @Header("sagaStep") String sagaStep,
                                 @Header("id") String eventId,
                                 @Header("sagaStepStatus") String sagaStepStatus,
                                 @Header("sagaId") String sagaId,
-                                Acknowledgment ack) throws JsonProcessingException {
-        log.info("Saga Action: {}, Saga Step: {}, Saga ID: {}", sagaAction, sagaStep, sagaId);
-
-        updateSagaLog(sagaId, eventId, sagaAction, sagaStep, sagaStepStatus);
-
-        switch (sagaStepStatus) {
-            case SagaStatus.SUCCESS -> handleSuccessStep(sagaStep, sagaId, payload);
-            case SagaStatus.FAILED -> handleFailedStep(sagaStep, sagaId);
+                                Acknowledgment ack) {
+        var message = new KafkaMessage(eventId, sagaId, sagaAction, sagaStep, sagaStepStatus, payload);
+        try {
+            switch (sagaAction) {
+                case SagaAction.CREATE_NEW_USER -> {
+                    NEW_USER_SAGA.consumeMessage(message);
+                    ack.acknowledge();
+                }
+                case SagaAction.UPDATE_IDENTITY -> {
+                    UPDATE_IDENTITY_SAGA.consumeMessage(message);
+                    ack.acknowledge();
+                }
+                case SagaAction.REMOVE_IDENTITY -> {
+                    // TODO: Saga for this action
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-
-        ack.acknowledge();
     }
 
 }

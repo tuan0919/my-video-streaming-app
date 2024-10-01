@@ -7,8 +7,10 @@ import java.util.UUID;
 import com.nlu.app.common.share.SagaAction;
 import com.nlu.app.common.share.SagaAdvancedStep;
 import com.nlu.app.common.share.SagaStatus;
+import com.nlu.app.common.share.event.IdentityUpdatedEvent;
 import com.nlu.app.common.share.event.UserCreatedEvent;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -48,6 +50,8 @@ public class UserService {
     OutboxRepository outboxRepository;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
+    RedisTemplate<String, Object> redisTemplate;
+    ObjectMapper objectMapper;
 
     public UserResponse createUser(UserCreationRequest request) {
         User user = userMapper.toUser(request);
@@ -104,7 +108,7 @@ public class UserService {
                 .build();
         try {
             Outbox outbox = Outbox.builder()
-                    .aggregateType("identity.created")
+                    .aggregateType("identity.topics")
                     .sagaId(UUID.randomUUID().toString())
                     .sagaAction(SagaAction.CREATE_NEW_USER)
                     .sagaStep(SagaAdvancedStep.IDENTITY_CREATE)
@@ -130,17 +134,40 @@ public class UserService {
         return userMapper.toUserResponse(user);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public UserResponse updateUser(String userId, UserUpdateRequest request) {
-        User user =
-                userRepository.findById(userId).orElseThrow(() -> new ApplicationException(ErrorCode.USER_NOT_EXISTED));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.USER_NOT_EXISTED));
 
-        userMapper.updateUser(user, request);
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-
-        var roles = roleRepository.findAllById(request.getRoles());
-        user.setRoles(new HashSet<>(roles));
-
+        String sagaId = UUID.randomUUID().toString();
+        // cache thông tin event bù trừ nếu saga này thất bại
+        var compensationEvent = IdentityUpdatedEvent.builder()
+                .roles(user.getRoles().stream().map(Role::getName).toList())
+                .password(user.getPassword())
+                .build();
+        redisTemplate.opsForValue().set(sagaId, compensationEvent);
+        String hashPassword = passwordEncoder.encode(request.getPassword());
+        var event = IdentityUpdatedEvent.builder()
+                .roles(request.getRoles())
+                .password(hashPassword)
+                .build();
+        try {
+            user.setPassword(hashPassword);
+            var roles = roleRepository.findAllById(request.getRoles());
+            user.setRoles(new HashSet<>(roles));
+            Outbox outbox = Outbox.builder()
+                   .aggregateType("identity.topics")
+                   .sagaId(sagaId)
+                   .sagaAction(SagaAction.UPDATE_IDENTITY)
+                   .sagaStep(SagaAdvancedStep.IDENTITY_UPDATE)
+                   .sagaStepStatus(SagaStatus.SUCCESS)
+                   .aggregateId(userId)
+                   .payload(objectMapper.writeValueAsString(event))
+                   .build();
+            outboxRepository.save(outbox);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
         return userMapper.toUserResponse(userRepository.save(user));
     }
 

@@ -1,5 +1,6 @@
 package com.nlu.app.dto.response;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import lombok.*;
@@ -10,7 +11,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AuthenticationResponse {
+public class AuthenticationResponse implements Serializable {
     String token;
     Date expiryTime;
 }
