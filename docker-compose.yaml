@@ -66,18 +66,11 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
 
-  axon-server:
-    container_name: axon-server
-    hostname: axon-server
-    image: axoniq/axonserver:2024.1.2
+  redis:
+    image: "redis:7.4.0"
+    container_name: redis-container
     ports:
-      - "8024:8024"
-      - "8124:8124"
-    environment:
-      AXONIQ_AXONSERVER_HOSTNAME: axon-server
-    volumes:
-      - data:/axonserver/data
-      - events:/axonserver/events
+      - "6379:6379"
 
 #  jaeger-service:
 #    container_name: jaeger-service

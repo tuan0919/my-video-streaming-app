@@ -5,6 +5,12 @@ logging:
     springframework:
       security: DEBUG
 spring:
+  cache:
+    type: redis
+    redis:
+      host: localhost
+      port: 6379
+      cache-null-values: true
   application:
     name: identity-service
   servlet:
