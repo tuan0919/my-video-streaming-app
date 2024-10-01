@@ -43,8 +43,8 @@ public class CompensationService {
         var event = NotificationRemovedEvent
                 .builder().notificationId(notificationId).build();
         var outbox = Outbox.builder()
-                .aggregateType("notification.created")
-                .sagaAction(SagaAction.CREATE_NEW_USER)
+                .aggregateType("notification.topics")
+                .sagaAction(log.getSagaAction())
                 .sagaId(log.getSagaId())
                 .sagaStepStatus(SagaStatus.SUCCESS)
                 .sagaStep(SagaCompensationStep.COMPENSATION_NOTIFICATION_CREATE)

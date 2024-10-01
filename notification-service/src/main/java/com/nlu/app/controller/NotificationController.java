@@ -22,7 +22,7 @@ public class NotificationController {
     CompensationService compensationService;
 
     @PostMapping("/internal")
-    public String insert(@RequestBody NotificationCreationRequest request) {
+    public String insert(@RequestBody NotificationCreationRequest request) throws JsonProcessingException {
         return service.insert(request);
     }
 

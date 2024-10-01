@@ -1,5 +1,6 @@
 package com.nlu.app.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.nlu.app.common.share.SagaAction;
@@ -25,7 +26,7 @@ public class NotificationService {
     private final OutboxRepository outboxRepository;
 
     @Transactional
-    public String insert(NotificationCreationRequest request) {
+    public String insert(NotificationCreationRequest request) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         var notification = Notification.builder()
@@ -35,28 +36,40 @@ public class NotificationService {
                 .isRead(false)
                 .userId(request.getUserId())
                 .build();
-        var entity = repository.save(notification);
         NotificationCreatedEvent event = NotificationCreatedEvent.builder()
                 .userId(notification.getUserId())
                 .content(notification.getContent())
                 .time(notification.getTime())
                 .notificationId(notification.getNotificationId())
                 .build();
+        Outbox outbox = null;
         try {
-            Outbox outbox = Outbox.builder()
+            notification = repository.save(notification);
+            outbox = Outbox.builder()
                     .payload(objectMapper.writeValueAsString(event))
-                    .aggregateType("notification.created")
+                    .aggregateType("notification.topics")
                     .sagaId(request.getSagaId())
                     .sagaAction(request.getSagaAction())
-                    .aggregateId(entity.getNotificationId())
-                    .sagaAction(SagaAction.CREATE_NEW_USER)
+                    .aggregateId(notification.getNotificationId())
+                    .sagaAction(request.getSagaAction())
                     .sagaStep(SagaAdvancedStep.NOTIFICATION_CREATE)
                     .sagaStepStatus(SagaStatus.SUCCESS)
                     .build();
-            outboxRepository.save(outbox);
+            throw new Exception ("My exception");
         } catch (Exception e) {
             //TODO: thêm các event compensation tại đây
-            throw new RuntimeException(e);
+            outbox = Outbox.builder()
+                    .payload(objectMapper.writeValueAsString(event))
+                    .aggregateType("notification.topics")
+                    .sagaId(request.getSagaId())
+                    .sagaAction(request.getSagaAction())
+                    .aggregateId(notification.getNotificationId())
+                    .sagaAction(request.getSagaAction())
+                    .sagaStep(SagaAdvancedStep.NOTIFICATION_CREATE)
+                    .sagaStepStatus(SagaStatus.FAILED)
+                    .build();
+        } finally {
+            outboxRepository.save(outbox);
         }
         return "OK";
     }
