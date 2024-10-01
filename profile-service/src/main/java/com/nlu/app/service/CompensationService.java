@@ -41,7 +41,7 @@ public class CompensationService {
             var event = ProfileRemovedEvent
                     .builder().profileId(profileId).build();
             var outbox = Outbox.builder()
-                    .aggregateType("profile.created")
+                    .aggregateType("profile.topics")
                     .sagaAction(SagaAction.CREATE_NEW_USER)
                     .sagaStep(SagaCompensationStep.COMPENSATION_PROFILE_CREATE)
                     .sagaStepStatus(SagaStatus.SUCCESS)

@@ -42,7 +42,7 @@ public class ProfileService {
         // TODO: will move this logic to separate command handler folder later.
         try {
             Outbox outbox = Outbox.builder()
-                    .aggregateType("profile.created")
+                    .aggregateType("profile.topics")
                     .sagaId(null)
                     .sagaStep(SagaAdvancedStep.PROFILE_CREATE)
                     .sagaAction(SagaAction.CREATE_NEW_USER)
@@ -56,7 +56,7 @@ public class ProfileService {
         } catch (Exception e) {
             // tell other services to roll back the saga
             Outbox outbox = Outbox.builder()
-                    .aggregateType("profile.created")
+                    .aggregateType("profile.topics")
                     .sagaId(null)
                     .sagaStep(SagaAdvancedStep.PROFILE_CREATE)
                     .sagaAction(SagaAction.CREATE_NEW_USER)
