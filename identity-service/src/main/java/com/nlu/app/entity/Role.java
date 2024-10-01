@@ -1,5 +1,6 @@
 package com.nlu.app.entity;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import jakarta.persistence.Entity;
@@ -16,7 +17,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-public class Role {
+public class Role implements Serializable {
     @Id
     String name;
 
