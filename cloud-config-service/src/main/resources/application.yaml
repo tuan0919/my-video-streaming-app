@@ -7,7 +7,6 @@ spring:
         git:
           uri: ${HOME}/Desktop/my-video-streaming-app
           search-paths: configuration/
-          default-label: dev
 server:
   port: 18181
 
