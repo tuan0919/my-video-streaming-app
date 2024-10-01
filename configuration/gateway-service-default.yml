@@ -12,7 +12,8 @@ gateway-service:
   openEndpoints: >
     /identity/auth/token,
     /identity/auth/introspect,
-    /identity/users/registration
+    /identity/users/registration,
+    /identity/auth/refresh
 
 #management:
 #  endpoints:
