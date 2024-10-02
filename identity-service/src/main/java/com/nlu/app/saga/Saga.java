@@ -1,4 +1,4 @@
-package com.nlu.app.entity;
+package com.nlu.app.saga;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

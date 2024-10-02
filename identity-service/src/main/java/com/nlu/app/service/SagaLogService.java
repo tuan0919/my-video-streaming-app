@@ -1,8 +1,8 @@
 package com.nlu.app.service;
 
 import com.nlu.app.common.share.SagaStatus;
-import com.nlu.app.entity.Saga;
-import com.nlu.app.entity.SagaLog;
+import com.nlu.app.saga.Saga;
+import com.nlu.app.saga.SagaLog;
 import com.nlu.app.repository.SagaLogRepository;
 import com.nlu.app.repository.SagaRepository;
 import lombok.AccessLevel;

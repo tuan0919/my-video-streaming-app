@@ -1,9 +1,8 @@
 package com.nlu.app.repository;
 
-import com.nlu.app.entity.SagaLog;
+import com.nlu.app.saga.SagaLog;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
 import java.util.Set;
 
 public interface SagaLogRepository extends JpaRepository<SagaLog, String> {
