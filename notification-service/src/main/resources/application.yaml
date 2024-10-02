@@ -14,33 +14,19 @@ spring:
       discovery:
         enabled: true
         service-id: cloud-config-service
-
-axon:
-  axonserver:
-    servers: localhost:8124
-    enabled: true
-#  kafka:
-#    bootstrap-servers:
-#      - localhost:19092
-#      - localhost:29092
-#      - localhost:39092
-#    client-id: kafka-axon
-#    default-topic: local.event
-#    publisher:
-#      confirmation-mode: transactional
-#    producer:
-#      retries: 2
-#      event-processor-mode: subscribing
-#      transaction-id-prefix: axon-kafka
-#      properties:
-#        enable.idempotence: true
-#    consumer:
-#      event-processor-mode: subscribing
-#      enable-auto-commit: true
-#      auto-commit-interval: 3000
-
-    properties:
-      security.protocol: PLAINTEXT
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:19092,localhost:29092,localhost:39092
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: '*'
+      enable-auto-commit: false
+    listener:
+      ack-mode: manual
 
 eureka:
   client:

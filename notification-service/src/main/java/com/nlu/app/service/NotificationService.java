@@ -55,7 +55,7 @@ public class NotificationService {
                     .sagaStep(SagaAdvancedStep.NOTIFICATION_CREATE)
                     .sagaStepStatus(SagaStatus.SUCCESS)
                     .build();
-            throw new Exception ("My exception");
+//            throw new Exception ("My exception");
         } catch (Exception e) {
             //TODO: thêm các event compensation tại đây
             outbox = Outbox.builder()
