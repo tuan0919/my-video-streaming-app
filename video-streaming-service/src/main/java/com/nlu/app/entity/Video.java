@@ -24,17 +24,6 @@ public class Video {
     String videoKey;
     @Column(columnDefinition = "varchar(255) collate utf8mb4_unicode_ci not null")
     String thumbnailKey;
-    @Column(name = "tags", columnDefinition = "varchar(255) collate utf8mb4_unicode_ci not null")
-    String tagsString;
-    @Transient @Getter(AccessLevel.NONE) @Setter(AccessLevel.NONE)
-    List<String> tags;
-    @PostLoad
-    private void loadTags() {
-        this.tags = Arrays.asList(tagsString.split(","));
-    }
-    @PrePersist
-    @PreUpdate
-    private void saveTags() {
-        this.tagsString = String.join(",", tags);
-    }
+    String videoDescription;
+    String videoName;
 }

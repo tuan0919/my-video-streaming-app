@@ -13,5 +13,6 @@ import java.util.List;
 public class VideoCreationRequest {
     String videoKey;
     String thumbnailKey;
-    List<String> tags;
+    String description;
+    String videoName;
 }

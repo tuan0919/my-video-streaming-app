@@ -12,10 +12,8 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class VideoCreationResponse {
-    String userId;
-    String videoId;
-    String videoKey;
-    String thumbnailKey;
-    String tags;
+    String description;
+    String videoName;
+    String videoURL;
     LocalDateTime createAt;
 }
