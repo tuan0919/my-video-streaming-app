@@ -45,7 +45,7 @@ gateway-service:
 identity-service:
   domain: lb://identity-service
 video-streaming-service:
-  domain: http://wjbu.online:8888
+  domain: lb://video-streaming-service
 comment-service:
   domain: lb://comment-service
 profile-service:
