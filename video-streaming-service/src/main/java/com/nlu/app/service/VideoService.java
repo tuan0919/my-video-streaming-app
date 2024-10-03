@@ -1,11 +1,18 @@
 package com.nlu.app.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nlu.app.common.share.SagaAction;
+import com.nlu.app.common.share.SagaAdvancedStep;
+import com.nlu.app.common.share.event.NewVideoCreatedEvent;
 import com.nlu.app.dto.request.SaveFileRequest;
 import com.nlu.app.dto.request.VideoCreationRequest;
 import com.nlu.app.dto.response.VideoCreationResponse;
 import com.nlu.app.dto.webclient.identity.request.TokenUserRequest;
+import com.nlu.app.entity.Outbox;
 import com.nlu.app.entity.Video;
 import com.nlu.app.repository.IdentityWebClient;
+import com.nlu.app.repository.OutboxRepository;
 import com.nlu.app.repository.VideoRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +31,8 @@ public class VideoService {
     VideoRepository videoRepository;
     IdentityWebClient identityWebClient;
     FileService fileService;
+    OutboxRepository outboxRepository;
+    ObjectMapper objectMapper;
     public Mono<VideoCreationResponse> createVideo(String token, VideoCreationRequest request) {
         var dto = TokenUserRequest.builder().token(token).build();
         var wrap = new Object() {
@@ -43,7 +52,7 @@ public class VideoService {
     }
 
     @Transactional
-    Video _insertVideo_(VideoCreationRequest request, String userId, String key) {
+    Video _insertVideo_(VideoCreationRequest request, String userId, String key) throws JsonProcessingException {
         var video = Video.builder()
                 .videoDescription(request.getDescription())
                 .videoKey(key)
@@ -53,6 +62,21 @@ public class VideoService {
                 .thumbnailKey("TEST") //TODO: temporary consider all videos have no thumbnail.
                 .build();
         videoRepository.save(video);
+        var videoEvent = NewVideoCreatedEvent.builder()
+                .videoDescription(request.getDescription())
+                .videoKey(request.getVideoKey())
+                .userId(userId)
+                .videoName(request.getVideoName())
+                .build();
+        var outbox = Outbox.builder()
+                .sagaAction(SagaAction.CREATE_NEW_VIDEO)
+                .sagaId(video.getVideoId())
+                .aggregateId(video.getVideoId())
+                .sagaStepStatus(SagaAdvancedStep.VIDEO_CREATE)
+                .aggregateType("video.topics")
+                .payload(objectMapper.writeValueAsString(videoEvent))
+                .build();
+        outboxRepository.save(outbox);
         return video;
     }
 

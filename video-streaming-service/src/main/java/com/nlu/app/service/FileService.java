@@ -181,7 +181,7 @@ public class FileService {
                             .key("temp/"+userId+"/"+fileName)
                             .build();
                     PutObjectPresignRequest signRequest = PutObjectPresignRequest.builder()
-                            .signatureDuration(Duration.ofMinutes(1))
+                            .signatureDuration(Duration.ofMinutes(10))
                             .putObjectRequest(objectRequest)
                             .build();
                     return Mono.fromCallable(() -> signer.presignPutObject(signRequest))
