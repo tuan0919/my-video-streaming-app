@@ -7,11 +7,9 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 
-@Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@Value
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class IdentityUpdatedEvent implements Serializable {
     String password;
     List<String> roles;
