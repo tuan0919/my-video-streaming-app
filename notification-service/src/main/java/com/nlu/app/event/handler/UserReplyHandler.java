@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -22,7 +23,7 @@ public class UserReplyHandler {
     NotificationRepository notificationRepository;
     CommentNotificationRepository repository;
 
-    public void consumeEvent(CommentReplyEvent event) {
+    public void consumeEvent(CommentReplyEvent event, Acknowledgment ack) {
         String userId = event.getUserId();
         String parentCommentId = event.getParentCommentId();
         // TODO: notification for the user with corresponding userId
@@ -45,5 +46,6 @@ public class UserReplyHandler {
                 .notificationId(notification.getNotificationId())
                 .build();
         repository.save(link);
+        ack.acknowledge();
     }
 }
