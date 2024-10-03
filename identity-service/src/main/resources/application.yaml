@@ -11,6 +11,8 @@ spring:
       host: localhost
       port: 6379
       cache-null-values: true
+      time-to-live:
+        jwtToken: 300000
   application:
     name: identity-service
   servlet:
