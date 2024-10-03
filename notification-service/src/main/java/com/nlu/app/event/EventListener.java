@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nlu.app.common.share.SagaAction;
 import com.nlu.app.common.share.event.CommentReplyEvent;
+import com.nlu.app.common.share.event.NewVideoCreatedEvent;
+import com.nlu.app.event.handler.CreateNewVideoHandler;
 import com.nlu.app.event.handler.UserReplyHandler;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -23,21 +25,26 @@ import java.time.Duration;
 public class EventListener {
     ObjectMapper objectMapper;
     UserReplyHandler USER_REPLY_EVENT_HANDLER;
+    CreateNewVideoHandler CREATE_NEW_VIDEO_HANDLER;
 
-    @KafkaListener(topics = "comment.topics", groupId = "notification-service")
-    public void handleComment(@Payload String payload, @Header("sagaAction") String sagaAction, Acknowledgment ack) throws JsonProcessingException {
+    @KafkaListener(topics = {"comment.topics", "video.topics"}, groupId = "notification-service")
+    public void handleComment(@Payload String payload, @Header("sagaAction") String sagaAction, Acknowledgment ack) {
         try {
             switch (sagaAction) {
                 // send notification to replied user
                 case SagaAction.USER_REPLY_COMMENT -> {
                     var event = objectMapper.readValue(payload, CommentReplyEvent.class);
-                    USER_REPLY_EVENT_HANDLER.consumeEvent(event);
-                    // If everything work without exception throwing, consider at this state the message is consumed.
-                    ack.acknowledge();
+                    USER_REPLY_EVENT_HANDLER.consumeEvent(event, ack);
+                }
+                // send notification to followers of video's owner.
+                case SagaAction.CREATE_NEW_VIDEO -> {
+                    var event = objectMapper.readValue(payload, NewVideoCreatedEvent.class);
+                    CREATE_NEW_VIDEO_HANDLER.consumeEvent(event, ack);
                 }
             }
         }
         catch (Exception e) {
+            e.printStackTrace();
             ack.nack(Duration.ofSeconds(5)); // Retry after 5 seconds
         }
     }
