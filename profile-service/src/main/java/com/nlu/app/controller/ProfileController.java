@@ -2,7 +2,9 @@ package com.nlu.app.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nlu.app.common.share.dto.CompensationRequest;
+import com.nlu.app.common.share.dto.profile_service.request.FollowRequest;
 import com.nlu.app.common.share.dto.profile_service.request.ProfileCreationRequest;
+import com.nlu.app.common.share.dto.profile_service.response.FollowerUserIdsResponse;
 import com.nlu.app.common.share.dto.profile_service.response.ProfileCreationResponse;
 import com.nlu.app.dto.AppResponse;
 import com.nlu.app.service.CompensationService;
@@ -12,8 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.service.annotation.PostExchange;
-
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -27,6 +27,20 @@ public class ProfileController {
     public AppResponse<ProfileCreationResponse> create(@RequestBody ProfileCreationRequest request) throws JsonProcessingException {
         return AppResponse.<ProfileCreationResponse>builder()
                 .result(profileService.insert(request))
+                .build();
+    }
+
+    @PutMapping("/follow")
+    public AppResponse<String> follow(@RequestBody FollowRequest request) {
+        return AppResponse.<String>builder()
+                .result(profileService.follow(request))
+                .build();
+    }
+
+    @GetMapping("/follow")
+    public AppResponse<FollowerUserIdsResponse> getFollowerIds(@RequestParam String id) {
+        return AppResponse.<FollowerUserIdsResponse>builder()
+                .result(profileService.getFollowerIds(id))
                 .build();
     }
 

@@ -5,11 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nlu.app.common.share.SagaAction;
 import com.nlu.app.common.share.SagaAdvancedStep;
 import com.nlu.app.common.share.SagaStatus;
+import com.nlu.app.common.share.dto.profile_service.request.FollowRequest;
 import com.nlu.app.common.share.dto.profile_service.request.ProfileCreationRequest;
+import com.nlu.app.common.share.dto.profile_service.response.FollowerUserIdsResponse;
 import com.nlu.app.common.share.dto.profile_service.response.ProfileCreationResponse;
 import com.nlu.app.common.share.event.ProfileCreatedEvent;
 import com.nlu.app.entity.Outbox;
 import com.nlu.app.entity.Profile;
+import com.nlu.app.exception.ApplicationException;
+import com.nlu.app.exception.ErrorCode;
 import com.nlu.app.repository.OutboxRepository;
 import com.nlu.app.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +25,36 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProfileService {
     private final ProfileRepository profileRepository;
     private final OutboxRepository outboxRepository;
+
+    @Transactional
+    public String follow(FollowRequest request) {
+        var oProfile = profileRepository.findProfileByUserId(request.getFollowId());
+        if (oProfile.isEmpty()) {
+            throw new ApplicationException(ErrorCode.USER_NOT_EXISTED);
+        }
+        var followProfile = oProfile.get();
+        var userProfile = profileRepository.findProfileByUserId(request.getUserId()).get();
+        userProfile.getFollow().add(followProfile);
+        followProfile.getFollowers().add(userProfile);
+        profileRepository.save(userProfile);
+        profileRepository.save(followProfile);
+        return "OK";
+    }
+
+    public FollowerUserIdsResponse getFollowerIds(String userId) {
+        var oProfile = profileRepository.findProfileByUserId(userId);
+        if (oProfile.isEmpty()) {
+            throw new ApplicationException(ErrorCode.USER_NOT_EXISTED);
+        }
+        var profile = oProfile.get();
+        // TODO: map set follower's profiles to list userId
+        var ids = profile.getFollowers()
+                .stream().map(Profile::getUserId).toList();
+        return FollowerUserIdsResponse.builder()
+                .followers(ids)
+                .build();
+    }
+
     @Transactional
     public ProfileCreationResponse insert(ProfileCreationRequest request) throws JsonProcessingException {
         var profile = Profile.builder()

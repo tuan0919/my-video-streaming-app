@@ -1,10 +1,10 @@
 package com.nlu.app.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.util.Objects;
+import java.util.Set;
 
 @Builder
 @NoArgsConstructor
@@ -24,4 +24,17 @@ public class Profile {
     String bio;
     @Column
     String avatarId;
+    @ManyToMany
+    @JoinTable(
+            name = "profile_follow",
+            joinColumns = @JoinColumn(name = "follower_id"),
+            inverseJoinColumns = @JoinColumn(name = "followed_id")
+    )
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    Set<Profile> follow;
+    @ManyToMany(mappedBy = "follow")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    Set<Profile> followers;
 }
