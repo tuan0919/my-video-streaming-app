@@ -8,6 +8,8 @@ import com.nlu.app.common.share.SagaCompensationStep;
 import com.nlu.app.common.share.SagaStatus;
 import com.nlu.app.common.share.event.ProfileRemovedEvent;
 import com.nlu.app.entity.Outbox;
+import com.nlu.app.mapper.OutboxMapper;
+import com.nlu.app.mapper.ProfileMapper;
 import com.nlu.app.repository.OutboxRepository;
 import com.nlu.app.repository.ProfileRepository;
 import lombok.AccessLevel;
@@ -16,15 +18,17 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @RequiredArgsConstructor
-public class CompensationService {
+@Service
+public class CompensationService implements ICompensationService {
     OutboxRepository outboxRepository;
-    ObjectMapper objectMapper;
+    OutboxMapper outboxMapper;
+    ProfileMapper profileMapper;
     ProfileRepository profileRepository;
+
     @Transactional
-    public void doCompensation(String sagaId) throws JsonProcessingException {
+    public void doCompensation(String sagaId) {
         var outboxLogs = outboxRepository.findAllBySagaId(sagaId);
         for (var log : outboxLogs) {
             switch (log.getSagaStep()) {
@@ -34,21 +38,13 @@ public class CompensationService {
     }
 
     @Transactional
-    void forProfileCreate(Outbox log) throws JsonProcessingException {
+    void forProfileCreate(Outbox log) {
         String profileId = log.getAggregateId();
-        if (profileRepository.findById(profileId).isPresent()) {
+        var oProfile = profileRepository.findById(profileId);
+        if (oProfile.isPresent()) {
             profileRepository.deleteById(profileId);
-            var event = ProfileRemovedEvent
-                    .builder().profileId(profileId).build();
-            var outbox = Outbox.builder()
-                    .aggregateType("profile.topics")
-                    .sagaAction(SagaAction.CREATE_NEW_USER)
-                    .sagaStep(SagaCompensationStep.COMPENSATION_PROFILE_CREATE)
-                    .sagaStepStatus(SagaStatus.SUCCESS)
-                    .sagaId(log.getSagaId())
-                    .aggregateId(profileId)
-                    .payload(objectMapper.writeValueAsString(event))
-                    .build();
+            var event = profileMapper.toProfileRemovedEvent(oProfile.get());
+            var outbox = outboxMapper.toCompenstationOutbox(event);
             outboxRepository.save(outbox);
         }
     }
