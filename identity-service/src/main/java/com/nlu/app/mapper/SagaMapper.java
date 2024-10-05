@@ -14,11 +14,11 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
         builder = @Builder(disableBuilder = true))
 public interface SagaMapper {
     @Mapping(target = "id", source = "message.eventId")
-    @Mapping(target = "status", source = SagaStatus.SUCCESS)
+    @Mapping(target = "status", constant = SagaStatus.SUCCESS)
     SagaLog mapToSuccessLog(KafkaMessage message);
 
     @Mapping(target = "id", source = "message.eventId")
-    @Mapping(target = "status", source = SagaStatus.FAILED)
+    @Mapping(target = "status", constant = SagaStatus.FAILED)
     SagaLog mapToFailedLog(KafkaMessage message);
 
     @Mapping(target = "sagaStep", source = "failedMessage.sagaStep")

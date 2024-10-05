@@ -104,6 +104,8 @@ public class CreateNewUserSaga2 {
         var event = objectMapper.readValue(message.payload(), NotificationCreatedEvent.class);
         var response = userService.getUser(event.getUserId());
         redisTemplate.opsForValue().set("SAGA_COMPLETED_"+message.sagaId(), response, Duration.ofMinutes(3));
+        var successStep = sagaMapper.mapToSuccessLog(message);
+        sagaLogService.addSagaLog(successStep, PROCEED_STEPS, COMPENSATION_MAP);
         ack.acknowledge();
     }
 

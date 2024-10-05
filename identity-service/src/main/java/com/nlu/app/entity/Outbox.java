@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import jakarta.persistence.*;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -25,7 +26,7 @@ public class Outbox {
     String sagaAction;
     String sagaStep;
     String sagaStepStatus;
-    @Builder.Default
-    String sagaId = UUID.randomUUID().toString();
+    @NotNull
+    String sagaId;
     String payload;
 }
