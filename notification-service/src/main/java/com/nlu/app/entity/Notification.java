@@ -17,7 +17,7 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.UUID)
     String notificationId;
     String userId;
-    LocalDateTime time;
+    LocalDateTime time = LocalDateTime.now();
     String content;
     Boolean isRead = false;
     @Enumerated(EnumType.STRING)

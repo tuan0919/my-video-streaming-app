@@ -11,6 +11,7 @@ import com.nlu.app.common.share.event.NotificationCreatedEvent;
 import com.nlu.app.constant.NotificationType;
 import com.nlu.app.entity.Notification;
 import com.nlu.app.entity.Outbox;
+import com.nlu.app.mapper.NotificationMapper;
 import com.nlu.app.repository.NotificationRepository;
 import com.nlu.app.repository.OutboxRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,24 +25,14 @@ import java.time.LocalDateTime;
 public class NotificationService {
     private final NotificationRepository repository;
     private final OutboxRepository outboxRepository;
+    private final NotificationMapper notificationMapper;
 
     @Transactional
     public String insert(NotificationCreationRequest request) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
-        var notification = Notification.builder()
-                .content(request.getContent())
-                .time(LocalDateTime.now())
-                .type(NotificationType.valueOf(request.getType()))
-                .isRead(false)
-                .userId(request.getUserId())
-                .build();
-        NotificationCreatedEvent event = NotificationCreatedEvent.builder()
-                .userId(notification.getUserId())
-                .content(notification.getContent())
-                .time(notification.getTime())
-                .notificationId(notification.getNotificationId())
-                .build();
+        var notification = notificationMapper.mapToEntity(request);
+        NotificationCreatedEvent event = notificationMapper.mapToCreatedEvent(notification);
         Outbox outbox = null;
         try {
             notification = repository.save(notification);
