@@ -8,6 +8,7 @@ import java.io.Serializable;
 @Builder
 @Value
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class CommentReplyEvent implements Serializable {
     String commentId;
     String content;

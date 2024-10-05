@@ -10,6 +10,7 @@ import java.util.List;
 @Builder
 @Value
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class IdentityUpdatedEvent implements Serializable {
     String userId;
     String password;
