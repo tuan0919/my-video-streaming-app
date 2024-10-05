@@ -9,6 +9,7 @@ import com.nlu.app.common.share.SagaAdvancedStep;
 import com.nlu.app.common.share.SagaStatus;
 import com.nlu.app.common.share.event.IdentityUpdatedEvent;
 import com.nlu.app.common.share.event.UserCreatedEvent;
+import com.nlu.app.mapper.OutboxMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -49,78 +50,30 @@ public class UserService {
     RoleRepository roleRepository;
     OutboxRepository outboxRepository;
     UserMapper userMapper;
+    OutboxMapper outboxMapper;
     PasswordEncoder passwordEncoder;
     RedisTemplate<String, Object> redisTemplate;
-    ObjectMapper objectMapper;
-
-    public UserResponse createUser(UserCreationRequest request) {
-        User user = userMapper.toUser(request);
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        HashSet<Role> roles = new HashSet<>();
-
-        roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
-
-        user.setRoles(roles);
-        user.setEmailVerified(false);
-
-        try {
-            user = userRepository.save(user);
-        } catch (DataIntegrityViolationException exception) {
-            throw new ApplicationException(ErrorCode.USER_ALREADY_EXISTED);
-        }
-        UserCreationDTO creationDTO = UserCreationDTO.builder()
-                .userId(user.getId())
-                .username(user.getUsername())
-                .timestamp(System.currentTimeMillis())
-                .build();
-        UserCreationEvent event = new UserCreationEvent(creationDTO);
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            Outbox outbox = Outbox.builder()
-                    .aggregateType("created")
-                    .sagaId(UUID.randomUUID().toString())
-                    .aggregateId(user.getId())
-                    .payload(objectMapper.writeValueAsString(event))
-                    .build();
-            outboxRepository.save(outbox);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        return userMapper.toUserResponse(user);
-    }
 
     @Transactional
-    public String test(UserCreationRequest request) {
+    public String createUser(UserCreationRequest request) {
+        String sagaId = UUID.randomUUID().toString();
+        if(userRepository.findByUsername(request.getUsername()).isPresent()) {
+            throw new ApplicationException(ErrorCode.USER_ALREADY_EXISTED);
+        }
         User user = userMapper.toUser(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         HashSet<Role> roles = new HashSet<>();
+
         roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
         user.setRoles(roles);
         user.setEmailVerified(false);
+
         userRepository.save(user);
-        ObjectMapper objectMapper = new ObjectMapper();
-        var event = UserCreatedEvent.builder()
-                .verified(false)
-                .email(user.getEmail())
-                .password(user.getPassword())
-                .username(user.getUsername())
-                .userId(user.getId())
-                .build();
-        try {
-            Outbox outbox = Outbox.builder()
-                    .aggregateType("identity.topics")
-                    .sagaId(UUID.randomUUID().toString())
-                    .sagaAction(SagaAction.CREATE_NEW_USER)
-                    .sagaStep(SagaAdvancedStep.IDENTITY_CREATE)
-                    .sagaStepStatus(SagaStatus.SUCCESS)
-                    .aggregateId(user.getId())
-                    .payload(objectMapper.writeValueAsString(event))
-                    .build();
-            outboxRepository.save(outbox);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return "OK";
+        var event = userMapper.toUserCreatedEvent(user);
+
+        Outbox outbox = outboxMapper.toSuccessOutbox(event, sagaId);
+        outboxRepository.save(outbox);
+        return sagaId;
     }
 
     public UserResponse getMyInfo() {
@@ -134,41 +87,26 @@ public class UserService {
         return userMapper.toUserResponse(user);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN')") @Transactional
     public UserResponse updateUser(String userId, UserUpdateRequest request) {
+        String sagaId = UUID.randomUUID().toString();
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.USER_NOT_EXISTED));
 
-        String sagaId = UUID.randomUUID().toString();
         // cache thông tin event bù trừ nếu saga này thất bại
-        var compensationEvent = IdentityUpdatedEvent.builder()
-                .roles(user.getRoles().stream().map(Role::getName).toList())
-                .password(user.getPassword())
-                .build();
+        var compensationEvent = userMapper.toIdentityUpdatedEvent(user);
         redisTemplate.opsForValue().set(sagaId, compensationEvent);
+
         String hashPassword = passwordEncoder.encode(request.getPassword());
-        var event = IdentityUpdatedEvent.builder()
-                .roles(request.getRoles())
-                .password(hashPassword)
-                .build();
-        try {
-            user.setPassword(hashPassword);
-            var roles = roleRepository.findAllById(request.getRoles());
-            user.setRoles(new HashSet<>(roles));
-            Outbox outbox = Outbox.builder()
-                   .aggregateType("identity.topics")
-                   .sagaId(sagaId)
-                   .sagaAction(SagaAction.UPDATE_IDENTITY)
-                   .sagaStep(SagaAdvancedStep.IDENTITY_UPDATE)
-                   .sagaStepStatus(SagaStatus.SUCCESS)
-                   .aggregateId(userId)
-                   .payload(objectMapper.writeValueAsString(event))
-                   .build();
-            outboxRepository.save(outbox);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        return userMapper.toUserResponse(userRepository.save(user));
+        user.setPassword(hashPassword);
+        var roles = roleRepository.findAllById(request.getRoles());
+        user.setRoles(new HashSet<>(roles));
+        userRepository.save(user);
+
+        var updatedEvent = userMapper.toIdentityUpdatedEvent(user);
+        Outbox outbox = outboxMapper.toSuccessOutbox(updatedEvent, sagaId);
+        outboxRepository.save(outbox);
+        return userMapper.toUserResponse(user);
     }
 
     @PreAuthorize("hasRole('ADMIN')")

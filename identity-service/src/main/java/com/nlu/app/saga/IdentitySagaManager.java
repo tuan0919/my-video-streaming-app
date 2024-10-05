@@ -5,6 +5,7 @@ import com.nlu.app.common.share.SagaStatus;
 import com.nlu.app.saga.processor.CreateNewUserSaga;
 import com.nlu.app.saga.processor.CreateNewUserSaga2;
 import com.nlu.app.saga.processor.UpdateIdentitySaga;
+import com.nlu.app.saga.processor.UpdateIdentitySaga2;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -22,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class IdentitySagaManager {
     CreateNewUserSaga2 NEW_USER_SAGA;
-    UpdateIdentitySaga UPDATE_IDENTITY_SAGA;
+    UpdateIdentitySaga2 UPDATE_IDENTITY_SAGA;
 
     @KafkaListener(topics = {"identity.topics", "notification.topics", "profile.topics"}, groupId = "identity-service.saga")
     public void handleSagaEvent(@Payload String payload,
@@ -39,8 +40,7 @@ public class IdentitySagaManager {
                     NEW_USER_SAGA.consumeMessage(message, ack);
                 }
                 case SagaAction.UPDATE_IDENTITY -> {
-                    UPDATE_IDENTITY_SAGA.consumeMessage(message);
-                    ack.acknowledge();
+                    UPDATE_IDENTITY_SAGA.consumeMessage(message, ack);
                 }
                 case SagaAction.REMOVE_IDENTITY -> {
                     // TODO: Saga for this action

@@ -11,6 +11,7 @@ import java.util.List;
 @Value
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class IdentityUpdatedEvent implements Serializable {
+    String userId;
     String password;
     List<String> roles;
 }

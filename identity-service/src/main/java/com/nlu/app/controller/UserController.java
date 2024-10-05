@@ -26,15 +26,10 @@ public class UserController {
     UserService userService;
 
     @PostMapping("/registration")
-    AppResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
-        return AppResponse.<UserResponse>builder()
+    AppResponse<String> createUser(@RequestBody @Valid UserCreationRequest request) {
+        return AppResponse.<String>builder()
                 .result(userService.createUser(request))
                 .build();
-    }
-
-    @PostMapping("/test")
-    AppResponse<String> createTest(@RequestBody @Valid UserCreationRequest request) {
-        return AppResponse.<String>builder().result(userService.test(request)).build();
     }
 
     @GetMapping

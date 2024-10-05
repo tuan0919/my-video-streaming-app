@@ -25,6 +25,7 @@ public class Outbox {
     String sagaAction;
     String sagaStep;
     String sagaStepStatus;
-    String sagaId;
+    @Builder.Default
+    String sagaId = UUID.randomUUID().toString();
     String payload;
 }

@@ -28,15 +28,6 @@ public interface OutboxMapper {
     @Mapping(target = "aggregateType", constant = "profile.topics")
     @Mapping(target = "sagaId", source = "event.profileId")
     @Mapping(target = "sagaAction", constant = SagaAction.CREATE_NEW_USER)
-    @Mapping(target = "sagaStep", constant = SagaAdvancedStep.PROFILE_CREATE)
-    @Mapping(target = "sagaStepStatus", constant = SagaStatus.FAILED)
-    @Mapping(target = "payload", source = "event", qualifiedByName = "mapToJSON")
-    @Mapping(target = "aggregateId", source = "event.profileId")
-    Outbox toFailedOutbox(ProfileCreatedEvent event);
-
-    @Mapping(target = "aggregateType", constant = "profile.topics")
-    @Mapping(target = "sagaId", source = "event.profileId")
-    @Mapping(target = "sagaAction", constant = SagaAction.CREATE_NEW_USER)
     @Mapping(target = "sagaStep", constant = SagaCompensationStep.COMPENSATION_PROFILE_CREATE)
     @Mapping(target = "sagaStepStatus", constant = SagaStatus.SUCCESS)
     @Mapping(target = "payload", source = "event", qualifiedByName = "mapToJSON")
