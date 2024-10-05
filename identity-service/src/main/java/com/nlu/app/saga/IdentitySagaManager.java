@@ -3,6 +3,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nlu.app.common.share.SagaAction;
 import com.nlu.app.common.share.SagaStatus;
 import com.nlu.app.saga.processor.CreateNewUserSaga;
+import com.nlu.app.saga.processor.CreateNewUserSaga2;
 import com.nlu.app.saga.processor.UpdateIdentitySaga;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class IdentitySagaManager {
-    CreateNewUserSaga NEW_USER_SAGA;
+    CreateNewUserSaga2 NEW_USER_SAGA;
     UpdateIdentitySaga UPDATE_IDENTITY_SAGA;
 
     @KafkaListener(topics = {"identity.topics", "notification.topics", "profile.topics"}, groupId = "identity-service.saga")
@@ -35,8 +36,7 @@ public class IdentitySagaManager {
         try {
             switch (sagaAction) {
                 case SagaAction.CREATE_NEW_USER -> {
-                    NEW_USER_SAGA.consumeMessage(message);
-                    ack.acknowledge();
+                    NEW_USER_SAGA.consumeMessage(message, ack);
                 }
                 case SagaAction.UPDATE_IDENTITY -> {
                     UPDATE_IDENTITY_SAGA.consumeMessage(message);

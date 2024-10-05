@@ -20,7 +20,9 @@ public class SagaLog {
     String sagaAction;
     String result;
     String status;
-    LocalDateTime createAt;
-    LocalDateTime updateAt;
+    @Builder.Default
+    LocalDateTime createAt = LocalDateTime.now();
+    @Builder.Default
+    LocalDateTime updateAt = LocalDateTime.now();
     String sagaId;
 }
