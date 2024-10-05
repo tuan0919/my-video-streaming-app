@@ -17,22 +17,22 @@ import org.mapstruct.*;
         builder = @Builder(disableBuilder = true))
 public interface OutboxMapper {
     @Mapping(target = "aggregateType", constant = "profile.topics")
-    @Mapping(target = "sagaId", source = "event.profileId")
+    @Mapping(target = "sagaId", source = "sagaId")
     @Mapping(target = "sagaAction", constant = SagaAction.CREATE_NEW_USER)
     @Mapping(target = "sagaStep", constant = SagaAdvancedStep.PROFILE_CREATE)
     @Mapping(target = "sagaStepStatus", constant = SagaStatus.SUCCESS)
     @Mapping(target = "payload", source = "event", qualifiedByName = "mapToJSON")
     @Mapping(target = "aggregateId", source = "event.profileId")
-    Outbox toSuccessOutbox(ProfileCreatedEvent event);
+    Outbox toSuccessOutbox(ProfileCreatedEvent event, String sagaId);
 
     @Mapping(target = "aggregateType", constant = "profile.topics")
-    @Mapping(target = "sagaId", source = "event.profileId")
+    @Mapping(target = "sagaId", source = "sagaId")
     @Mapping(target = "sagaAction", constant = SagaAction.CREATE_NEW_USER)
     @Mapping(target = "sagaStep", constant = SagaCompensationStep.COMPENSATION_PROFILE_CREATE)
     @Mapping(target = "sagaStepStatus", constant = SagaStatus.SUCCESS)
     @Mapping(target = "payload", source = "event", qualifiedByName = "mapToJSON")
     @Mapping(target = "aggregateId", source = "event.profileId")
-    Outbox toCompenstationOutbox(ProfileRemovedEvent event);
+    Outbox toCompenstationOutbox(ProfileRemovedEvent event, String sagaId);
 
     @Named("mapToJSON")
     default String mapToJSON(Object object) {

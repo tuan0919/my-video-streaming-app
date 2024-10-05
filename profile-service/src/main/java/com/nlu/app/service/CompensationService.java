@@ -40,11 +40,12 @@ public class CompensationService implements ICompensationService {
     @Transactional
     void forProfileCreate(Outbox log) {
         String profileId = log.getAggregateId();
+        String sagaId = log.getSagaId();
         var oProfile = profileRepository.findById(profileId);
         if (oProfile.isPresent()) {
             profileRepository.deleteById(profileId);
             var event = profileMapper.toProfileRemovedEvent(oProfile.get());
-            var outbox = outboxMapper.toCompenstationOutbox(event);
+            var outbox = outboxMapper.toCompenstationOutbox(event, sagaId);
             outboxRepository.save(outbox);
         }
     }

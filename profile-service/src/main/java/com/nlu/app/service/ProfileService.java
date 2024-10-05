@@ -54,10 +54,11 @@ public class ProfileService implements IProfileService {
 
     @Transactional
     public ProfileCreationResponse insert(ProfileCreationRequest request) {
+        String sagaId = request.getSagaId();
         var profile = profileMapper.toEntity(request);
         profileRepository.save(profile);
         var event = profileMapper.toProfileCreatedEvent(profile);
-        Outbox outbox = outboxMapper.toSuccessOutbox(event);
+        Outbox outbox = outboxMapper.toSuccessOutbox(event, sagaId);
         outboxRepository.save(outbox);
         return profileMapper.toResponseDTO(profile);
     }
