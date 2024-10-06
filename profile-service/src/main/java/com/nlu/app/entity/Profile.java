@@ -37,8 +37,4 @@ public class Profile {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     Set<Profile> followers;
-    @OneToMany
-    Set<InteractVideo> interactVideos;
-    @OneToMany
-    Set<InteractComment> interactComments;
 }

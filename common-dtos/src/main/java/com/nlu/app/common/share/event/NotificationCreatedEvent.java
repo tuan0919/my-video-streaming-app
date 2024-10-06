@@ -15,7 +15,8 @@ import java.time.LocalDateTime;
 public class NotificationCreatedEvent {
     String notificationId;
     String userId;
-    LocalDateTime time;
+    @Builder.Default
+    LocalDateTime time = LocalDateTime.now();
     String content;
     Boolean isRead = false;
 }
