@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import com.nlu.app.service.PermissionService;
 import com.nlu.app.dto.AppResponse;
 import com.nlu.app.dto.request.PermissionRequest;
-import com.nlu.app.dto.response.PermissionResponse;
+import com.nlu.app.common.share.dto.identity_service.response.PermissionResponse;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

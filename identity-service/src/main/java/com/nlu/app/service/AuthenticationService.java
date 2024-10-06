@@ -25,9 +25,9 @@ import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nlu.app.entity.User;
-import com.nlu.app.dto.response.AuthenticationResponse;
-import com.nlu.app.dto.response.IntrospectResponse;
-import com.nlu.app.dto.response.TokenUserResponse;
+import com.nlu.app.common.share.dto.identity_service.response.AuthenticationResponse;
+import com.nlu.app.common.share.dto.identity_service.response.IntrospectResponse;
+import com.nlu.app.common.share.dto.identity_service.response.TokenUserResponse;
 import com.nlu.app.exception.ApplicationException;
 import com.nlu.app.exception.ErrorCode;
 
@@ -70,7 +70,7 @@ public class AuthenticationService {
         return IntrospectResponse.builder().valid(isValid).build();
     }
 
-    @Cacheable(key = "#request.username", value = "jwtToken")
+//    @Cacheable(key = "#request.username", value = "jwtToken")
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         var user = userRepository

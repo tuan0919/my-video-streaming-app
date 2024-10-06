@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nimbusds.jose.JOSEException;
 import com.nlu.app.service.AuthenticationService;
 import com.nlu.app.dto.AppResponse;
-import com.nlu.app.dto.response.AuthenticationResponse;
-import com.nlu.app.dto.response.IntrospectResponse;
-import com.nlu.app.dto.response.TokenUserResponse;
+import com.nlu.app.common.share.dto.identity_service.response.AuthenticationResponse;
+import com.nlu.app.common.share.dto.identity_service.response.IntrospectResponse;
+import com.nlu.app.common.share.dto.identity_service.response.TokenUserResponse;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

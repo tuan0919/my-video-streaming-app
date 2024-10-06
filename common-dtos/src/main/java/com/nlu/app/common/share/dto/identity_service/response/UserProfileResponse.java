@@ -1,4 +1,4 @@
-package com.nlu.app.dto.response;
+package com.nlu.app.common.share.dto.identity_service.response;
 
 import java.time.LocalDate;
 

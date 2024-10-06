@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import com.nlu.app.dto.AppResponse;
 import com.nlu.app.dto.request.UserCreationRequest;
 import com.nlu.app.dto.request.UserUpdateRequest;
-import com.nlu.app.dto.response.UserResponse;
+import com.nlu.app.common.share.dto.identity_service.response.UserResponse;
 import com.nlu.app.service.UserService;
 
 import lombok.AccessLevel;
@@ -39,7 +39,7 @@ public class UserController {
                 .build();
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/get/{userId}")
     AppResponse<UserResponse> getUser(@PathVariable("userId") String userId) {
         return AppResponse.<UserResponse>builder()
                 .result(userService.getUser(userId))

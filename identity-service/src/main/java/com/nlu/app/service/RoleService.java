@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.nlu.app.mapper.RoleMapper;
 import com.nlu.app.dto.request.RoleRequest;
-import com.nlu.app.dto.response.RoleResponse;
+import com.nlu.app.common.share.dto.identity_service.response.RoleResponse;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

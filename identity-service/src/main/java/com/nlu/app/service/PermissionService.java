@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import com.nlu.app.entity.Permission;
 import com.nlu.app.mapper.PermissionMapper;
 import com.nlu.app.dto.request.PermissionRequest;
-import com.nlu.app.dto.response.PermissionResponse;
+import com.nlu.app.common.share.dto.identity_service.response.PermissionResponse;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
