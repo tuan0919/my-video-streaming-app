@@ -53,3 +53,5 @@ profile-service:
   domain: lb://profile-service
 notification-service:
   domain: lb://notification-service
+aggregator-service:
+  domain: lb://aggregator-service

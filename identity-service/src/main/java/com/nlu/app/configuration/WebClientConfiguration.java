@@ -1,5 +1,6 @@
 package com.nlu.app.configuration;
 
+import com.nlu.app.repository.webclient.AggregatorWebClient;
 import com.nlu.app.repository.webclient.NotificationWebClient;
 import com.nlu.app.repository.webclient.ProfileWebClient;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,9 +17,10 @@ import reactor.netty.http.client.HttpClient;
 public class WebClientConfiguration {
     @Value("${profile-service.domain}")
     private String profileBaseURI;
-
     @Value("${notification-service.domain}")
     private String notificationBaseURI;
+    @Value("${aggregator-service.domain}")
+    private String aggregatorBaseURI;
 
     @Bean
     @LoadBalanced
@@ -27,25 +29,22 @@ public class WebClientConfiguration {
     }
 
     @Bean
-    public WebClient profileWebClient(WebClient.Builder builder) {
-        return createWebClient(builder, profileBaseURI);
+    public NotificationWebClient identityWebClient(WebClient.Builder builder) {
+        var identityWebClient = createWebClient(builder, notificationBaseURI);
+        return createClient(identityWebClient, NotificationWebClient.class);
     }
 
     @Bean
-    public WebClient notificationWebClient(WebClient.Builder builder) {
-        return createWebClient(builder, notificationBaseURI);
-    }
-
-    @Bean
-    public ProfileWebClient profileServiceClient(WebClient profileWebClient) {
+    public ProfileWebClient profileServiceClient(WebClient.Builder builder) {
+        var profileWebClient = createWebClient(builder, profileBaseURI);
         return createClient(profileWebClient, ProfileWebClient.class);
     }
 
     @Bean
-    public NotificationWebClient notificationServiceClient(WebClient notificationWebClient) {
-        return createClient(notificationWebClient, NotificationWebClient.class);
+    public AggregatorWebClient aggregatorWebClient(WebClient.Builder builder) {
+        var aggregatorWebClient = createWebClient(builder, aggregatorBaseURI);
+        return createClient(aggregatorWebClient, AggregatorWebClient.class);
     }
-
 
     private <T> T createClient(WebClient webClient, Class<T> clientClass) {
         var factory = HttpServiceProxyFactory.builderFor(WebClientAdapter.create(webClient)).build();
