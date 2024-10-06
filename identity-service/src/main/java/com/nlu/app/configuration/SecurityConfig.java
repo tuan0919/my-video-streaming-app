@@ -25,7 +25,8 @@ public class SecurityConfig {
         "/auth/refresh",
         "/auth/userinfo",
         "/actuator/**",
-        "/sagaTask/**"
+        "/sagaTask/**",
+        "/users/get/**"
     };
 
     private final CustomJwtDecoder customJwtDecoder;

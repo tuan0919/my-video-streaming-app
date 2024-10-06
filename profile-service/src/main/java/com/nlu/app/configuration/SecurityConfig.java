@@ -19,7 +19,8 @@ public class SecurityConfig {
 
     private static final String[] PUBLIC_ENDPOINTS = {
         "/users/internal/**",
-        "/users/follow"
+        "/users/follow",
+        "/users/get/**"
     };
 
     private final CustomJwtDecoder customJwtDecoder;
