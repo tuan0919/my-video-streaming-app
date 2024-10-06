@@ -10,7 +10,8 @@ public enum ErrorCode {
     RESOURCE_NOT_FOUND(1001, "Resource not found, please check again!", HttpStatus.NOT_FOUND),
     UNAUTHENTICATED(1002, "You are not authenticated!", HttpStatus.UNAUTHORIZED),
     USER_NOT_EXISTED(1003, "User is not existed!", HttpStatus.NOT_FOUND),
-    USER_ALREADY_EXISTED(1003, "User is already existed!", HttpStatus.BAD_REQUEST);
+    USER_ALREADY_EXISTED(1003, "User is already existed!", HttpStatus.BAD_REQUEST),
+    UNKNOWN_ACTION(1004, "Saga action is invalid :(", HttpStatus.BAD_REQUEST);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;
