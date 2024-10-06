@@ -3,6 +3,7 @@ package com.nlu.app.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nlu.app.common.share.dto.CompensationRequest;
 import com.nlu.app.common.share.dto.notification_service.request.NotificationCreationRequest;
+import com.nlu.app.common.share.dto.saga.SagaAdvancedRequest;
 import com.nlu.app.service.CompensationService;
 import com.nlu.app.service.NotificationService;
 import lombok.AccessLevel;
@@ -24,6 +25,11 @@ public class NotificationController {
     @PostMapping("/internal")
     public String insert(@RequestBody NotificationCreationRequest request) throws JsonProcessingException {
         return service.insert(request);
+    }
+
+    @PostMapping("/internal/saga")
+    public String insert(@RequestBody SagaAdvancedRequest sagaRequest) {
+        return service.insert(sagaRequest);
     }
 
     @PostMapping("/internal/compensation")

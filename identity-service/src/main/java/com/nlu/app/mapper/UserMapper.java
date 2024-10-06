@@ -8,8 +8,7 @@ import org.mapstruct.*;
 
 import com.nlu.app.dto.request.UserCreationRequest;
 import com.nlu.app.dto.request.UserUpdateRequest;
-import com.nlu.app.dto.response.UserResponse;
-import org.springframework.transaction.annotation.Transactional;
+import com.nlu.app.common.share.dto.identity_service.response.UserResponse;
 
 import java.util.List;
 import java.util.Set;
@@ -25,6 +24,7 @@ public interface UserMapper {
     @Mapping(target = "userId", source = "user.id")
     UserCreatedEvent toUserCreatedEvent(User user);
     @Mapping(target = "roles", source = "user.roles", qualifiedByName = "mapRoles")
+    @Mapping(target = "userId", source = "user.id")
     IdentityUpdatedEvent toIdentityUpdatedEvent(User user);
 
     @Named("mapRoles")

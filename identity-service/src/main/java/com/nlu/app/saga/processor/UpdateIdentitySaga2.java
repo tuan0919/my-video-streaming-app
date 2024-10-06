@@ -8,6 +8,8 @@ import com.nlu.app.common.share.SagaCompensationStep;
 import com.nlu.app.common.share.dto.CompensationRequest;
 import com.nlu.app.common.share.dto.notification_service.request.NotificationCreationRequest;
 import com.nlu.app.common.share.dto.profile_service.request.ProfileCreationRequest;
+import com.nlu.app.common.share.dto.saga.SagaAdvancedRequest;
+import com.nlu.app.common.share.event.IdentityUpdatedEvent;
 import com.nlu.app.common.share.event.NotificationCreatedEvent;
 import com.nlu.app.common.share.event.ProfileCreatedEvent;
 import com.nlu.app.common.share.event.UserCreatedEvent;
@@ -89,20 +91,26 @@ public class UpdateIdentitySaga2 {
         var event = objectMapper.readValue(message.payload(), NotificationCreatedEvent.class);
         var response = userService.getUser(event.getUserId());
         redisTemplate.opsForValue().set("SAGA_COMPLETED_"+message.sagaId(), response, Duration.ofMinutes(3));
+        var successStep = sagaMapper.mapToSuccessLog(message);
+        sagaLogService.addSagaLog(successStep, PROCEED_STEPS, COMPENSATION_MAP);
         ack.acknowledge();
     }
 
     @Transactional
     void requestNotification(KafkaMessage message, Acknowledgment ack) throws JsonProcessingException {
-        ProfileCreatedEvent event = objectMapper.readValue(message.payload(), ProfileCreatedEvent.class);
+        IdentityUpdatedEvent event = objectMapper.readValue(message.payload(), IdentityUpdatedEvent.class);
         var createNotification = NotificationCreationRequest.builder()
                 .type("WARNING")
                 .userId(event.getUserId())
                 .content(String.format("Your login information has been changed.", event.getUserId()))
-                .sagaId(message.sagaId())
-                .sagaAction(SagaAction.UPDATE_IDENTITY)
                 .build();
-        notificationWebClient.createNotification(createNotification).block();
+        var sagaAdvanced = SagaAdvancedRequest.builder()
+                        .sagaId(message.sagaId())
+                        .sagaAction(SagaAction.UPDATE_IDENTITY)
+                        .sagaStep(SagaAdvancedStep.NOTIFICATION_CREATE)
+                        .payload(objectMapper.writeValueAsString(createNotification))
+                        .build();
+        notificationWebClient.sagaRequest(sagaAdvanced).block();
         var successStep = sagaMapper.mapToSuccessLog(message);
         sagaLogService.addSagaLog(successStep, PROCEED_STEPS, COMPENSATION_MAP);
         ack.acknowledge();

@@ -7,6 +7,7 @@ import com.nlu.app.common.share.SagaAdvancedStep;
 import com.nlu.app.common.share.SagaStatus;
 import com.nlu.app.common.share.dto.profile_service.request.ProfileCreationRequest;
 import com.nlu.app.common.share.dto.profile_service.response.ProfileCreationResponse;
+import com.nlu.app.common.share.dto.profile_service.response.ProfileResponseDTO;
 import com.nlu.app.common.share.event.ProfileCreatedEvent;
 import com.nlu.app.common.share.event.ProfileRemovedEvent;
 import com.nlu.app.entity.Outbox;
@@ -21,5 +22,7 @@ public interface ProfileMapper {
     Profile toEntity(ProfileCreationRequest request);
     ProfileCreatedEvent toProfileCreatedEvent(Profile profile);
     ProfileRemovedEvent toProfileRemovedEvent(Profile profile);
-    ProfileCreationResponse toResponseDTO(Profile profile);
+    ProfileCreationResponse toResponseCreationDTO(Profile profile);
+    @Mapping(target = "avatar", source = "profile.avatarId")
+    ProfileResponseDTO toResponseDTO(Profile profile);
 }

@@ -1,9 +1,9 @@
 package com.nlu.app.controller;
 import com.nlu.app.common.share.dto.CompensationRequest;
 import com.nlu.app.common.share.dto.profile_service.request.FollowRequest;
-import com.nlu.app.common.share.dto.profile_service.request.ProfileCreationRequest;
 import com.nlu.app.common.share.dto.profile_service.response.FollowerUserIdsResponse;
-import com.nlu.app.common.share.dto.profile_service.response.ProfileCreationResponse;
+import com.nlu.app.common.share.dto.profile_service.response.ProfileResponseDTO;
+import com.nlu.app.common.share.dto.saga.SagaAdvancedRequest;
 import com.nlu.app.dto.AppResponse;
 import com.nlu.app.service.ICompensationService;
 import com.nlu.app.service.IProfileService;
@@ -23,10 +23,17 @@ public class ProfileController {
     IProfileService profileService;
     ICompensationService compensationService;
 
-    @PostMapping("/internal/new")
-    public AppResponse<ProfileCreationResponse> create(@RequestBody ProfileCreationRequest request) {
-        return AppResponse.<ProfileCreationResponse>builder()
-                .result(profileService.insert(request))
+//    @PostMapping("/internal/new")
+//    public AppResponse<ProfileCreationResponse> create(@RequestBody ProfileCreationRequest request) {
+//        return AppResponse.<ProfileCreationResponse>builder()
+//                .result(profileService.insert(request))
+//                .build();
+//    }
+
+    @PostMapping("/internal/saga")
+    public AppResponse<String> requestSaga(@RequestBody SagaAdvancedRequest sagaRequest) {
+        return AppResponse.<String>builder()
+                .result(profileService.sagaRequest(sagaRequest))
                 .build();
     }
 
@@ -41,6 +48,13 @@ public class ProfileController {
     public AppResponse<FollowerUserIdsResponse> getFollowerIds(@RequestParam String id) {
         return AppResponse.<FollowerUserIdsResponse>builder()
                 .result(profileService.getFollowerIds(id))
+                .build();
+    }
+
+    @GetMapping("/get/{userId}")
+    public AppResponse<ProfileResponseDTO> getUserProfile(@PathVariable String userId) {
+        return AppResponse.<ProfileResponseDTO>builder()
+                .result(profileService.getUserProfile(userId))
                 .build();
     }
 

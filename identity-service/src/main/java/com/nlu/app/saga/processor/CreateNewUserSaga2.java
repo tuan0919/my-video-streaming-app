@@ -9,6 +9,7 @@ import com.nlu.app.common.share.SagaStatus;
 import com.nlu.app.common.share.dto.CompensationRequest;
 import com.nlu.app.common.share.dto.notification_service.request.NotificationCreationRequest;
 import com.nlu.app.common.share.dto.profile_service.request.ProfileCreationRequest;
+import com.nlu.app.common.share.dto.saga.SagaAdvancedRequest;
 import com.nlu.app.common.share.event.NotificationCreatedEvent;
 import com.nlu.app.common.share.event.ProfileCreatedEvent;
 import com.nlu.app.common.share.event.UserCreatedEvent;
@@ -117,12 +118,16 @@ public class CreateNewUserSaga2 {
         var profileCreate = ProfileCreationRequest.builder()
                     .bio("none")
                     .userId(event.getUserId())
-                    .sagaId(sagaId)
-                    .sagaAction(SagaAction.CREATE_NEW_USER)
                     .country("vn")
                     .fullName("")
                     .build();
-        profileWebClient.createProfile(profileCreate).block();
+        var sagaRequest = SagaAdvancedRequest.builder()
+                .sagaId(sagaId)
+                .sagaAction(SagaAction.CREATE_NEW_USER)
+                .sagaStep(SagaAdvancedStep.PROFILE_CREATE)
+                .payload(objectMapper.writeValueAsString(profileCreate))
+                .build();
+        profileWebClient.sagaRequest(sagaRequest).block();
         var successStep = sagaMapper.mapToSuccessLog(message);
         sagaLogService.addSagaLog(successStep, PROCEED_STEPS, COMPENSATION_MAP);
         ack.acknowledge();
@@ -135,10 +140,14 @@ public class CreateNewUserSaga2 {
                 .type("INFO")
                 .userId(event.getUserId())
                 .content(String.format("Welcome userId %s to our service", event.getUserId()))
+                .build();
+        var sagaRequest = SagaAdvancedRequest.builder()
                 .sagaId(message.sagaId())
                 .sagaAction(SagaAction.CREATE_NEW_USER)
+                .sagaStep(SagaAdvancedStep.NOTIFICATION_CREATE)
+                .payload(objectMapper.writeValueAsString(createNotification))
                 .build();
-        notificationWebClient.createNotification(createNotification).block();
+        notificationWebClient.sagaRequest(sagaRequest).block();
         var successStep = sagaMapper.mapToSuccessLog(message);
         sagaLogService.addSagaLog(successStep, PROCEED_STEPS, COMPENSATION_MAP);
         ack.acknowledge();
