@@ -1,0 +1,21 @@
+server:
+  servlet:
+    context-path: /aggregator
+  port: 17979
+spring:
+  application:
+    name: aggregator-service
+
+eureka:
+  client:
+    server-url:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+
+profile-service:
+  domain: lb://profile-service
+identity-service:
+  domain: lb://identity-service
