@@ -6,6 +6,8 @@ import lombok.experimental.FieldDefaults;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+
 @Entity(name = "videos")
 @Builder
 @Data
@@ -26,4 +28,8 @@ public class Video {
     String thumbnailKey;
     String videoDescription;
     String videoName;
+    @Builder.Default
+    Integer viewCount = 0;
+    @OneToMany
+    Set<VideoInteract> interactions;
 }
