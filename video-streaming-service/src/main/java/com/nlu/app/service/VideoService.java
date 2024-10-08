@@ -11,6 +11,8 @@ import com.nlu.app.dto.response.VideoCreationResponse;
 import com.nlu.app.dto.webclient.identity.request.TokenUserRequest;
 import com.nlu.app.entity.Outbox;
 import com.nlu.app.entity.Video;
+import com.nlu.app.mapper.OutboxMapper;
+import com.nlu.app.mapper.VideoMapper;
 import com.nlu.app.repository.IdentityWebClient;
 import com.nlu.app.repository.OutboxRepository;
 import com.nlu.app.repository.VideoRepository;
@@ -32,7 +34,8 @@ public class VideoService {
     IdentityWebClient identityWebClient;
     FileService fileService;
     OutboxRepository outboxRepository;
-    ObjectMapper objectMapper;
+    OutboxMapper outboxMapper;
+    VideoMapper videoMapper;
     public Mono<VideoCreationResponse> createVideo(String token, VideoCreationRequest request) {
         var dto = TokenUserRequest.builder().token(token).build();
         var wrap = new Object() {
@@ -52,30 +55,11 @@ public class VideoService {
     }
 
     @Transactional
-    Video _insertVideo_(VideoCreationRequest request, String userId, String key) throws JsonProcessingException {
-        var video = Video.builder()
-                .videoDescription(request.getDescription())
-                .videoKey(key)
-                .videoName(request.getVideoName())
-                .createAt(LocalDateTime.now())
-                .userId(userId)
-                .thumbnailKey("TEST") //TODO: temporary consider all videos have no thumbnail.
-                .build();
+    Video _insertVideo_(VideoCreationRequest request, String userId, String key) {
+        var video = videoMapper.toEntity(request, userId, key);
         videoRepository.save(video);
-        var videoEvent = NewVideoCreatedEvent.builder()
-                .videoDescription(request.getDescription())
-                .videoKey(request.getVideoKey())
-                .userId(userId)
-                .videoName(request.getVideoName())
-                .build();
-        var outbox = Outbox.builder()
-                .sagaAction(SagaAction.CREATE_NEW_VIDEO)
-                .sagaId(video.getVideoId())
-                .aggregateId(video.getVideoId())
-                .sagaStepStatus(SagaAdvancedStep.VIDEO_CREATE)
-                .aggregateType("video.topics")
-                .payload(objectMapper.writeValueAsString(videoEvent))
-                .build();
+        var videoEvent = videoMapper.toNewVideoCreatedEvent(video);
+        var outbox = outboxMapper.toSuccessOutbox(videoEvent, videoEvent.getVideoId(), SagaAction.CREATE_NEW_VIDEO);
         outboxRepository.save(outbox);
         return video;
     }
@@ -85,12 +69,7 @@ public class VideoService {
                 .generateURL(video.getVideoKey())
                 .map(response -> {
                     String link = response.getLink();
-                    return VideoCreationResponse.builder()
-                            .videoURL(link)
-                            .videoName(video.getVideoName())
-                            .description(video.getVideoDescription())
-                            .createAt(video.getCreateAt())
-                            .build();
+                    return videoMapper.toVideoCreationResponse(video, link);
                 });
     }
 }
