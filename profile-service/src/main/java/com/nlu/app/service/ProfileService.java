@@ -72,7 +72,7 @@ public class ProfileService implements IProfileService {
 
     @Override
     @Transactional
-    public ProfileResponseDTO getUserProfile(String userId) throws ApplicationException {
+    public ProfileResponseDTO getUserProfile(String userId) {
         var oProfile = profileRepository.findProfileByUserId(userId);
         if (oProfile.isEmpty()) {
             throw new ApplicationException(ErrorCode.USER_NOT_EXISTED);
@@ -81,7 +81,7 @@ public class ProfileService implements IProfileService {
     }
 
     @Override
-    public String sagaRequest(SagaAdvancedRequest sagaRequest) throws ApplicationException {
+    public String sagaRequest(SagaAdvancedRequest sagaRequest) {
         String sagaStep = sagaRequest.getSagaStep();
         try {
             switch (sagaStep) {
