@@ -7,4 +7,5 @@ public class SagaAdvancedStep {
     public static final String NOTIFICATION_CREATE = "NOTIFICATION_CREATE";
     public static final String IDENTITY_UPDATE = "IDENTITY_UPDATE";
     public static final String VIDEO_CREATE = "VIDEO_CREATE";
+    public static final String VIDEO_UPVOTE = "VIDEO_UPVOTE";
 }
