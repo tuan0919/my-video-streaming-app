@@ -4,7 +4,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
+import com.nlu.app.common.share.SagaAction;
+import com.nlu.app.common.share.dto.notification_service.request.NotificationCreationRequest;
+import com.nlu.app.common.share.dto.profile_service.request.ProfileCreationRequest;
 import com.nlu.app.mapper.OutboxMapper;
+import com.nlu.app.repository.webclient.NotificationWebClient;
+import com.nlu.app.repository.webclient.ProfileWebClient;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,6 +34,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 @Service
 @RequiredArgsConstructor
@@ -60,7 +66,7 @@ public class UserService {
         userRepository.save(user);
         var event = userMapper.toUserCreatedEvent(user);
 
-        Outbox outbox = outboxMapper.toSuccessOutbox(event, sagaId);
+        Outbox outbox = outboxMapper.toSuccessOutbox(event, sagaId, SagaAction.CREATE_NEW_USER);
         outboxRepository.save(outbox);
         return sagaId;
     }
@@ -93,7 +99,7 @@ public class UserService {
         userRepository.save(user);
 
         var updatedEvent = userMapper.toIdentityUpdatedEvent(user);
-        Outbox outbox = outboxMapper.toSuccessOutbox(updatedEvent, sagaId);
+        Outbox outbox = outboxMapper.toSuccessOutbox(updatedEvent, sagaId, SagaAction.UPDATE_IDENTITY);
         outboxRepository.save(outbox);
         return userMapper.toUserResponse(user);
     }

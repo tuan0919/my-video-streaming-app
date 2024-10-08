@@ -45,6 +45,7 @@ public class NotificationService {
         return "OK";
     }
 
+    @Transactional
     public String insert(SagaAdvancedRequest sagaRequest) {
         String sagaStep = sagaRequest.getSagaStep();
         try {
@@ -60,8 +61,7 @@ public class NotificationService {
         throw new ApplicationException(ErrorCode.UNKNOWN_ACTION);
     }
 
-    @Transactional
-    String sagaIdentityCreate(SagaAdvancedRequest sagaRequest) throws JsonProcessingException {
+    private String sagaIdentityCreate(SagaAdvancedRequest sagaRequest) throws JsonProcessingException {
         NotificationCreationRequest request = objectMapper.readValue(sagaRequest.getPayload(), NotificationCreationRequest.class);
         String sagaId = sagaRequest.getSagaId();
         String sagaAction = sagaRequest.getSagaAction();

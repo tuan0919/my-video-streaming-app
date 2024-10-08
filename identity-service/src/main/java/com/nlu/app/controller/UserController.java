@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UserController {
     UserService userService;
 
+
     @PostMapping("/registration")
     AppResponse<String> createUser(@RequestBody @Valid UserCreationRequest request) {
         return AppResponse.<String>builder()

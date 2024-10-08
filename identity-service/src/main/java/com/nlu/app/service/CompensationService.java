@@ -12,6 +12,8 @@ import com.nlu.app.constant.PredefinedRole;
 import com.nlu.app.entity.Outbox;
 import com.nlu.app.entity.Role;
 import com.nlu.app.entity.User;
+import com.nlu.app.exception.ApplicationException;
+import com.nlu.app.exception.ErrorCode;
 import com.nlu.app.repository.OutboxRepository;
 import com.nlu.app.repository.RoleRepository;
 import com.nlu.app.repository.UserRepository;
@@ -33,13 +35,17 @@ public class CompensationService {
     RoleRepository roleRepository;
     RedisTemplate<String, Object> redisTemplate;
 
-    public void doCompensation(String sagaId) throws JsonProcessingException {
-        var outboxLogs = outboxRepository.findAllBySagaId(sagaId);
-        for (var log : outboxLogs) {
-            switch (log.getSagaStep()) {
-                case SagaAdvancedStep.IDENTITY_CREATE -> forIdentityCreate(log);
-                case SagaAdvancedStep.IDENTITY_UPDATE -> forIdentityUpdate(log);
+    public void doCompensation(String sagaId) {
+        try {
+            var outboxLogs = outboxRepository.findAllBySagaId(sagaId);
+            for (var log : outboxLogs) {
+                switch (log.getSagaStep()) {
+                    case SagaAdvancedStep.IDENTITY_CREATE -> forIdentityCreate(log);
+                    case SagaAdvancedStep.IDENTITY_UPDATE -> forIdentityUpdate(log);
+                }
             }
+        } catch (JsonProcessingException e) {
+            throw new ApplicationException(ErrorCode.UNEXPECTED_BEHAVIOR);
         }
     }
 
