@@ -4,16 +4,16 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity(name = "videos")
 @Builder
-@Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 public class Video {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -30,6 +30,16 @@ public class Video {
     String videoName;
     @Builder.Default
     Integer viewCount = 0;
-    @OneToMany
-    Set<VideoInteract> interactions;
+    @OneToMany(mappedBy = "video", cascade = CascadeType.ALL, orphanRemoval = true)
+
+    Set<VideoInteract> interactions = new HashSet<>();
+    @Override
+    public String toString() {
+        return "Video{" +
+                "videoId='" + videoId + '\'' +
+                ", userId='" + userId + '\'' +
+                ", videoName='" + videoName + '\'' +
+                ", viewCount=" + viewCount +
+                '}';
+    }
 }

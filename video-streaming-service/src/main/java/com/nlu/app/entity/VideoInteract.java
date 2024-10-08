@@ -14,8 +14,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class VideoInteract {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     String id;
     @ManyToOne
+    @JoinColumn(name = "videoId")
     Video video;
     String userId;
     Float progress;

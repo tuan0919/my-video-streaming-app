@@ -48,14 +48,16 @@ public class InteractVideoService {
             throw new ApplicationException(ErrorCode.RESOURCE_NOT_FOUND);
         }
         var video = oVideo.get();
-        var oInteract = videoInteractRepository.findByVideoIdAndUserId(video.getVideoId(), request.getUserId());
+        var oInteract = videoInteractRepository.findByVideoVideoIdAndUserId(video.getVideoId(), request.getUserId());
         VideoInteract interact = null;
         if (oInteract.isEmpty()) {
             interact = VideoInteract.builder()
+                    .userId(request.getUserId())
                     .video(video)
                     .vote("UP_VOTE")
                     .build();
         }
+        videoInteractRepository.save(interact);
         video.getInteractions().add(interact);
         videoRepository.save(video);
         var event = videoInteractMapper.toUpVotedEvent(interact);

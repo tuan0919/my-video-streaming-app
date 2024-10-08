@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface VideoInteractRepository extends JpaRepository<VideoInteract, String> {
-    Optional<VideoInteract> findByVideoIdAndUserId(String videoId, String userId);
+    Optional<VideoInteract> findByVideoVideoIdAndUserId(String videoId, String userId);
 }
