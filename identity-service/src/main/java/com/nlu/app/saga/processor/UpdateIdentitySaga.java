@@ -5,26 +5,33 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nlu.app.common.share.SagaAction;
 import com.nlu.app.common.share.SagaAdvancedStep;
 import com.nlu.app.common.share.SagaCompensationStep;
-import com.nlu.app.common.share.SagaStatus;
 import com.nlu.app.common.share.dto.CompensationRequest;
 import com.nlu.app.common.share.dto.notification_service.request.NotificationCreationRequest;
+import com.nlu.app.common.share.dto.saga.SagaAdvancedRequest;
+import com.nlu.app.common.share.event.NotificationCreatedEvent;
 import com.nlu.app.common.share.event.ProfileCreatedEvent;
-import com.nlu.app.saga.SagaLog;
+import com.nlu.app.common.share.event.SagaCompletedEvent;
+import com.nlu.app.exception.ApplicationException;
+import com.nlu.app.exception.ErrorCode;
+import com.nlu.app.mapper.OutboxMapper;
+import com.nlu.app.mapper.SagaMapper;
+import com.nlu.app.repository.OutboxRepository;
+import com.nlu.app.repository.webclient.AggregatorWebClient;
 import com.nlu.app.repository.webclient.NotificationWebClient;
 import com.nlu.app.saga.KafkaMessage;
+import com.nlu.app.saga.SagaError;
 import com.nlu.app.service.CompensationService;
-import com.nlu.app.service.SagaLogService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.time.Duration;
 
 @Component
 @RequiredArgsConstructor
@@ -32,100 +39,114 @@ import java.util.Set;
 @Slf4j
 public class UpdateIdentitySaga {
     NotificationWebClient notificationWebClient;
+    AggregatorWebClient aggregatorWebClient;
     ObjectMapper objectMapper;
-    SagaLogService sagaLogService;
     CompensationService compensationService;
-
-    private static final Set<String> PROCEED_STEPS = Set.of(
-            SagaAdvancedStep.IDENTITY_UPDATE,
-            SagaAdvancedStep.NOTIFICATION_CREATE
-    );
-
-    private static final Map<String, List<String>> COMPENSATION_MAP = Map.of(
-            SagaAdvancedStep.NOTIFICATION_CREATE, List.of(
-                    SagaCompensationStep.COMPENSATION_NOTIFICATION_CREATE,
-                    SagaCompensationStep.COMPENSATION_IDENTITY_UPDATE
-            ),
-            SagaAdvancedStep.IDENTITY_UPDATE, List.of(
-                    SagaCompensationStep.COMPENSATION_IDENTITY_UPDATE
-            )
-    );
+    RedisTemplate<String, Object> redisTemplate;
+    SagaMapper sagaMapper;
+    OutboxRepository outboxRepository;
+    OutboxMapper outboxMapper;
 
     @Transactional
-    public void consumeMessage(KafkaMessage message) throws JsonProcessingException {
-        switch (message.sagaStepStatus()) {
-            case SagaStatus.SUCCESS -> this.handleSuccessStep(message.sagaStep(), message.sagaId(), message.payload());
-            case SagaStatus.FAILED -> this.handleFailedStep(message.sagaStep(), message.sagaId());
+    public void consumeMessage(KafkaMessage message, Acknowledgment ack) {
+        String sagaStep = message.sagaStep();
+        try {
+            switch (sagaStep) {
+                case SagaAdvancedStep.IDENTITY_UPDATE -> {
+                    requestCreateNotification(message);
+                }
+                case SagaAdvancedStep.NOTIFICATION_CREATE -> {
+                    requestEndingSaga(message);
+                }
+                case SagaAdvancedStep.ENDING_SAGA -> {
+                    onSagaSuccess(message);
+                }
+                case SagaCompensationStep.COMPENSATION_NOTIFICATION_CREATE,
+                     SagaCompensationStep.COMPENSATION_IDENTITY_UPDATE -> {
+                    compensation(message);
+                }
+                default -> {
+                    throw new ApplicationException(ErrorCode.UNEXPECTED_BEHAVIOR);
+                }
+            }
+            ack.acknowledge();
         }
-        this.updateSagaLog(message.sagaId(), message.eventId(), message.sagaAction(), message.sagaStep(), message.sagaStepStatus());
-    }
-
-    public void handleSuccessStep(String sagaStep, String sagaId, String payload) throws JsonProcessingException {
-        switch (sagaStep) {
-            case SagaAdvancedStep.IDENTITY_UPDATE -> {
-                requestNotification(sagaId, payload);
-            }
-            case SagaAdvancedStep.NOTIFICATION_CREATE -> {
-                onSagaSuccess(sagaId, payload);
-                // TODO: success notification creation
-            }
-            case SagaCompensationStep.COMPENSATION_NOTIFICATION_CREATE -> {
-                // TODO: do something to announce about ending of compensation
-                compensationForIdentity(sagaId);
-            }
-            case SagaCompensationStep.COMPENSATION_IDENTITY_UPDATE -> {
-                // TODO: do something to announce about ending of compensation
-            }
-        }
-    }
-
-    public void handleFailedStep(String sagaStep, String sagaId) throws JsonProcessingException {
-        switch (sagaStep) {
-            case SagaAdvancedStep.IDENTITY_UPDATE -> compensationForIdentity(sagaId);
-            case SagaAdvancedStep.NOTIFICATION_CREATE -> compensationForNotification(sagaId);
-            case SagaCompensationStep.COMPENSATION_NOTIFICATION_CREATE -> {
-                // TODO: solve failed case for compensation
-            }
-            case SagaCompensationStep.COMPENSATION_IDENTITY_UPDATE -> {
-                // TODO: solve failed case for compensation
-            }
+        catch (WebClientResponseException e) {
+            e.printStackTrace();
+            handleSagaError(message, e);
+        } catch (Exception e) {
+            e.printStackTrace();
+            handleSagaError(message, e);
         }
     }
 
-    private void onSagaSuccess(String sagaId, String payload) {
-        log.info("Notification created successfully: {}", payload);
+    private void handleSagaError(KafkaMessage message, Exception e) {
+        SagaError sagaError = sagaMapper.mapToSagaError(e, message);
+        this.compensation(message);
+        redisTemplate.opsForValue().set("SAGA_ABORTED_" + message.sagaId(), sagaError, Duration.ofMinutes(3));
+        // Do not acknowledge in case of error
     }
 
-    private void requestNotification(String sagaId, String payload) throws JsonProcessingException {
-        ProfileCreatedEvent event = objectMapper.readValue(payload, ProfileCreatedEvent.class);
-        var createNotification = NotificationCreationRequest.builder()
-                .type("WARNING")
-                .userId(event.getUserId())
-                .content(String.format("Your login information has been changed.", event.getUserId()))
-                .sagaId(sagaId)
-                .sagaAction(SagaAction.UPDATE_IDENTITY)
-                .build();
-        notificationWebClient.createNotification(createNotification).block();
+    private void onSagaSuccess(KafkaMessage message) {
+        log.info("Saga {} kết thúc thành công.", message.sagaAction());
     }
 
-    private void compensationForIdentity(String sagaId) throws JsonProcessingException {
+    private void requestEndingSaga(KafkaMessage message) {
+        try {
+            var event = objectMapper.readValue(message.payload(), NotificationCreatedEvent.class);
+            var response = aggregatorWebClient
+                    .getUser(event.getUserId())
+                    .block();
+            redisTemplate.opsForValue().set("SAGA_COMPLETED_"+message.sagaId(), response, Duration.ofMinutes(3));
+            var completedEvent = new SagaCompletedEvent(message.sagaId(), message.sagaAction());
+            var outbox = outboxMapper.toSuccessOutbox(completedEvent, message.sagaId(), message.sagaAction());
+            outboxRepository.save(outbox);
+        } catch (JsonProcessingException e) {
+            throw new ApplicationException(ErrorCode.UNEXPECTED_BEHAVIOR);
+        }
+    }
+
+    void requestCreateNotification(KafkaMessage message) {
+        try {
+            ProfileCreatedEvent event = objectMapper.readValue(message.payload(), ProfileCreatedEvent.class);
+            var createNotification = NotificationCreationRequest.builder()
+                    .type("WARNING")
+                    .userId(event.getUserId())
+                    .content(String.format("Thông tin đăng nhập của bạn (%s) đã bị thay đổi.", event.getUserId()))
+                    .build();
+            var sagaRequest = SagaAdvancedRequest.builder()
+                    .sagaId(message.sagaId())
+                    .sagaAction(SagaAction.UPDATE_IDENTITY)
+                    .sagaStep(SagaAdvancedStep.NOTIFICATION_CREATE)
+                    .payload(objectMapper.writeValueAsString(createNotification))
+                    .build();
+            notificationWebClient.sagaRequest(sagaRequest)
+                    .block();
+        } catch (JsonProcessingException e) {
+            throw new ApplicationException(ErrorCode.UNEXPECTED_BEHAVIOR);
+        }
+    }
+
+    void compensation(KafkaMessage message) {
+        String advancedStep = message.sagaStep();
+        String sagaId = message.sagaId();
+        switch (advancedStep) {
+            case SagaAdvancedStep.NOTIFICATION_CREATE -> compensationForCreateNotification(sagaId);
+            case SagaAdvancedStep.IDENTITY_UPDATE -> compensationForUpdateIdentity(sagaId);
+            case SagaCompensationStep.COMPENSATION_NOTIFICATION_CREATE -> compensationForUpdateIdentity(sagaId);
+            case SagaCompensationStep.COMPENSATION_IDENTITY_UPDATE -> onSagaAborted(message);
+        }
+    }
+
+    private void onSagaAborted(KafkaMessage message) {
+        log.info("Saga {} hủy bỏ thành công.", message.sagaAction());
+    }
+
+    private void compensationForUpdateIdentity(String sagaId) {
         compensationService.doCompensation(sagaId);
     }
 
-    private void compensationForNotification(String sagaId) {
+    private void compensationForCreateNotification(String sagaId) {
         notificationWebClient.compensation(CompensationRequest.builder().sagaId(sagaId).build()).block();
-    }
-
-    public void updateSagaLog(String sagaId, String eventId, String sagaAction, String sagaStep, String status) {
-        var sagaLog = SagaLog.builder()
-                .sagaId(sagaId)
-                .id(eventId)
-                .sagaStep(sagaStep)
-                .status(status)
-                .createAt(LocalDateTime.now())
-                .updateAt(LocalDateTime.now())
-                .sagaAction(sagaAction)
-                .build();
-        sagaLogService.addSagaLog(sagaLog, PROCEED_STEPS, COMPENSATION_MAP);
     }
 }
