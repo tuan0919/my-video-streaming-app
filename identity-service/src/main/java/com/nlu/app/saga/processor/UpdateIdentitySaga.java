@@ -11,15 +11,14 @@ import com.nlu.app.common.share.dto.saga.SagaAdvancedRequest;
 import com.nlu.app.common.share.event.NotificationCreatedEvent;
 import com.nlu.app.common.share.event.ProfileCreatedEvent;
 import com.nlu.app.common.share.event.SagaCompletedEvent;
+import com.nlu.app.dto.AppResponse;
 import com.nlu.app.exception.ApplicationException;
 import com.nlu.app.exception.ErrorCode;
 import com.nlu.app.mapper.OutboxMapper;
-import com.nlu.app.mapper.SagaMapper;
 import com.nlu.app.repository.OutboxRepository;
 import com.nlu.app.repository.webclient.AggregatorWebClient;
 import com.nlu.app.repository.webclient.NotificationWebClient;
-import com.nlu.app.saga.KafkaMessage;
-import com.nlu.app.saga.SagaError;
+import com.nlu.app.common.share.KafkaMessage;
 import com.nlu.app.service.CompensationService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +42,6 @@ public class UpdateIdentitySaga {
     ObjectMapper objectMapper;
     CompensationService compensationService;
     RedisTemplate<String, Object> redisTemplate;
-    SagaMapper sagaMapper;
     OutboxRepository outboxRepository;
     OutboxMapper outboxMapper;
 
@@ -80,10 +78,30 @@ public class UpdateIdentitySaga {
         }
     }
 
+    private AppResponse<Object> convertException(Exception e) {
+        try {
+            // expected errors
+            var webClientException = (WebClientResponseException)e;
+            var response = objectMapper.readValue(webClientException.getResponseBodyAsString(), AppResponse.class);
+            var responseEntity = AppResponse.builder()
+                    .code(response.getCode())
+                    .message(response.getMessage())
+                    .build();
+            return responseEntity;
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            var responseEntity = AppResponse.builder()
+                    .code(ErrorCode.UNKNOWN_EXCEPTION.getCode())
+                    .message(ErrorCode.UNKNOWN_EXCEPTION.getMessage())
+                    .build();
+            return responseEntity;
+        }
+    }
+
     private void handleSagaError(KafkaMessage message, Exception e) {
-        SagaError sagaError = sagaMapper.mapToSagaError(e, message);
         this.compensation(message);
-        redisTemplate.opsForValue().set("SAGA_ABORTED_" + message.sagaId(), sagaError, Duration.ofMinutes(3));
+        var responseEntity = convertException(e);
+        redisTemplate.opsForValue().set("SAGA_ABORTED_" + message.sagaId(), responseEntity, Duration.ofMinutes(3));
         // Do not acknowledge in case of error
     }
 
