@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Marker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -78,7 +79,7 @@ public class FileService {
 
     private String signedURL(String fileName) {
         CloudFrontUtilities cloudFrontUtilities = CloudFrontUtilities.create();
-        Instant expirationDate = Instant.now().plus(1, ChronoUnit.MINUTES);
+        Instant expirationDate = Instant.now().plus(6, ChronoUnit.MINUTES);
         String resource = String.format("%s/%s", cloudFrontUrl, fileName);
         CannedSignerRequest cannedRequest = null;
         try {
@@ -100,6 +101,11 @@ public class FileService {
                 .map(link -> SignedURLResponse.builder().link(link).build())
                 .onErrorResume(error -> Mono.error(error))
                 .subscribeOn(Schedulers.immediate());
+    }
+
+    @Cacheable(value = "resourceLinks", key = "#key")
+    public String generateResourceURL (String key) {
+        return signedURL(key);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
