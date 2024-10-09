@@ -1,6 +1,14 @@
 server:
   port: 18686
 spring:
+  cache:
+    type: redis
+    redis:
+      host: localhost
+      port: 6379
+      cache-null-values: true
+      time-to-live:
+        resourceLinks: 300000
   application:
     name: video-streaming-service
   profiles:
@@ -12,6 +20,19 @@ spring:
       discovery:
         enabled: true
         service-id: cloud-config-service
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:19092,localhost:29092,localhost:39092
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: '*'
+      enable-auto-commit: false
+    listener:
+      ack-mode: manual
 
 eureka:
   client:
