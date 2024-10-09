@@ -44,6 +44,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
     @Override
     public GatewayFilter apply(Config config) {
         return ((exchange, chain) -> {
+            log.info("start AuthenticationFilter");
             var response = exchange.getResponse();
             var request = exchange.getRequest();
             String path = request.getURI().getPath();

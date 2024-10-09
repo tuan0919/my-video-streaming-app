@@ -1,6 +1,7 @@
 package com.nlu.app.route;
 import com.nlu.app.filter.AuthenticationFilter;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.route.RouteLocator;
@@ -10,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
-
+@Slf4j
 @Configuration
 public class Routes {
     @Value("${identity-service.domain}")
