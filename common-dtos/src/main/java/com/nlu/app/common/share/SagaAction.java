@@ -8,4 +8,5 @@ public class SagaAction {
     public static final String CREATE_NEW_VIDEO = "CREATE_NEW_VIDEO";
     public static final String NOTIFY_TO_FOLLOWERS = "NOTIFY_TO_FOLLOWERS";
     public static final String VIDEO_UPVOTE = "VIDEO_UPVOTE";
+    public static final String MARK_VIEW_VIDEO = "MARK_VIEW_VIDEO";
 }
