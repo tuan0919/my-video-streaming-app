@@ -1,5 +1,6 @@
 package com.nlu.app.saga;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.nlu.app.common.share.KafkaMessage;
 import com.nlu.app.common.share.SagaAction;
 import com.nlu.app.saga.processor.CreateNewUserSaga;
 import com.nlu.app.saga.processor.UpdateIdentitySaga;
@@ -28,7 +29,7 @@ public class IdentitySagaManager {
                                 @Header("id") String eventId,
                                 @Header("sagaStepStatus") String sagaStepStatus,
                                 @Header("sagaId") String sagaId,
-                                Acknowledgment ack) throws JsonProcessingException {
+                                Acknowledgment ack) {
         var message = new KafkaMessage(eventId, sagaId, sagaAction, sagaStep, sagaStepStatus, payload);
         switch (sagaAction) {
             case SagaAction.CREATE_NEW_USER -> {

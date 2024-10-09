@@ -16,9 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class SagaController {
     SagaTaskService sagaTaskService;
     @GetMapping("/{sagaId}")
-    AppResponse<?> getResult(@PathVariable String sagaId) {
-        return AppResponse.builder()
-                .result(sagaTaskService.getResult(sagaId))
-                .build();
+    Object getResult(@PathVariable String sagaId) {
+        return sagaTaskService.getResult(sagaId);
     }
 }

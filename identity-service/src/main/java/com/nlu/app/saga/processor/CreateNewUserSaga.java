@@ -6,23 +6,22 @@ import com.nlu.app.common.share.SagaAction;
 import com.nlu.app.common.share.SagaAdvancedStep;
 import com.nlu.app.common.share.SagaCompensationStep;
 import com.nlu.app.common.share.dto.CompensationRequest;
-import com.nlu.app.common.share.dto.notification_service.request.NotificationCreationRequest;
 import com.nlu.app.common.share.dto.profile_service.request.ProfileCreationRequest;
 import com.nlu.app.common.share.dto.saga.SagaAdvancedRequest;
 import com.nlu.app.common.share.event.NotificationCreatedEvent;
 import com.nlu.app.common.share.event.ProfileCreatedEvent;
 import com.nlu.app.common.share.event.SagaCompletedEvent;
 import com.nlu.app.common.share.event.UserCreatedEvent;
+import com.nlu.app.dto.AppResponse;
 import com.nlu.app.exception.ApplicationException;
 import com.nlu.app.exception.ErrorCode;
 import com.nlu.app.mapper.OutboxMapper;
-import com.nlu.app.mapper.SagaMapper;
+import com.nlu.app.mapper.RequestDTOMapper;
 import com.nlu.app.repository.OutboxRepository;
 import com.nlu.app.repository.webclient.AggregatorWebClient;
 import com.nlu.app.repository.webclient.NotificationWebClient;
 import com.nlu.app.repository.webclient.ProfileWebClient;
-import com.nlu.app.saga.KafkaMessage;
-import com.nlu.app.saga.SagaError;
+import com.nlu.app.common.share.KafkaMessage;
 import com.nlu.app.service.CompensationService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -35,9 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.time.Duration;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -50,31 +46,9 @@ public class CreateNewUserSaga {
     ObjectMapper objectMapper;
     CompensationService compensationService;
     RedisTemplate<String, Object> redisTemplate;
-    SagaMapper sagaMapper;
     OutboxRepository outboxRepository;
     OutboxMapper outboxMapper;
-
-    private static final Set<String> PROCEED_STEPS = Set.of(
-            SagaAdvancedStep.IDENTITY_CREATE,
-            SagaAdvancedStep.PROFILE_CREATE,
-            SagaAdvancedStep.NOTIFICATION_CREATE,
-            SagaAdvancedStep.ENDING_SAGA
-    );
-
-    private static final Map<String, List<String>> COMPENSATION_MAP = Map.of(
-            SagaAdvancedStep.NOTIFICATION_CREATE, List.of(
-                    SagaCompensationStep.COMPENSATION_NOTIFICATION_CREATE,
-                    SagaCompensationStep.COMPENSATION_PROFILE_CREATE,
-                    SagaCompensationStep.COMPENSATION_IDENTITY_CREATE
-            ),
-            SagaAdvancedStep.PROFILE_CREATE, List.of(
-                    SagaCompensationStep.COMPENSATION_PROFILE_CREATE,
-                    SagaCompensationStep.COMPENSATION_IDENTITY_CREATE
-            ),
-            SagaAdvancedStep.IDENTITY_CREATE, List.of(
-                    SagaCompensationStep.COMPENSATION_IDENTITY_CREATE
-            )
-    );
+    RequestDTOMapper requestDTOMapper;
 
     @Transactional
     public void consumeMessage(KafkaMessage message, Acknowledgment ack) {
@@ -114,10 +88,29 @@ public class CreateNewUserSaga {
     }
 
     private void handleSagaError(KafkaMessage message, Exception e) {
-        SagaError sagaError = sagaMapper.mapToSagaError(e, message);
         this.compensation(message);
-        redisTemplate.opsForValue().set("SAGA_ABORTED_" + message.sagaId(), sagaError, Duration.ofMinutes(3));
-        // Do not acknowledge in case of error
+        var responseEntity = convertException(e);
+        redisTemplate.opsForValue().set("SAGA_ABORTED_" + message.sagaId(), responseEntity, Duration.ofMinutes(3));
+    }
+
+    private AppResponse<Object> convertException(Exception e) {
+        try {
+            // expected errors
+            var webClientException = (WebClientResponseException)e;
+            var response = objectMapper.readValue(webClientException.getResponseBodyAsString(), AppResponse.class);
+            var responseEntity = AppResponse.builder()
+                    .code(response.getCode())
+                    .message(response.getMessage())
+                    .build();
+            return responseEntity;
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            var responseEntity = AppResponse.builder()
+                    .code(ErrorCode.UNKNOWN_EXCEPTION.getCode())
+                    .message(ErrorCode.UNKNOWN_EXCEPTION.getMessage())
+                    .build();
+            return responseEntity;
+        }
     }
 
     private void onSagaSuccess(KafkaMessage message) {
@@ -138,7 +131,6 @@ public class CreateNewUserSaga {
             throw new ApplicationException(ErrorCode.UNEXPECTED_BEHAVIOR);
         }
     }
-
 
     void requestProfile(KafkaMessage message) {
         try {
@@ -164,22 +156,15 @@ public class CreateNewUserSaga {
     }
 
 
-    void requestNotification(KafkaMessage message) {
+    private void requestNotification(KafkaMessage message) {
         try {
             ProfileCreatedEvent event = objectMapper.readValue(message.payload(), ProfileCreatedEvent.class);
-            var createNotification = NotificationCreationRequest.builder()
-                    .type("INFO")
-                    .userId(event.getUserId())
-                    .content(String.format("Chào mừng userId %s đến với hệ thống.", event.getUserId()))
-                    .build();
-            var sagaRequest = SagaAdvancedRequest.builder()
-                    .sagaId(message.sagaId())
-                    .sagaAction(SagaAction.CREATE_NEW_USER)
-                    .sagaStep(SagaAdvancedStep.NOTIFICATION_CREATE)
-                    .payload(objectMapper.writeValueAsString(createNotification))
-                    .build();
-            notificationWebClient.sagaRequest(sagaRequest)
-                    .block();
+            var createNotification = requestDTOMapper.toRequestDTO(event);
+            var sagaRequest = requestDTOMapper.toSagaRequest(message.sagaId(),
+                    SagaAction.CREATE_NEW_USER,
+                    SagaAdvancedStep.NOTIFICATION_CREATE,
+                    createNotification);
+            notificationWebClient.sagaRequest(sagaRequest).block();
         } catch (JsonProcessingException e) {
             throw new ApplicationException(ErrorCode.UNEXPECTED_BEHAVIOR);
         }
