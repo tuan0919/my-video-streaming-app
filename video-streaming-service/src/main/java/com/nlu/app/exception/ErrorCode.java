@@ -9,8 +9,7 @@ public enum ErrorCode {
     UNKNOWN_EXCEPTION(9999, "Something went wrong :(.", HttpStatus.INTERNAL_SERVER_ERROR),
     UNAUTHENTICATED(1002, "You are not authenticated!", HttpStatus.FORBIDDEN),
     UNAUTHORIZED(1003, "You are not authorized to access!", HttpStatus.UNAUTHORIZED),
-    RESOURCE_NOT_FOUND(1001, "Resource not found, please check again!", HttpStatus.NOT_FOUND),
-    ;
+    RESOURCE_NOT_FOUND(1001, "Resource not found, please check again!", HttpStatus.NOT_FOUND),;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;
