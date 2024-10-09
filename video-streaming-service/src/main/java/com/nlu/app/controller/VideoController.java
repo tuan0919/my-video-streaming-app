@@ -4,9 +4,11 @@ import com.nlu.app.annotation.JwtToken;
 import com.nlu.app.dto.AppResponse;
 import com.nlu.app.dto.request.LikeVideoRequest;
 import com.nlu.app.dto.request.SaveFileRequest;
+import com.nlu.app.dto.request.SaveProcessVideoRequest;
 import com.nlu.app.dto.request.VideoCreationRequest;
 import com.nlu.app.dto.response.SaveFileResponse;
 import com.nlu.app.dto.response.VideoCreationResponse;
+import com.nlu.app.dto.response.VideoDetailsResponse;
 import com.nlu.app.service.InteractVideoService;
 import com.nlu.app.service.VideoService;
 import lombok.AccessLevel;
@@ -35,12 +37,31 @@ public class VideoController {
     }
 
     @PostMapping("/upvote")
-    public Mono<AppResponse<String>> upNewVideo(@RequestBody LikeVideoRequest request) {
-        return interactVideoService.likeVideo(request)
+    public Mono<AppResponse<String>> upVote(@RequestBody LikeVideoRequest request) {
+        return interactVideoService.upVoteVideo(request)
                 .map(response -> {
                     return AppResponse.<String>builder()
                             .result(response)
                             .build();
+                });
+    }
+
+    @PostMapping("/progress")
+    public Mono<AppResponse<String>> progress(@RequestBody SaveProcessVideoRequest request) {
+        return interactVideoService.saveProgress(request)
+                .map(response -> {
+                    return AppResponse.<String>builder().result(response)
+                            .build();
+                });
+    }
+
+    @GetMapping("/link/{videoId}")
+    public Mono<AppResponse<VideoDetailsResponse>> getVideoLink(@PathVariable("videoId") String videoId,
+                                                                @RequestParam String userId) {
+        return videoService.getVideoDetails(videoId, userId)
+                .map(response -> {
+                    return AppResponse.<VideoDetailsResponse>builder()
+                            .result(response).build();
                 });
     }
 }

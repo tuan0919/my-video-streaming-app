@@ -5,16 +5,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nlu.app.common.share.SagaAction;
 import com.nlu.app.common.share.SagaAdvancedStep;
 import com.nlu.app.common.share.event.NewVideoCreatedEvent;
+import com.nlu.app.dto.AppResponse;
 import com.nlu.app.dto.request.SaveFileRequest;
 import com.nlu.app.dto.request.VideoCreationRequest;
 import com.nlu.app.dto.response.VideoCreationResponse;
+import com.nlu.app.dto.response.VideoDetailsResponse;
 import com.nlu.app.dto.webclient.identity.request.TokenUserRequest;
 import com.nlu.app.entity.Outbox;
 import com.nlu.app.entity.Video;
+import com.nlu.app.exception.ApplicationException;
+import com.nlu.app.exception.ErrorCode;
 import com.nlu.app.mapper.OutboxMapper;
+import com.nlu.app.mapper.ResponseDTOMapper;
 import com.nlu.app.mapper.VideoMapper;
 import com.nlu.app.repository.IdentityWebClient;
 import com.nlu.app.repository.OutboxRepository;
+import com.nlu.app.repository.VideoInteractRepository;
 import com.nlu.app.repository.VideoRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -33,9 +39,12 @@ public class VideoService {
     VideoRepository videoRepository;
     IdentityWebClient identityWebClient;
     FileService fileService;
+    ResponseDTOMapper responseMapper;
     OutboxRepository outboxRepository;
     OutboxMapper outboxMapper;
     VideoMapper videoMapper;
+    VideoInteractRepository interactRepository;
+
     public Mono<VideoCreationResponse> createVideo(String token, VideoCreationRequest request) {
         var dto = TokenUserRequest.builder().token(token).build();
         var wrap = new Object() {
@@ -64,12 +73,25 @@ public class VideoService {
         return video;
     }
 
-    Mono<VideoCreationResponse> _mapToResponse_(Video video) {
+    private Mono<VideoCreationResponse> _mapToResponse_(Video video) {
         return fileService
                 .generateURL(video.getVideoKey())
                 .map(response -> {
                     String link = response.getLink();
                     return videoMapper.toVideoCreationResponse(video, link);
                 });
+    }
+
+    public Mono<VideoDetailsResponse> getVideoDetails(String videoId, String userId) {
+        var oVideo = videoRepository.findById(videoId);
+        if (oVideo.isEmpty()) {
+            throw new ApplicationException(ErrorCode.RESOURCE_NOT_FOUND);
+        }
+        var video = oVideo.get();
+        var oInteract = interactRepository.findByVideoVideoIdAndUserId(videoId, userId);
+        var interact = oInteract.orElse(null);
+        String videoLink = fileService.generateResourceURL(video.getVideoKey());
+        var response = responseMapper.toResponseDTO(video, interact, videoLink);
+        return Mono.just(response);
     }
 }
