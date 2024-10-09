@@ -33,6 +33,15 @@ public interface OutboxMapper {
     @Mapping(target = "aggregateId", source = "event.videoId")
     Outbox toSuccessOutbox(NewVideoCreatedEvent event, String sagaId, String sagaAction);
 
+    @Mapping(target = "aggregateType", constant = "video.topics")
+    @Mapping(target = "sagaAction", source = "sagaAction")
+    @Mapping(target = "sagaStep", constant = SagaAdvancedStep.FIRST_INTERACT_WITH_VIDEO)
+    @Mapping(target = "sagaId", source = "sagaId")
+    @Mapping(target = "sagaStepStatus", constant = SagaStatus.SUCCESS)
+    @Mapping(target = "payload", source = "event", qualifiedByName = "mapToJSON")
+    @Mapping(target = "aggregateId", source = "event.videoId")
+    Outbox toSuccessOutbox(ViewedVideoEvent event, String sagaId, String sagaAction);
+
     @Named("mapToJSON")
     default String mapToJSON(Object object) {
         try {
