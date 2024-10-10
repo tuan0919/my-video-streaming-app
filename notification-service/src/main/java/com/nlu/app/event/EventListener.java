@@ -1,10 +1,9 @@
 package com.nlu.app.event;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nlu.app.common.share.KafkaMessage;
 import com.nlu.app.common.share.SagaAction;
 import com.nlu.app.common.share.event.CommentReplyEvent;
-import com.nlu.app.common.share.event.NewVideoCreatedEvent;
 import com.nlu.app.event.handler.CreateNewVideoHandler;
 import com.nlu.app.event.handler.UserReplyHandler;
 import lombok.AccessLevel;
@@ -28,7 +27,14 @@ public class EventListener {
     CreateNewVideoHandler CREATE_NEW_VIDEO_HANDLER;
 
     @KafkaListener(topics = {"comment.topics", "video.topics"}, groupId = "notification-service")
-    public void handleComment(@Payload String payload, @Header("sagaAction") String sagaAction, Acknowledgment ack) {
+    public void handleComment(@Payload String payload,
+                              @Header("sagaAction") String sagaAction,
+                              @Header("sagaStep") String sagaStep,
+                              @Header("id") String eventId,
+                              @Header("sagaStepStatus") String sagaStepStatus,
+                              @Header("sagaId") String sagaId,
+                              Acknowledgment ack) {
+        var message = new KafkaMessage(eventId, sagaId, sagaAction, sagaStep, sagaStepStatus, payload);
         try {
             switch (sagaAction) {
                 // send notification to replied user
@@ -38,8 +44,11 @@ public class EventListener {
                 }
                 // send notification to followers of video's owner.
                 case SagaAction.CREATE_NEW_VIDEO -> {
-                    var event = objectMapper.readValue(payload, NewVideoCreatedEvent.class);
-                    CREATE_NEW_VIDEO_HANDLER.consumeEvent(event, ack);
+                    CREATE_NEW_VIDEO_HANDLER.consumeEvent(message, ack);
+                }
+                default -> {
+                    // message này không thuộc nhiệm vụ của consumer group này, skip
+                    ack.acknowledge();
                 }
             }
         }

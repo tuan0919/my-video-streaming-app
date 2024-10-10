@@ -2,6 +2,7 @@ package com.nlu.app.event.handler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nlu.app.common.share.KafkaMessage;
 import com.nlu.app.common.share.SagaAction;
 import com.nlu.app.common.share.SagaAdvancedStep;
 import com.nlu.app.common.share.SagaStatus;
@@ -12,6 +13,8 @@ import com.nlu.app.constant.NotificationType;
 import com.nlu.app.entity.CommentNotification;
 import com.nlu.app.entity.Notification;
 import com.nlu.app.entity.Outbox;
+import com.nlu.app.mapper.NotificationMapper;
+import com.nlu.app.mapper.OutboxMapper;
 import com.nlu.app.repository.CommentNotificationRepository;
 import com.nlu.app.repository.NotificationRepository;
 import com.nlu.app.repository.OutboxRepository;
@@ -37,49 +40,34 @@ public class CreateNewVideoHandler {
     ProfileWebClient profileWebClient;
     OutboxRepository outboxRepository;
     ObjectMapper objectMapper;
+    NotificationMapper notificationMapper;
+    OutboxMapper outboxMapper;
 
+    /**
+     * Consume sự kiện {@link NewVideoCreatedEvent}, sau đó tiến hành lấy toàn bộ user id đang theo dõi người đăng video hiện tại,
+     * để tạo một loạt thông báo tương ứng tới họ.
+     * @param message
+     * @param ack
+     * @throws JsonProcessingException
+     */
     @Transactional
-    public void consumeEvent(NewVideoCreatedEvent event, Acknowledgment ack) throws JsonProcessingException {
-        /* TODO:
-         *  1. Send request to user's profile service for retrieving follower ids.
-         *  2. Batch insert all notifications for every one of them to this server database.
-         */
-        log.info("Consumed event: {}", event);
+    public void consumeEvent(KafkaMessage message, Acknowledgment ack) throws JsonProcessingException {
+        var event = objectMapper.readValue(message.payload(), NewVideoCreatedEvent.class);
         var response = profileWebClient.getFollowerIds(event.getUserId()).block().getResult();
         var ids = response.getFollowers();
         var notifications = ids.stream()
-                .map(userId -> Notification.builder()
-                        .type(NotificationType.INFO)
-                        .userId(userId)
-                        .content("Your followed user posted new video.")
-                        .isRead(false)
-                        .time(LocalDateTime.now())
-                        .build()
-                ).toList();
-        notificationRepository.saveAll(notifications); //TODO: temporary solution, need to do this in batching way.
+                .map(userId -> notificationMapper.forNotifyFollower(userId, "Your followed user posted new video."))
+                .toList();
+        notificationRepository.saveAll(notifications);
         var events = notifications.stream()
-                .map(notify -> NotificationCreatedEvent.builder()
-                        .time(notify.getTime())
-                        .content(notify.getContent())
-                        .notificationId(notify.getNotificationId())
-                        .userId(notify.getUserId())
-                        .build()
-                ).toList();
+                .map(notify -> notificationMapper.mapToCreatedEvent(notify)).toList();
         List<Outbox> outboxes = new ArrayList<>();
         Outbox outbox = null;
         for (NotificationCreatedEvent ev : events) {
-            outbox = Outbox.builder()
-                    .payload(objectMapper.writeValueAsString(ev))
-                    .aggregateId(ev.getNotificationId())
-                    .sagaAction(SagaAction.NOTIFY_TO_FOLLOWERS)
-                    .sagaId(ev.getUserId())
-                    .sagaStep(SagaAdvancedStep.NOTIFICATION_CREATE)
-                    .sagaStepStatus(SagaStatus.SUCCESS)
-                    .build();
+            outbox = outboxMapper.toSuccessOutbox(ev, ev.getUserId(), SagaAction.NOTIFY_TO_FOLLOWERS);
             outboxes.add(outbox);
         }
-        outboxRepository.saveAll(outboxes); //TODO: temporary solution, need to do this in batching way.
-        // successfully consumed this message, ack for kafka to know
+        outboxRepository.saveAll(outboxes);
         ack.acknowledge();
     }
 }

@@ -13,7 +13,12 @@ public interface NotificationMapper {
     @Mapping(target = "type", source = "request.type", qualifiedByName = "getEnum")
     Notification mapToEntity(NotificationCreationRequest request);
     NotificationCreatedEvent mapToCreatedEvent(Notification notification);
-
+    @Mappings({
+            @Mapping(target = "userId", source = "followerId"),
+            @Mapping(target = "content", source = "content"),
+            @Mapping(target = "type", expression = "java(getByName(\"INFO\"))")
+    })
+    Notification forNotifyFollower(String followerId, String content);
     @Named("getEnum")
     default NotificationType getByName(String name) {
         return NotificationType.valueOf(name);
