@@ -23,8 +23,9 @@ public class FileController {
 
     @PostMapping
     public Mono<AppResponse<SaveFileResponse>> saveFile(@RequestBody SaveFileRequest request,
-                                                        @JwtToken String token) {
-        return fileService.moveToInventory(request, token)
+                                                        @RequestHeader("X-UserId") String userId,
+                                                        @RequestHeader("X-Username") String username) {
+        return fileService.moveToInventory(request, userId, username)
                 .map(response -> {
                     return AppResponse.<SaveFileResponse>builder()
                             .result(response).build();
@@ -33,8 +34,9 @@ public class FileController {
 
     @PutMapping
     public Mono<AppResponse<SignedURLResponse>> putFile(@RequestBody PutFileRequest request,
-                                                        @JwtToken String token) {
-        return fileService.uploadToTemp(request, token)
+                                                        @RequestHeader("X-UserId") String userId,
+                                                        @RequestHeader("X-Username") String username) {
+        return fileService.uploadToTemp(request, userId, username)
                 .map(response -> {
                     return AppResponse.<SignedURLResponse>builder()
                             .result(response).build();
@@ -42,8 +44,7 @@ public class FileController {
     }
 
     @GetMapping
-    public Mono<AppResponse<SignedURLResponse>> getFile(@RequestParam("key") String key,
-                                                        @JwtToken String token) {
+    public Mono<AppResponse<SignedURLResponse>> getFile(@RequestParam("key") String key) {
         return fileService.generateURL(key)
                 .map(response -> {
                     return AppResponse.<SignedURLResponse>builder()

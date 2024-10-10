@@ -45,22 +45,11 @@ public class VideoService {
     VideoMapper videoMapper;
     VideoInteractRepository interactRepository;
 
-    public Mono<VideoCreationResponse> createVideo(String token, VideoCreationRequest request) {
-        var dto = TokenUserRequest.builder().token(token).build();
-        var wrap = new Object() {
-            String userId;
-        };
-        return identityWebClient.userInfo(dto)
-                .map(response -> response.getResult().getUserId())
-                .flatMap(userId -> {
-                    wrap.userId = userId;
-                    var requestSaveFile = SaveFileRequest.builder().filename(request.getVideoKey()).build();
-                    return fileService.moveToInventory(requestSaveFile, token);
-                })
-                // Chuyển các thao tác blocking JPA sang boundedElastic để không chặn thread Reactive
-                .flatMap(response -> Mono.fromCallable(() -> _insertVideo_(request, wrap.userId, response.getKey()))
-                        .subscribeOn(Schedulers.boundedElastic())) // Sử dụng thread pool riêng cho blocking code
-                .flatMap(this::_mapToResponse_);  // Tiếp tục xử lý Reactive không blocking
+    public Mono<VideoCreationResponse> createVideo(String userId, String username, VideoCreationRequest request) {
+        var requestSaveFile = SaveFileRequest.builder().filename(request.getVideoKey()).build();
+        var response = fileService.moveToInventory(requestSaveFile, userId, username).block();
+        var result = _insertVideo_(request, userId, response.getKey());
+        return _mapToResponse_(result);
     }
 
     @Transactional

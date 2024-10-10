@@ -82,7 +82,6 @@ public class UserService {
         return userMapper.toUserResponse(user);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN')") @Transactional
     public UserResponse updateUser(String userId, UserUpdateRequest request) {
         String sagaId = UUID.randomUUID().toString();
         User user = userRepository.findById(userId)
@@ -104,7 +103,6 @@ public class UserService {
         return userMapper.toUserResponse(user);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     public void deleteUser(String userId) {
         userRepository.deleteById(userId);
     }

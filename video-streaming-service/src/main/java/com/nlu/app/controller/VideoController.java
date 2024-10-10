@@ -28,8 +28,9 @@ public class VideoController {
     InteractVideoService interactVideoService;
     @PostMapping
     public Mono<AppResponse<VideoCreationResponse>> upNewVideo(@RequestBody VideoCreationRequest request,
-                                                               @JwtToken String token) {
-        return videoService.createVideo(token, request)
+                                                               @RequestHeader("X-UserId") String userId,
+                                                               @RequestHeader("X-Username") String username) {
+        return videoService.createVideo(userId, username, request)
                 .map(response -> {
                     return AppResponse.<VideoCreationResponse>builder()
                             .result(response).build();
