@@ -10,6 +10,5 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SaveProcessVideoRequest {
     String videoId;
-    String userId;
     Float progress;
 }

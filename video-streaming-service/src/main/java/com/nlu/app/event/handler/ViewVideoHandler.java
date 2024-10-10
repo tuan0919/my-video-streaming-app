@@ -22,7 +22,7 @@ public class ViewVideoHandler {
     VideoRepository videoRepository;
 
     /**
-     * Consumed sự kiện {@link ViewedVideoEvent}, khi nhận được sự kiện này, nghĩa là video có thêm một người tương tác với nó
+     * Consumed sự kiện {@link ViewedVideoEvent}, khi nhận được sự kiện này, nghĩa là video có thêm một view
      * tăng view count của video này lên.
      * @param message message kafka chứa các thông tin cần thiết trong quá trình consume.
      * @param ack Acknowledgment của kafka consumer, đảm bảo message đã được xử lí đúng đắn
