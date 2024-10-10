@@ -1,7 +1,6 @@
 package com.nlu.app.service;
-
-import com.nlu.app.dto.request.IntrospectRequest;
-import com.nlu.app.dto.response.IntrospectResponse;
+import com.nlu.app.common.share.dto.identity_service.request.IntrospectRequest;
+import com.nlu.app.common.share.dto.identity_service.response.IntrospectResponse;
 import com.nlu.app.repository.IdentityWebClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,12 +15,12 @@ public class IdentityService {
         this.identityWebClient = identityWebClient;
     }
 
-    public Mono<Boolean> introspect(String token) {
+    public Mono<IntrospectResponse> introspect(String token) {
         var dto = IntrospectRequest.builder()
                 .token(token)
                 .build();
         return identityWebClient
                 .introspect(dto)
-                .map(result -> result.getResult().isValid());
+                .map(result -> result.getResult());
     }
 }

@@ -23,13 +23,6 @@ public class ProfileController {
     IProfileService profileService;
     ICompensationService compensationService;
 
-//    @PostMapping("/internal/new")
-//    public AppResponse<ProfileCreationResponse> create(@RequestBody ProfileCreationRequest request) {
-//        return AppResponse.<ProfileCreationResponse>builder()
-//                .result(profileService.insert(request))
-//                .build();
-//    }
-
     @PostMapping("/internal/saga")
     public AppResponse<String> requestSaga(@RequestBody SagaAdvancedRequest sagaRequest) {
         return AppResponse.<String>builder()

@@ -1,4 +1,4 @@
-package com.nlu.app.dto.request;
+package com.nlu.app.common.share.dto.identity_service.request;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
