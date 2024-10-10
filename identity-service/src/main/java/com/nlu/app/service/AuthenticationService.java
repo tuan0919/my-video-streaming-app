@@ -8,12 +8,12 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.UUID;
 
+import com.nlu.app.common.share.dto.identity_service.request.IntrospectRequest;
 import com.nlu.app.entity.InvalidatedToken;
 import com.nlu.app.dto.request.*;
 import com.nlu.app.repository.InvalidatedTokenRepository;
 import com.nlu.app.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -60,14 +60,25 @@ public class AuthenticationService {
     public IntrospectResponse introspect(IntrospectRequest request) {
         var token = request.getToken();
         boolean isValid = true;
-
+        String username = null;
+        String userId = null;
+        List<String> roles = null;
         try {
-            verifyToken(token, false);
+            var signedJWT = verifyToken(token, false);
+            username = signedJWT.getJWTClaimsSet().getSubject();
+            String scope = (String) signedJWT.getJWTClaimsSet().getClaims().get("scope");
+            userId = (String) signedJWT.getJWTClaimsSet().getClaim("id");
+            roles = List.of(scope.split(" "));
         } catch (ApplicationException | JOSEException | ParseException e) {
             isValid = false;
         }
 
-        return IntrospectResponse.builder().valid(isValid).build();
+        return IntrospectResponse.builder()
+                .username(username)
+                .userId(userId)
+                .roles(roles)
+                .valid(isValid)
+                .build();
     }
 
 //    @Cacheable(key = "#request.username", value = "jwtToken")

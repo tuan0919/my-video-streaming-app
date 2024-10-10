@@ -13,10 +13,12 @@ import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 @Component
@@ -24,6 +26,7 @@ import java.util.stream.Stream;
 public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {
     ObjectMapper objectMapper;
     IdentityService service;
+    AuthorizationFilter authorizationFilter;
 
     @Value("${gateway-service.openEndpoints}")
     String[] opens;
@@ -38,9 +41,15 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
         this.service = service;
     }
 
+    @Autowired
+    public void setAuthorizationFilter(AuthorizationFilter authorizationFilter) {
+        this.authorizationFilter = authorizationFilter;
+    }
+
     public AuthenticationFilter() {
         super(AuthenticationFilter.Config.class);
     }
+
     @Override
     public GatewayFilter apply(Config config) {
         return ((exchange, chain) -> {
@@ -49,21 +58,32 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
             var request = exchange.getRequest();
             String path = request.getURI().getPath();
             if (Stream.of(opens).anyMatch(path::matches)) {
+                log.info("Authentication successfully cuz this path is public path");
                 return chain.filter(exchange);
             }
             var header = exchange.getRequest()
                     .getHeaders().get(HttpHeaders.AUTHORIZATION);
             if (header == null || header.isEmpty()) {
-                log.info("Failed to authenticate due to missing token.");
+                log.info("Authenticate failed due to missing token.");
                 return monoError(response, ErrorCode.UNAUTHENTICATED);
             }
             String token = header.getFirst().replace("Bearer ", "");
             log.info("Token: {}", token);
             return service.introspect(token)
                     .flatMap(result -> {
-                        if (result) {
+                        if (result.isValid()) {
                             log.info("Successfully authenticated.");
-                            return chain.filter(exchange);
+                            String username = result.getUsername();
+                            String userId = result.getUserId();
+                            List<String> roles = result.getRoles();
+                            log.info("Roles: {}", roles);
+                            ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
+                                    .header("X-Username", username)
+                                    .header("X-UserId", userId)
+                                    .header("X-Roles", String.join(",", roles))
+                                    .build();
+                            exchange.getAttributes().put("roles", roles);
+                            return chain.filter(exchange.mutate().request(mutatedRequest).build());
                         }
                         else {
                             log.info("Failed to authenticate.");

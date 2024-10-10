@@ -1,5 +1,6 @@
 package com.nlu.app.route;
 import com.nlu.app.filter.AuthenticationFilter;
+import com.nlu.app.filter.AuthorizationFilter;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,30 +29,50 @@ public class Routes {
     int PREFIX_STRIP;
 
     AuthenticationFilter authenticationFilter;
+    AuthorizationFilter authorizationFilter;
+
     @Autowired
     public void setAuthenticationFilter(AuthenticationFilter authenticationFilter) {
         this.authenticationFilter = authenticationFilter;
+    }
+
+    @Autowired
+    public void setAuthorizationFilter(AuthorizationFilter authorizationFilter) {
+        this.authorizationFilter = authorizationFilter;
     }
 
     @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         var authFilter = authenticationFilter
                 .apply(new AuthenticationFilter.Config());
+        var authorFilter = authorizationFilter
+                .apply(new AuthorizationFilter.Config());
         return builder.routes()
                 .route(r -> r.path(prefix+"/identity/**")
-                        .filters(f -> f.stripPrefix(PREFIX_STRIP).filter(authFilter))
-                        .uri(identityDomain)
+                        .filters(f -> f.stripPrefix(PREFIX_STRIP)
+                                .filter(authFilter)
+                                .filter(authorFilter)
+                        ).uri(identityDomain)
                 )
                 .route(r -> r.path(prefix+"/comment/**")
-                        .filters(f -> f.stripPrefix(PREFIX_STRIP).filter(authFilter))
+                        .filters(f -> f.stripPrefix(PREFIX_STRIP)
+                                .filter(authFilter)
+                                .filter(authorFilter)
+                        )
                         .uri(commentDomain)
                 )
                 .route(r -> r.path(prefix+"/video-streaming/**")
-                        .filters(f -> f.stripPrefix(PREFIX_STRIP).filter(authFilter))
+                        .filters(f -> f.stripPrefix(PREFIX_STRIP)
+                                .filter(authFilter)
+                                .filter(authorFilter)
+                        )
                         .uri(videoStreamingDomain)
                 )
                 .route(r -> r.path(prefix+"/profile/**")
-                        .filters(f -> f.stripPrefix(PREFIX_STRIP).filter(authFilter))
+                        .filters(f -> f.stripPrefix(PREFIX_STRIP)
+                                .filter(authFilter)
+                                .filter(authorFilter)
+                        )
                         .uri(profileDomain)
                 )
                 .build();
