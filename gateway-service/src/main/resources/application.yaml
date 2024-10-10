@@ -39,6 +39,10 @@ gateway-service:
       method: ["GET", "PUT", "POST"]
       roles: ["ROLE_USER", "ROLE_ADMIN"]
 
+    - path: /video-streaming/videos/view
+      method: [ "POST" ]
+      roles: [ "ROLE_USER", "ROLE_ADMIN" ]
+
 eureka:
   client:
     server-url:

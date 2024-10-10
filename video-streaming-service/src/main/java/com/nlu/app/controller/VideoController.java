@@ -2,10 +2,7 @@ package com.nlu.app.controller;
 
 import com.nlu.app.annotation.JwtToken;
 import com.nlu.app.dto.AppResponse;
-import com.nlu.app.dto.request.LikeVideoRequest;
-import com.nlu.app.dto.request.SaveFileRequest;
-import com.nlu.app.dto.request.SaveProcessVideoRequest;
-import com.nlu.app.dto.request.VideoCreationRequest;
+import com.nlu.app.dto.request.*;
 import com.nlu.app.dto.response.SaveFileResponse;
 import com.nlu.app.dto.response.VideoCreationResponse;
 import com.nlu.app.dto.response.VideoDetailsResponse;
@@ -26,6 +23,7 @@ import reactor.core.publisher.Mono;
 public class VideoController {
     VideoService videoService;
     InteractVideoService interactVideoService;
+
     @PostMapping
     public Mono<AppResponse<VideoCreationResponse>> upNewVideo(@RequestBody VideoCreationRequest request,
                                                                @RequestHeader("X-UserId") String userId,
@@ -38,8 +36,10 @@ public class VideoController {
     }
 
     @PostMapping("/upvote")
-    public Mono<AppResponse<String>> upVote(@RequestBody LikeVideoRequest request) {
-        return interactVideoService.upVoteVideo(request)
+    public Mono<AppResponse<String>> upVote(@RequestBody LikeVideoRequest request,
+                                            @RequestHeader("X-UserId") String userId,
+                                            @RequestHeader("X-Username") String username) {
+        return interactVideoService.upVoteVideo(request, userId)
                 .map(response -> {
                     return AppResponse.<String>builder()
                             .result(response)
@@ -47,9 +47,23 @@ public class VideoController {
                 });
     }
 
+    @PostMapping("/view")
+    public Mono<AppResponse<Boolean>> newView(@RequestBody NewViewRequest request,
+                                            @RequestHeader("X-UserId") String userId,
+                                            @RequestHeader("X-Username") String username) {
+        return interactVideoService.newViewCount(request, userId)
+                .map(response -> {
+                    return AppResponse.<Boolean>builder()
+                            .result(response)
+                            .build();
+                });
+    }
+
     @PostMapping("/progress")
-    public Mono<AppResponse<String>> progress(@RequestBody SaveProcessVideoRequest request) {
-        return interactVideoService.saveProgress(request)
+    public Mono<AppResponse<String>> progress(@RequestBody SaveProcessVideoRequest request,
+                                              @RequestHeader("X-UserId") String userId,
+                                              @RequestHeader("X-Username") String username) {
+        return interactVideoService.saveProgress(request, userId)
                 .map(response -> {
                     return AppResponse.<String>builder().result(response)
                             .build();
@@ -58,7 +72,8 @@ public class VideoController {
 
     @GetMapping("/link/{videoId}")
     public Mono<AppResponse<VideoDetailsResponse>> getVideoLink(@PathVariable("videoId") String videoId,
-                                                                @RequestParam String userId) {
+                                                                @RequestHeader("X-UserId") String userId,
+                                                                @RequestHeader("X-Username") String username) {
         return videoService.getVideoDetails(videoId, userId)
                 .map(response -> {
                     return AppResponse.<VideoDetailsResponse>builder()
