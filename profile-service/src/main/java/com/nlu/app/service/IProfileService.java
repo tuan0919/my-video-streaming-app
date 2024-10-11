@@ -14,4 +14,5 @@ public interface IProfileService {
     ProfileCreationResponse insert (ProfileCreationRequest request) throws ApplicationException;
     ProfileResponseDTO getUserProfile(String userId) throws ApplicationException;
     String sagaRequest (SagaAdvancedRequest sagaRequest) throws ApplicationException;
+    Boolean checkUserFollow(String userId, String followId, String username);
 }
