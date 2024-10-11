@@ -1,4 +1,4 @@
-package com.nlu.app.dto.response;
+package com.nlu.app.common.share.dto.videoStreaming_service.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class VideoDetailsResponse {
     String videoId;
+    String ownerId;
     String name;
     String link;
     String description;
@@ -23,4 +24,6 @@ public class VideoDetailsResponse {
     Float progress = 0f;
     @Builder.Default
     String action = null;
+    Integer downVote;
+    Integer upVote;
 }

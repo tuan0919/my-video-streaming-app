@@ -1,5 +1,4 @@
 package com.nlu.app.controller;
-import com.nlu.app.annotation.JwtToken;
 import com.nlu.app.dto.AppResponse;
 import com.nlu.app.dto.request.PutFileRequest;
 import com.nlu.app.dto.request.SaveFileRequest;
@@ -22,33 +21,25 @@ public class FileController {
     FileService fileService;
 
     @PostMapping
-    public Mono<AppResponse<SaveFileResponse>> saveFile(@RequestBody SaveFileRequest request,
+    public AppResponse<SaveFileResponse> saveFile(@RequestBody SaveFileRequest request,
                                                         @RequestHeader("X-UserId") String userId,
                                                         @RequestHeader("X-Username") String username) {
-        return fileService.moveToInventory(request, userId, username)
-                .map(response -> {
-                    return AppResponse.<SaveFileResponse>builder()
-                            .result(response).build();
-                });
+        return AppResponse.<SaveFileResponse>builder().result(fileService.moveToInventory(request, userId, username)).build();
     }
 
     @PutMapping
-    public Mono<AppResponse<SignedURLResponse>> putFile(@RequestBody PutFileRequest request,
+    public AppResponse<SignedURLResponse> putFile(@RequestBody PutFileRequest request,
                                                         @RequestHeader("X-UserId") String userId,
                                                         @RequestHeader("X-Username") String username) {
-        return fileService.uploadToTemp(request, userId, username)
-                .map(response -> {
-                    return AppResponse.<SignedURLResponse>builder()
-                            .result(response).build();
-                });
+        var response = fileService.uploadToTemp(request, userId, username);
+        return AppResponse.<SignedURLResponse>builder()
+                .result(response).build();
     }
 
     @GetMapping
-    public Mono<AppResponse<SignedURLResponse>> getFile(@RequestParam("key") String key) {
-        return fileService.generateURL(key)
-                .map(response -> {
-                    return AppResponse.<SignedURLResponse>builder()
-                            .result(response).build();
-                });
+    public AppResponse<SignedURLResponse> getFile(@RequestParam("key") String key) {
+        var response = fileService.generateURL(key);
+        return AppResponse.<SignedURLResponse>builder()
+                .result(response).build();
     }
 }

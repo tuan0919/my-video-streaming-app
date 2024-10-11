@@ -95,11 +95,9 @@ public class FileService {
         return signedUrl.url();
     }
 
-    public Mono<SignedURLResponse> generateURL(String fileName) {
-        return Mono.fromCallable(() -> signedURL(fileName))
-                .map(link -> SignedURLResponse.builder().link(link).build())
-                .onErrorResume(error -> Mono.error(error))
-                .subscribeOn(Schedulers.immediate());
+    public SignedURLResponse generateURL(String fileName) {
+        String link = signedURL(fileName);
+        return SignedURLResponse.builder().link(link).build();
     }
 
     @Cacheable(value = "resourceLinks", key = "#key")
@@ -107,7 +105,7 @@ public class FileService {
         return signedURL(key);
     }
 
-    public Mono<SaveFileResponse> moveToInventory(SaveFileRequest request, String userId, String username) {
+    public SaveFileResponse moveToInventory(SaveFileRequest request, String userId, String username) {
         String oldKey = request.getFilename();
         try {
             HeadObjectRequest headRequest = HeadObjectRequest.builder()
@@ -129,15 +127,15 @@ public class FileService {
                     .bucket(bucket)
                     .key("temp/"+username+"/"+oldKey)
                     .build();
-            return Mono.just(SaveFileResponse.builder()
+            return SaveFileResponse.builder()
                     .key(resultKey)
-                    .build());
+                    .build();
         } catch (S3Exception e) {
             throw new ApplicationException(ErrorCode.RESOURCE_NOT_FOUND);
         }
     }
 
-    public Mono<SignedURLResponse> uploadToTemp (PutFileRequest request, String userId, String username) {
+    public SignedURLResponse uploadToTemp (PutFileRequest request, String userId, String username) {
         String fileName = request.getFilename();
         PutObjectRequest objectRequest = PutObjectRequest.builder()
                 .bucket(bucket)
@@ -150,27 +148,6 @@ public class FileService {
         var response = signer.presignPutObject(signRequest);
         signer.close();
         String signedLink = response.url().toString();
-        return Mono.just(SignedURLResponse.builder().link(signedLink).build());
+        return SignedURLResponse.builder().link(signedLink).build();
     }
-
-    private Mono<Boolean> doesKeyExists(String key) {
-        return Mono.fromFuture(() -> {
-            HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
-                    .bucket(bucket)
-                    .key(key)
-                    .build();
-            return s3Client.headObject(headObjectRequest);
-        })
-        .map(_ -> true)
-        .onErrorResume(error -> {
-            if (error instanceof S3Exception) {
-                log.info("Key {} is not existed, safe to use", key);
-                return Mono.just(false);
-            }
-            else {
-                log.info("Unknown error happen at here: {}", error.getMessage());
-                return Mono.error(new ApplicationException(ErrorCode.UNKNOWN_EXCEPTION));
-            }
-        });
-    };
 }
