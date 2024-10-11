@@ -23,6 +23,8 @@ public class Routes {
     String commentDomain;
     @Value("${profile-service.domain}")
     String profileDomain;
+    @Value("${aggregator-service.domain}")
+    String aggregatorDomain;
     @Value("${gateway-service./prefix}")
     String prefix;
     @Value("${gateway-service.strip}")
@@ -74,6 +76,13 @@ public class Routes {
                                 .filter(authorFilter)
                         )
                         .uri(profileDomain)
+                )
+                .route(r -> r.path(prefix+"/aggregator/**")
+                        .filters(f -> f.stripPrefix(PREFIX_STRIP)
+                                .filter(authFilter)
+                                .filter(authorFilter)
+                        )
+                        .uri(aggregatorDomain)
                 )
                 .build();
     }

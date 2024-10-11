@@ -19,3 +19,5 @@ profile-service:
   domain: lb://profile-service
 identity-service:
   domain: lb://identity-service
+video-streaming-service:
+  domain: lb://video-streaming-service

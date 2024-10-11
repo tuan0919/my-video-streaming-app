@@ -2,6 +2,7 @@ package com.nlu.app.configuration;
 
 import com.nlu.app.repository.webclient.IdentityWebClient;
 import com.nlu.app.repository.webclient.ProfileWebClient;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +19,8 @@ public class WebClientConfiguration {
     private String profileBaseURI;
     @Value("${identity-service.domain}")
     private String identityBaseURI;
+    @Value("${video-streaming-service.domain}")
+    private String videoStreamingBaseURI;
 
     @Bean
     @LoadBalanced
@@ -25,21 +28,19 @@ public class WebClientConfiguration {
         return WebClient.builder();
     }
 
-    @Bean
-    public IdentityWebClient identityWebClient(WebClient.Builder builder) {
-        var identityWebClient = createWebClient(builder, identityBaseURI);
-        return createClient(identityWebClient, IdentityWebClient.class);
+    @Bean(value = "identityWebClient")
+    public WebClient identityWebClient(WebClient.Builder builder) {
+        return createWebClient(builder, identityBaseURI);
     }
 
-    @Bean
-    public ProfileWebClient profileServiceClient(WebClient.Builder builder) {
-        var profileWebClient = createWebClient(builder, profileBaseURI);
-        return createClient(profileWebClient, ProfileWebClient.class);
+    @Bean(value = "profileWebClient")
+    public WebClient profileWebClient(WebClient.Builder builder) {
+        return createWebClient(builder, profileBaseURI);
     }
 
-    private <T> T createClient(WebClient webClient, Class<T> clientClass) {
-        var factory = HttpServiceProxyFactory.builderFor(WebClientAdapter.create(webClient)).build();
-        return factory.createClient(clientClass);
+    @Bean(value = "videoStreamingWebClient")
+    public WebClient videoStreamingWebClient(WebClient.Builder builder) {
+        return createWebClient(builder, videoStreamingBaseURI);
     }
 
     private WebClient createWebClient(WebClient.Builder builder, String baseURI) {
