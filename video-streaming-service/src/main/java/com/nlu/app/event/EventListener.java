@@ -3,6 +3,7 @@ package com.nlu.app.event;
 import com.nlu.app.common.share.KafkaMessage;
 import com.nlu.app.common.share.SagaAction;
 import com.nlu.app.event.handler.ViewVideoHandler;
+import com.nlu.app.event.handler.VoteActionVideoHandler;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -21,6 +22,7 @@ import java.time.Duration;
 @Slf4j
 public class EventListener {
     ViewVideoHandler VIEW_VIDEO_HANDLER;
+    VoteActionVideoHandler VOTE_ACTION_VIDEO_HANDLER;
 
     @KafkaListener(topics = {"video.topics"}, groupId = "video-streaming-service")
     public void handleComment(@Payload String payload,
@@ -34,6 +36,7 @@ public class EventListener {
         try {
             switch (sagaAction) {
                 case SagaAction.MARK_VIEW_VIDEO -> VIEW_VIDEO_HANDLER.consumeEvent(message, ack);
+                case SagaAction.VIDEO_UPVOTE, SagaAction.VIDEO_DOWNVOTE -> VOTE_ACTION_VIDEO_HANDLER.consumeEvent(message, ack);
                 default -> {
                     // message này không thuộc nhiệm vụ của consumer group này, skip
                     ack.acknowledge();

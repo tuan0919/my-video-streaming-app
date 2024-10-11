@@ -12,6 +12,7 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class VideoCreationResponse {
+    String videoId;
     String description;
     String videoName;
     String videoURL;

@@ -1,21 +1,13 @@
 package com.nlu.app.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nlu.app.common.share.SagaAction;
-import com.nlu.app.common.share.SagaAdvancedStep;
-import com.nlu.app.common.share.event.NewVideoCreatedEvent;
 import com.nlu.app.dto.request.*;
-import com.nlu.app.dto.response.VideoCreationResponse;
-import com.nlu.app.dto.webclient.identity.request.TokenUserRequest;
-import com.nlu.app.entity.Outbox;
 import com.nlu.app.entity.Video;
 import com.nlu.app.entity.VideoInteract;
 import com.nlu.app.exception.ApplicationException;
 import com.nlu.app.exception.ErrorCode;
 import com.nlu.app.mapper.OutboxMapper;
 import com.nlu.app.mapper.VideoInteractMapper;
-import com.nlu.app.repository.IdentityWebClient;
 import com.nlu.app.repository.OutboxRepository;
 import com.nlu.app.repository.VideoInteractRepository;
 import com.nlu.app.repository.VideoRepository;
@@ -26,10 +18,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -49,6 +39,17 @@ public class InteractVideoService {
         videoInteractRepository.save(interact);
         var event = videoInteractMapper.toUpVotedEvent(interact);
         var outbox = outboxMapper.toSuccessOutbox(event, interact.getId(), SagaAction.VIDEO_UPVOTE);
+        outboxRepository.save(outbox);
+        return Mono.just("OK");
+    }
+
+    @Transactional
+    public Mono<String> downVoteVideo(DisLikeVideoRequest request, String userId) {
+        var interact = getUserInteract(request.getVideoId(), userId);
+        interact.setVote("DOWN_VOTE");
+        videoInteractRepository.save(interact);
+        var event = videoInteractMapper.toDownVotedEvent(interact);
+        var outbox = outboxMapper.toSuccessOutbox(event, interact.getId(), SagaAction.VIDEO_DOWNVOTE);
         outboxRepository.save(outbox);
         return Mono.just("OK");
     }
@@ -139,6 +140,7 @@ public class InteractVideoService {
 
         // Ghi nhận lượt xem ở đây
         var event = videoInteractMapper.toViewedVideoEvent(videoId, userId);
+        // publish event vào broker để xử lí bất đồng bộ sau.
         var outbox = outboxMapper.toSuccessOutbox(event, videoId, SagaAction.MARK_VIEW_VIDEO);
         outboxRepository.save(outbox);
 

@@ -1,5 +1,6 @@
 package com.nlu.app.mapper;
 
+import com.nlu.app.common.share.event.VideoDownVotedEvent;
 import com.nlu.app.common.share.event.VideoUpvotedEvent;
 import com.nlu.app.common.share.event.ViewedVideoEvent;
 import com.nlu.app.entity.VideoInteract;
@@ -14,6 +15,6 @@ public interface VideoInteractMapper {
     @Mapping(target = "videoId", source = "interact.video.videoId")
     VideoUpvotedEvent toUpVotedEvent(VideoInteract interact);
     @Mapping(target = "videoId", source = "interact.video.videoId")
-    ViewedVideoEvent toViewedVideoEvent(VideoInteract interact);
+    VideoDownVotedEvent toDownVotedEvent(VideoInteract interact);
     ViewedVideoEvent toViewedVideoEvent(String videoId, String userId);
 }

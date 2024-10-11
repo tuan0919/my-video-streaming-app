@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface VideoInteractRepository extends JpaRepository<VideoInteract, String> {
     Optional<VideoInteract> findByVideoVideoIdAndUserId(String videoId, String userId);
+    Integer countDistinctByVoteAndVideo_VideoId(String vote, String videoId);
 }
