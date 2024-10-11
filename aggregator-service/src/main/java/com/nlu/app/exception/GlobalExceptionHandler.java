@@ -30,11 +30,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({ApplicationException.class})
     @ResponseBody
     public Mono<AppResponse<?>> handleApplicationException(ApplicationException ex, ServerWebExchange exchange) {
-        log.info("application exception: {}", ex.getMessage());
+        log.warn("application exception: {}", ex.getMessage());
         exchange.getResponse().setStatusCode(ex.getErrorCode().getStatusCode());
         return Mono.just(AppResponse.builder()
                 .message(ex.getErrorCode().getMessage())
                 .code(ex.getErrorCode().getCode())
+                .build());
+    }
+
+    @ExceptionHandler({ServiceException.class})
+    @ResponseBody
+    public Mono<AppResponse<?>> handleServiceException(ServiceException ex, ServerWebExchange exchange) {
+        log.warn("service exception: {}", ex.getMessage());
+        exchange.getResponse().setStatusCode(ex.getStatusCode());
+        return Mono.just(AppResponse.builder()
+                .message(ex.getMessage())
+                .code(ex.getErrorCode())
                 .build());
     }
 
@@ -48,5 +59,4 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .code(ErrorCode.UNKNOWN_EXCEPTION.getCode())
                 .build());
     }
-
 }
