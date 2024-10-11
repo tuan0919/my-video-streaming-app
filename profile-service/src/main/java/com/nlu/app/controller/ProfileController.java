@@ -44,6 +44,15 @@ public class ProfileController {
                 .build();
     }
 
+    @GetMapping("/following/{followId}")
+    public AppResponse<Boolean> getFollowerIds(@PathVariable String followId,
+                                               @RequestHeader("X-UserId") String userId,
+                                               @RequestHeader("X-Username") String username) {
+        return AppResponse.<Boolean>builder()
+                .result(profileService.checkUserFollow(userId, followId, username))
+                .build();
+    }
+
     @GetMapping("/get/{userId}")
     public AppResponse<ProfileResponseDTO> getUserProfile(@PathVariable String userId) {
         return AppResponse.<ProfileResponseDTO>builder()
