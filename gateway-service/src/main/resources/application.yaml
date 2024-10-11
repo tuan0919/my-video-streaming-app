@@ -23,7 +23,11 @@ gateway-service:
       method: ["POST"]
       roles: ["ROLE_USER", "ROLE_ADMIN"]
 
-    - path: /video-streaming/videos/upvote
+    - path: /video-streaming/videos/up-vote
+      method: ["POST"]
+      roles: ["ROLE_USER", "ROLE_ADMIN"]
+
+    - path: /video-streaming/videos/down-vote
       method: ["POST"]
       roles: ["ROLE_USER", "ROLE_ADMIN"]
 
@@ -41,6 +45,10 @@ gateway-service:
 
     - path: /video-streaming/videos/view
       method: [ "POST" ]
+      roles: [ "ROLE_USER", "ROLE_ADMIN" ]
+
+    - path: /aggregator/query/video/*
+      method: ["GET"]
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]
 
 eureka:
