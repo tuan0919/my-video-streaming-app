@@ -23,3 +23,5 @@ comment-service:
   domain: lb://comment-service
 profile-service:
   domain: lb://profile-service
+aggregator-service:
+  domain: lb://aggregator-service
