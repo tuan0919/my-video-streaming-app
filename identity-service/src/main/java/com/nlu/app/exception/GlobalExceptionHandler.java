@@ -1,5 +1,6 @@
 package com.nlu.app.exception;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -7,6 +8,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.nlu.app.dto.AppResponse;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.servlet.function.EntityResponse;
+
+import javax.swing.text.html.parser.Entity;
 
 @ControllerAdvice
 @Slf4j
@@ -22,10 +26,12 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ApplicationException.class)
-    AppResponse<String> handleApplicationException(ApplicationException ex) {
-        return AppResponse.<String>builder()
+    ResponseEntity<AppResponse<?>> handleApplicationException(ApplicationException ex) {
+        var response = AppResponse.<String>builder()
                 .message(ex.getErrorCode().getMessage())
                 .code(ex.getErrorCode().getCode())
                 .build();
+        return ResponseEntity.status(ex.getErrorCode().getStatusCode())
+                .body(response);
     }
 }
