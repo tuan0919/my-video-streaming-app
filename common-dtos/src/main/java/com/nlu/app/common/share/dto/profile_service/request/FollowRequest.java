@@ -9,6 +9,5 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class FollowRequest {
-    String userId;
     String followId;
 }

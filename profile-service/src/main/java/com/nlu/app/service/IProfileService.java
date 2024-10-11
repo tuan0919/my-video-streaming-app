@@ -9,7 +9,7 @@ import com.nlu.app.common.share.dto.saga.SagaAdvancedRequest;
 import com.nlu.app.exception.ApplicationException;
 
 public interface IProfileService {
-    String follow(FollowRequest request) throws ApplicationException;
+    String follow(FollowRequest request, String userId) throws ApplicationException;
     FollowerUserIdsResponse getFollowerIds(String userId) throws ApplicationException;
     ProfileCreationResponse insert (ProfileCreationRequest request) throws ApplicationException;
     ProfileResponseDTO getUserProfile(String userId) throws ApplicationException;

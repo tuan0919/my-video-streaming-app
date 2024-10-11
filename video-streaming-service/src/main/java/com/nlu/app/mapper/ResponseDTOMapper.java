@@ -31,7 +31,7 @@ public interface ResponseDTOMapper {
     @Named("progress")
     default float progress(VideoInteract interact) {
         if (interact == null) return 0f;
-        else
-            return interact.getProgress();
+        else if (interact.getProgress() == null) return 0f;
+        return interact.getProgress();
     }
 }

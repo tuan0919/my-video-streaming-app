@@ -3,6 +3,8 @@ package com.nlu.app.common.share.dto.aggregator_service.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -11,6 +13,7 @@ import lombok.experimental.FieldDefaults;
 public class ClientView_VideoDetailsDTO {
     OwnerProfile ownerProfile;
     VideoStats stat;
+    Boolean isFollowed;
 
     @Data
     @NoArgsConstructor
@@ -21,7 +24,6 @@ public class ClientView_VideoDetailsDTO {
         String userId;
         String username;
         String fullName;
-        Boolean isFollowed;
     }
 
     @Data
@@ -31,15 +33,16 @@ public class ClientView_VideoDetailsDTO {
     @FieldDefaults(level = AccessLevel.PRIVATE)
     public static class VideoStats {
         String videoId;
-        String videoName;
-        String videoLink;
-        String videoDescription;
-        Integer videoViewCount;
-        Integer videoDownVote;
-        Integer videoUpVote;
+        String name;
+        String link;
+        String description;
+        Integer viewCount;
+        Integer downVote;
+        Integer upVote;
         @Builder.Default
-        Float userProgress = 0f;
+        Float progress = 0f;
         @Builder.Default
-        String userAction = null;
+        String action = null;
+        LocalDateTime createAt;
     }
 }

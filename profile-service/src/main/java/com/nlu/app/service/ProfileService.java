@@ -33,13 +33,13 @@ public class ProfileService implements IProfileService {
     private final ObjectMapper objectMapper;
 
     @Transactional
-    public String follow(FollowRequest request) {
+    public String follow(FollowRequest request, String userId) {
         var oProfile = profileRepository.findProfileByUserId(request.getFollowId());
         if (oProfile.isEmpty()) {
             throw new ApplicationException(ErrorCode.USER_NOT_EXISTED);
         }
         var followProfile = oProfile.get();
-        var userProfile = profileRepository.findProfileByUserId(request.getUserId()).get();
+        var userProfile = profileRepository.findProfileByUserId(userId).get();
         userProfile.getFollow().add(followProfile);
         followProfile.getFollowers().add(userProfile);
         profileRepository.save(userProfile);

@@ -31,9 +31,11 @@ public class ProfileController {
     }
 
     @PutMapping("/follow")
-    public AppResponse<String> follow(@RequestBody FollowRequest request) {
+    public AppResponse<String> follow(@RequestBody FollowRequest request,
+                                      @RequestHeader("X-UserId") String userId,
+                                      @RequestHeader("X-Username") String username) {
         return AppResponse.<String>builder()
-                .result(profileService.follow(request))
+                .result(profileService.follow(request, userId))
                 .build();
     }
 
