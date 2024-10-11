@@ -18,11 +18,13 @@ import com.nlu.app.mapper.ProfileMapper;
 import com.nlu.app.repository.OutboxRepository;
 import com.nlu.app.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProfileService implements IProfileService {
     private final ProfileRepository profileRepository;
     private final OutboxRepository outboxRepository;
@@ -68,6 +70,26 @@ public class ProfileService implements IProfileService {
         Outbox outbox = outboxMapper.toSuccessOutbox(event, sagaId, SagaAction.CREATE_NEW_USER);
         outboxRepository.save(outbox);
         return profileMapper.toResponseCreationDTO(profile);
+    }
+
+    /**
+     * Kiểm tra xem liệu một user có id là userId có đang follow một user khác có id là followId không
+     * @param userId
+     * @param followId
+     * @return true nếu đúng.
+     */
+    
+    public Boolean checkUserFollow(String userId, String followId, String username) {
+        var oTargetProfile = profileRepository.findProfileByUserId(followId);
+        if (oTargetProfile.isEmpty()) {
+            throw new ApplicationException(ErrorCode.PROFILE_NOT_EXISTED);
+        }
+        var oUserProfile = profileRepository.findProfileByUserId(userId);
+        if (oUserProfile.isEmpty()) {
+            log.warn("What the heck? Tại sao user {} không có profile?", username);
+            throw new ApplicationException(ErrorCode.PROFILE_NOT_EXISTED);
+        }
+        return oTargetProfile.get().getFollowers().contains(oUserProfile.get());
     }
 
     @Override
