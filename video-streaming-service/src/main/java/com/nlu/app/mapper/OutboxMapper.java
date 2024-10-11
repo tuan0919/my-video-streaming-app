@@ -26,6 +26,15 @@ public interface OutboxMapper {
 
     @Mapping(target = "aggregateType", constant = "video.topics")
     @Mapping(target = "sagaAction", source = "sagaAction")
+    @Mapping(target = "sagaStep", constant = SagaAdvancedStep.VIDEO_DOWNVOTE)
+    @Mapping(target = "sagaId", source = "sagaId")
+    @Mapping(target = "sagaStepStatus", constant = SagaStatus.SUCCESS)
+    @Mapping(target = "payload", source = "event", qualifiedByName = "mapToJSON")
+    @Mapping(target = "aggregateId", source = "event.videoId")
+    Outbox toSuccessOutbox(VideoDownVotedEvent event, String sagaId, String sagaAction);
+
+    @Mapping(target = "aggregateType", constant = "video.topics")
+    @Mapping(target = "sagaAction", source = "sagaAction")
     @Mapping(target = "sagaStep", constant = SagaAdvancedStep.VIDEO_CREATE)
     @Mapping(target = "sagaId", source = "sagaId")
     @Mapping(target = "sagaStepStatus", constant = SagaStatus.SUCCESS)
