@@ -10,8 +10,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -20,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ViewVideoHandler {
     ObjectMapper objectMapper;
     VideoRepository videoRepository;
+    SimpMessagingTemplate messagingTemplate;
 
     /**
      * Consumed sự kiện {@link ViewedVideoEvent}, khi nhận được sự kiện này, nghĩa là video có thêm một view
@@ -43,6 +48,11 @@ public class ViewVideoHandler {
         video.setViewCount(++currentCount);
         videoRepository.save(video);
         log.info("consumed event ViewedVideoEvent, +1 view cho video có id {}", video.getVideoId());
+        sendToClient(video.getVideoId());
         ack.acknowledge();
+    }
+
+    void sendToClient(String videoId) {
+        messagingTemplate.convertAndSend("/topic/video/"+videoId, "change");
     }
 }

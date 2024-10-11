@@ -1,11 +1,9 @@
 package com.nlu.app.controller;
 
-import com.nlu.app.annotation.JwtToken;
 import com.nlu.app.dto.AppResponse;
 import com.nlu.app.dto.request.*;
-import com.nlu.app.dto.response.SaveFileResponse;
 import com.nlu.app.dto.response.VideoCreationResponse;
-import com.nlu.app.dto.response.VideoDetailsResponse;
+import com.nlu.app.common.share.dto.videoStreaming_service.response.VideoDetailsResponse;
 import com.nlu.app.service.InteractVideoService;
 import com.nlu.app.service.VideoService;
 import lombok.AccessLevel;
@@ -25,21 +23,31 @@ public class VideoController {
     InteractVideoService interactVideoService;
 
     @PostMapping
-    public Mono<AppResponse<VideoCreationResponse>> upNewVideo(@RequestBody VideoCreationRequest request,
+    public AppResponse<VideoCreationResponse> upNewVideo(@RequestBody VideoCreationRequest request,
                                                                @RequestHeader("X-UserId") String userId,
                                                                @RequestHeader("X-Username") String username) {
-        return videoService.createVideo(userId, username, request)
-                .map(response -> {
-                    return AppResponse.<VideoCreationResponse>builder()
-                            .result(response).build();
-                });
+        var response = videoService.createVideo(userId, username, request);
+        return AppResponse.<VideoCreationResponse>builder()
+                .result(response).build();
     }
 
-    @PostMapping("/upvote")
+    @PostMapping("/up-vote")
     public Mono<AppResponse<String>> upVote(@RequestBody LikeVideoRequest request,
                                             @RequestHeader("X-UserId") String userId,
                                             @RequestHeader("X-Username") String username) {
         return interactVideoService.upVoteVideo(request, userId)
+                .map(response -> {
+                    return AppResponse.<String>builder()
+                            .result(response)
+                            .build();
+                });
+    }
+
+    @PostMapping("/down-vote")
+    public Mono<AppResponse<String>> downVote(@RequestBody DisLikeVideoRequest request,
+                                            @RequestHeader("X-UserId") String userId,
+                                            @RequestHeader("X-Username") String username) {
+        return interactVideoService.downVoteVideo(request, userId)
                 .map(response -> {
                     return AppResponse.<String>builder()
                             .result(response)
@@ -71,13 +79,11 @@ public class VideoController {
     }
 
     @GetMapping("/link/{videoId}")
-    public Mono<AppResponse<VideoDetailsResponse>> getVideoLink(@PathVariable("videoId") String videoId,
+    public AppResponse<VideoDetailsResponse> getVideoLink(@PathVariable("videoId") String videoId,
                                                                 @RequestHeader("X-UserId") String userId,
                                                                 @RequestHeader("X-Username") String username) {
-        return videoService.getVideoDetails(videoId, userId)
-                .map(response -> {
-                    return AppResponse.<VideoDetailsResponse>builder()
-                            .result(response).build();
-                });
+        var response = videoService.getVideoDetails(videoId, userId);
+        return AppResponse.<VideoDetailsResponse>builder()
+                .result(response).build();
     }
 }
