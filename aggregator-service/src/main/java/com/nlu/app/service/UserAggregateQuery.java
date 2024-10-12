@@ -9,7 +9,7 @@ import com.nlu.app.exception.ServiceException;
 import com.nlu.app.repository.webclient.IdentityWebClient;
 import com.nlu.app.repository.webclient.ProfileWebClient;
 import com.nlu.app.util.MyUtils;
-import com.nlu.app.util.WebClientBuilder;
+import com.nlu.app.configuration.WebClientBuilder;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;

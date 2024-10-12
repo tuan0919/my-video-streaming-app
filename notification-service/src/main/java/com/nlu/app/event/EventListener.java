@@ -39,8 +39,7 @@ public class EventListener {
             switch (sagaAction) {
                 // send notification to replied user
                 case SagaAction.USER_REPLY_COMMENT -> {
-                    var event = objectMapper.readValue(payload, CommentReplyEvent.class);
-                    USER_REPLY_EVENT_HANDLER.consumeEvent(event, ack);
+                    USER_REPLY_EVENT_HANDLER.consumeEvent(message, ack);
                 }
                 // send notification to followers of video's owner.
                 case SagaAction.CREATE_NEW_VIDEO -> {

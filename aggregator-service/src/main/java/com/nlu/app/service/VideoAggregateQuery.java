@@ -4,23 +4,19 @@ import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_Video
 import com.nlu.app.common.share.dto.identity_service.response.UserResponse;
 import com.nlu.app.common.share.dto.profile_service.response.ProfileResponseDTO;
 import com.nlu.app.common.share.dto.videoStreaming_service.response.VideoDetailsResponse;
-import com.nlu.app.dto.AppResponse;
 import com.nlu.app.exception.ServiceException;
 import com.nlu.app.mapper.VideoAggregateMapper;
 import com.nlu.app.repository.webclient.IdentityWebClient;
 import com.nlu.app.repository.webclient.ProfileWebClient;
 import com.nlu.app.repository.webclient.VideoStreamingWebClient;
 import com.nlu.app.util.MyUtils;
-import com.nlu.app.util.WebClientBuilder;
-import lombok.AccessLevel;
+import com.nlu.app.configuration.WebClientBuilder;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
 import reactor.core.publisher.Mono;
 
 @Service

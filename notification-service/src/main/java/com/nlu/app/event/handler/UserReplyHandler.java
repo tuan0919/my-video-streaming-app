@@ -1,5 +1,9 @@
 package com.nlu.app.event.handler;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nlu.app.common.share.KafkaMessage;
+import com.nlu.app.common.share.SagaAction;
 import com.nlu.app.common.share.event.CommentReplyEvent;
 import com.nlu.app.constant.NotificationType;
 import com.nlu.app.entity.CommentNotification;
@@ -22,8 +26,10 @@ import java.time.LocalDateTime;
 public class UserReplyHandler {
     NotificationRepository notificationRepository;
     CommentNotificationRepository repository;
+    ObjectMapper objectMapper;
 
-    public void consumeEvent(CommentReplyEvent event, Acknowledgment ack) {
+    public void consumeEvent(KafkaMessage message, Acknowledgment ack) throws JsonProcessingException {
+        var event = objectMapper.readValue(message.payload(), CommentReplyEvent.class);
         String userId = event.getUserId();
         String parentCommentId = event.getParentCommentId();
         // TODO: notification for the user with corresponding userId
@@ -46,6 +52,7 @@ public class UserReplyHandler {
                 .notificationId(notification.getNotificationId())
                 .build();
         repository.save(link);
+        log.info("consumed thành công event: {}", message.sagaAction());
         ack.acknowledge();
     }
 }

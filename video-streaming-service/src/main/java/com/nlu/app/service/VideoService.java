@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import reactor.core.publisher.Mono;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -71,5 +70,10 @@ public class VideoService {
         response.setUpVote(upVote);
         response.setDownVote(downVote);
         return response;
+    }
+
+    public Boolean checkExists(String videoId) {
+        var oVideo = videoRepository.findById(videoId);
+        return oVideo.isPresent();
     }
 }

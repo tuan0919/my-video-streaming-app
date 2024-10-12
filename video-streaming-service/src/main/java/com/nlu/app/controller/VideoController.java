@@ -86,4 +86,11 @@ public class VideoController {
         return AppResponse.<VideoDetailsResponse>builder()
                 .result(response).build();
     }
+
+    @GetMapping("/is-existed/{videoId}")
+    public AppResponse<Boolean> checkExists(@PathVariable("videoId") String videoId) {
+        var response = videoService.checkExists(videoId);
+        return AppResponse.<Boolean>builder()
+                .result(response).build();
+    }
 }
