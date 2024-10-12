@@ -55,6 +55,10 @@ gateway-service:
       method: [ "PUT" ]
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]
 
+    - path: /comment/users/new
+      method: [ "POST" ]
+      roles: [ "ROLE_USER", "ROLE_ADMIN" ]
+
 eureka:
   client:
     server-url:

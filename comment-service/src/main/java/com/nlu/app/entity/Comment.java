@@ -1,9 +1,6 @@
 package com.nlu.app.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import java.time.LocalDateTime;
@@ -21,8 +18,11 @@ public class Comment {
     String videoId;
     String userId;
     String content;
-    LocalDateTime createAt;
-    LocalDateTime updateAt;
-    String parentId;
-    // Getters and Setters
+    @Builder.Default
+    LocalDateTime createAt = LocalDateTime.now();
+    LocalDateTime updateAt = LocalDateTime.now();
+    @OneToOne
+    @JoinColumn(name = "parent_comment_id", nullable = true)
+    @Builder.Default
+    Comment parent = null;
 }

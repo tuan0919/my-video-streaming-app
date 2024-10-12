@@ -34,3 +34,6 @@ eureka:
     register-with-eureka: true
   instance:
     prefer-ip-address: true
+
+video-streaming-service:
+  domain: lb://video-streaming-service
