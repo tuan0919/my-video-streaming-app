@@ -25,5 +25,6 @@ public class Outbox {
     String sagaStep;
     String sagaStepStatus;
     String sagaId;
+    @Column(columnDefinition = "TEXT")
     String payload;
 }
