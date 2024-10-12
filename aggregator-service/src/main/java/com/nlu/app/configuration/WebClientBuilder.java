@@ -1,4 +1,4 @@
-package com.nlu.app.util;
+package com.nlu.app.configuration;
 
 
 import org.springframework.web.reactive.function.client.WebClient;

@@ -1,4 +1,4 @@
-package com.nlu.app.repository;
+package com.nlu.app.repository.webclient;
 
 import com.nlu.app.dto.AppResponse;
 import com.nlu.app.dto.identity.request.TokenUserRequest;
