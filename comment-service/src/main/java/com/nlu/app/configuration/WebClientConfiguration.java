@@ -1,21 +1,17 @@
 package com.nlu.app.configuration;
 
-import com.nlu.app.repository.IdentityWebClient;
-import io.netty.resolver.DefaultAddressResolverGroup;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.support.WebClientAdapter;
-import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 import reactor.netty.http.client.HttpClient;
 
 @Configuration
 public class WebClientConfiguration {
-    @Value("${identity-service.domain}")
-    String identityBaseURI;
+    @Value("${video-streaming-service.domain}")
+    private String videoStreamingBaseURI;
 
     @Bean
     @LoadBalanced
@@ -23,18 +19,15 @@ public class WebClientConfiguration {
         return WebClient.builder();
     }
 
-    @Bean
-    WebClient webClient(WebClient.Builder builder) {
-        HttpClient httpClient = HttpClient.create().resolver(DefaultAddressResolverGroup.INSTANCE);
-        return builder
-                .clientConnector(new ReactorClientHttpConnector(httpClient))
-                .baseUrl(identityBaseURI)
-                .build();
+    @Bean(value = "videoStreamingWebClient")
+    public WebClient videoStreamingWebClient(WebClient.Builder builder) {
+        return createWebClient(builder, videoStreamingBaseURI);
     }
-    @Bean
-    IdentityWebClient identityWebClient(WebClient webClient) {
-        var factory = HttpServiceProxyFactory
-                .builderFor(WebClientAdapter.create(webClient)).build();
-        return factory.createClient(IdentityWebClient.class);
+
+    private WebClient createWebClient(WebClient.Builder builder, String baseURI) {
+        return builder
+                .baseUrl(baseURI) // Thiết lập base URL cho WebClient
+                .clientConnector(new ReactorClientHttpConnector(HttpClient.create()))
+                .build();
     }
 }
