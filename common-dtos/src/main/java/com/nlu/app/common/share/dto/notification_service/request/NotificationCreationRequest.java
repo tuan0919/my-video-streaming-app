@@ -15,6 +15,9 @@ public class NotificationCreationRequest {
     String content;
     Boolean isRead = false;
     String type;
+    String title;
+    String relatedObjectId;
     String sagaId;
     String sagaAction;
+    String relatedEvent;
 }

@@ -24,8 +24,13 @@ import java.util.Set;
         builder = @Builder(disableBuilder = true))
 public interface RequestDTOMapper {
 
-    @Mapping(target = "type", constant = "INFO")
-    @Mapping(target = "content", qualifiedByName = "notificationContent", source = "event")
+    @Mappings({
+            @Mapping(target = "type", constant = "INFO"),
+            @Mapping(target = "content", qualifiedByName = "notificationContent", source = "event"),
+            @Mapping(target = "title", constant = "Chào mừng đến với hệ thống"),
+            @Mapping(target = "relatedObjectId", source = "event.userId"),
+            @Mapping(target = "relatedEvent", constant = "NEW_USER_CREATED_EVENT")
+    })
     NotificationCreationRequest toRequestDTO(ProfileCreatedEvent event);
 
     @Mapping(target = "payload", source = "payload", qualifiedByName = "mapToJSON")
@@ -33,7 +38,7 @@ public interface RequestDTOMapper {
 
     @Named("notificationContent")
     default String notificationContent(ProfileCreatedEvent event) {
-        return String.format("Chào mừng userId %s đến với hệ thống.", event.getUserId());
+        return String.format("Xin chào %s, chào mừng bạn đến với hệ thống của chúng tôi.", event.getFullName());
     }
 
     @Named("mapToJSON")
