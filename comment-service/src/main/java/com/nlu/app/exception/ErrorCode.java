@@ -10,7 +10,8 @@ public enum ErrorCode {
     UNAUTHENTICATED(1002, "You are not authenticated!", HttpStatus.FORBIDDEN),
     UNAUTHORIZED(1003, "You are not authorized to access!", HttpStatus.UNAUTHORIZED),
     PARENT_COMMENT_NOT_EXISTED(1004, "The comment you're replied is not exists!", HttpStatus.NOT_FOUND),
-    TARGET_VIDEO_NOT_EXISTED(1005, "The video you are comment on is not existed!", HttpStatus.BAD_REQUEST)
+    TARGET_VIDEO_NOT_EXISTED(1005, "The video you are comment on is not existed!", HttpStatus.BAD_REQUEST),
+    COMMENT_NOT_EXISTED(1006, "Comment is not existed", HttpStatus.NOT_FOUND)
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

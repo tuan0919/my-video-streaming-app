@@ -2,6 +2,7 @@ package com.nlu.app.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nlu.app.common.share.SagaAction;
+import com.nlu.app.common.share.dto.comment_service.response.CommentResponse;
 import com.nlu.app.common.share.event.CommentReplyEvent;
 import com.nlu.app.configuration.WebClientBuilder;
 import com.nlu.app.dto.request.CommentCreationRequestDTO;
@@ -21,6 +22,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -47,18 +51,52 @@ public class CommentService {
         if (!isVideoExisted) {
             throw new ApplicationException(ErrorCode.TARGET_VIDEO_NOT_EXISTED);
         }
-        Comment parent = null;
-        if (request.getParentId() != null) {
-            if (!commentRepository.existsById(request.getParentId())) {
-                throw new ApplicationException(ErrorCode.PARENT_COMMENT_NOT_EXISTED);
-            }
-            parent = commentRepository.findById(request.getParentId()).get();
-        } else {
-            parent = null;
+        String parentId = request.getParentId();
+        if (parentId != null && !commentRepository.existsById(parentId)) {
+            throw new ApplicationException(ErrorCode.PARENT_COMMENT_NOT_EXISTED);
         }
-        var comment = commentMapper.mapToDTO(userId, request, parent);
-        _insertToDB_(comment);
+        var comment = commentMapper.mapToEntity(userId, request);
+        _insertToDB_(comment, parentId);
         return "OK";
+    }
+
+    @Transactional
+    public CommentResponse getComment(String id) {
+        var oComment = commentRepository.findById(id);
+        if (oComment.isEmpty()) {
+            throw new ApplicationException(ErrorCode.COMMENT_NOT_EXISTED);
+        }
+        var comment = oComment.get();
+        return commentMapper.mapToDTO(comment, comment.getReply().size());
+    }
+
+    /**
+     * Lấy tất cả các comment phản hồi một comment khác.
+     * @param parentId
+     * @return danh sách các comment
+     */
+    @Transactional
+    public List<CommentResponse> getCommentsRely(String parentId) {
+        if (!commentRepository.existsById(parentId)) {
+            throw new ApplicationException(ErrorCode.COMMENT_NOT_EXISTED);
+        }
+        var commentList = commentRepository.findCommentsByParent_Id(parentId);
+        return commentList.stream().map(comment -> {
+            return commentMapper.mapToDTO(comment, comment.getReply().size());
+        }).toList();
+    }
+
+    /**
+     * Lấy tất cả các comment (có parent = null) của một video
+     * @param videoId
+     * @return danh sách comment
+     */
+    @Transactional
+    public List<CommentResponse> getCommentsOfVideo(String videoId) {
+        var commentList = commentRepository.findCommentsByVideoIdAndParentIsNull(videoId);
+        return commentList.stream().map(comment -> {
+            return commentMapper.mapToDTO(comment, comment.getReply().size());
+        }).toList();
     }
 
     /**
@@ -67,7 +105,7 @@ public class CommentService {
      * @param comment
      * @return
      */
-    private Comment _insertToDB_(Comment comment) {
+    private Comment _insertToDB_(Comment comment, String parentId) {
         boolean isNotification = false;
         String userId = comment.getUserId();
         /*
@@ -76,14 +114,16 @@ public class CommentService {
          *  or USER_COMMENT_VIDEO events.
          *  Then other services will catch the event and handle the rest.
          */
-        if (comment.getParent() != null) {
-            isNotification = !comment.getParent().getUserId().equalsIgnoreCase(userId); // Make no sense if notify about yourself
+        if (parentId != null) {
+            isNotification = !parentId.equalsIgnoreCase(userId); // Make no sense if notify about yourself
+            var parent = commentRepository.findById(parentId).get();
+            comment.setParent(parent);
         }
+
         commentRepository.save(comment);
 
         if (isNotification) {
 //                  In case comment is a reply, we need to publish its DTO to topic, using outbox pattern.
-            ObjectMapper objectMapper = new ObjectMapper();
             var event = commentMapper.mapToCommentReplyEvent(comment);
 //                    Insert to outbox table
             Outbox outbox = outboxMapper.toSuccessOutbox(event, userId, SagaAction.USER_REPLY_COMMENT);

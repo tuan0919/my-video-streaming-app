@@ -59,6 +59,18 @@ gateway-service:
       method: [ "POST" ]
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]
 
+    - path: /comment/users/video/*
+      method: [ "GET" ]
+      roles: [ "ROLE_USER", "ROLE_ADMIN" ]
+
+    - path: /comment/users/comment/*
+      method: [ "GET" ]
+      roles: [ "ROLE_USER", "ROLE_ADMIN" ]
+
+    - path: /notification/users
+      method: [ "GET" ]
+      roles: [ "ROLE_USER", "ROLE_ADMIN" ]
+
 eureka:
   client:
     server-url:
@@ -67,3 +79,6 @@ eureka:
     register-with-eureka: true
   instance:
     prefer-ip-address: true
+
+notification-service:
+  domain: lb://notification-service

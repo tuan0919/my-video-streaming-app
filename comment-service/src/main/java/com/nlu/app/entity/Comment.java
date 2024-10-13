@@ -1,16 +1,20 @@
 package com.nlu.app.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "comments")
+@Getter
+@Setter
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -21,8 +25,12 @@ public class Comment {
     @Builder.Default
     LocalDateTime createAt = LocalDateTime.now();
     LocalDateTime updateAt = LocalDateTime.now();
-    @OneToOne
-    @JoinColumn(name = "parent_comment_id", nullable = true)
+    @ManyToOne
+    @JoinColumn(name = "parent_comment_id", nullable = true, unique = false)
     @Builder.Default
     Comment parent = null;
+    @OneToMany(mappedBy = "parent")
+    @ToString.Exclude
+    @JsonIgnore
+    Set<Comment> reply = new HashSet<>();
 }
