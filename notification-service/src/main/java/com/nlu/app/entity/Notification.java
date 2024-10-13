@@ -19,7 +19,10 @@ public class Notification {
     String userId;
     LocalDateTime time = LocalDateTime.now();
     String content;
+    String title;
+    String relatedObjectId;
     Boolean isRead = false;
     @Enumerated(EnumType.STRING)
     NotificationType type;
+    String relatedEvent;
 }

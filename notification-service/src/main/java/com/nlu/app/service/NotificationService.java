@@ -7,6 +7,7 @@ import com.nlu.app.common.share.SagaAction;
 import com.nlu.app.common.share.SagaAdvancedStep;
 import com.nlu.app.common.share.SagaStatus;
 import com.nlu.app.common.share.dto.notification_service.request.NotificationCreationRequest;
+import com.nlu.app.common.share.dto.notification_service.response.NotificationResponse;
 import com.nlu.app.common.share.dto.saga.SagaAdvancedRequest;
 import com.nlu.app.common.share.event.NotificationCreatedEvent;
 import com.nlu.app.constant.NotificationType;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +34,7 @@ public class NotificationService {
     private final NotificationMapper notificationMapper;
     private final OutboxMapper outboxMapper;
     private final ObjectMapper objectMapper;
+    private final NotificationRepository notificationRepository;
 
     @Transactional
     public String insert(NotificationCreationRequest request) {
@@ -43,6 +46,11 @@ public class NotificationService {
         Outbox outbox = outboxMapper.toSuccessOutbox(event, sagaId, sagaAction);
         outboxRepository.save(outbox);
         return "OK";
+    }
+
+    public List<NotificationResponse> getNotificationsOfUser(String userId) {
+        var list = notificationRepository.findAllByUserId(userId);
+        return list.stream().map(notificationMapper::mapToDTO).toList();
     }
 
     @Transactional

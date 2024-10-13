@@ -1,8 +1,10 @@
 package com.nlu.app.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.nlu.app.common.share.dto.AppResponse;
 import com.nlu.app.common.share.dto.CompensationRequest;
 import com.nlu.app.common.share.dto.notification_service.request.NotificationCreationRequest;
+import com.nlu.app.common.share.dto.notification_service.response.NotificationResponse;
 import com.nlu.app.common.share.dto.saga.SagaAdvancedRequest;
 import com.nlu.app.service.CompensationService;
 import com.nlu.app.service.NotificationService;
@@ -12,6 +14,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.service.annotation.PostExchange;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -36,5 +40,13 @@ public class NotificationController {
     public String compensation(@RequestBody CompensationRequest request) throws JsonProcessingException {
         compensationService.doCompensation(request.getSagaId());
         return "OK";
+    }
+
+    @GetMapping
+    public AppResponse<List<NotificationResponse>> getNotificationsByUserId(@RequestHeader("X-UserId") String userId) {
+        var response = service.getNotificationsOfUser(userId);
+        return AppResponse.<List<NotificationResponse>>builder()
+                .result(response)
+                .build();
     }
 }

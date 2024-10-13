@@ -25,6 +25,8 @@ public class Routes {
     String profileDomain;
     @Value("${aggregator-service.domain}")
     String aggregatorDomain;
+    @Value("${notification-service.domain}")
+    String notificationDomain;
     @Value("${gateway-service./prefix}")
     String prefix;
     @Value("${gateway-service.strip}")
@@ -83,6 +85,13 @@ public class Routes {
                                 .filter(authorFilter)
                         )
                         .uri(aggregatorDomain)
+                )
+                .route(r -> r.path(prefix+"/notification/**")
+                        .filters(f -> f.stripPrefix(PREFIX_STRIP)
+                                .filter(authFilter)
+                                .filter(authorFilter)
+                        )
+                        .uri(notificationDomain)
                 )
                 .build();
     }
