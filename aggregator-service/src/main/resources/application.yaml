@@ -21,3 +21,5 @@ identity-service:
   domain: lb://identity-service
 video-streaming-service:
   domain: lb://video-streaming-service
+notification-service:
+  domain: lb://notification-service
