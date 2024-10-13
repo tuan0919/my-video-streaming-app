@@ -16,25 +16,23 @@ public class WebClientConfiguration {
     @Value("${profile-service.domain}")
     private String profileBaseURI;
 
+    @Value("${identity-service.domain}")
+    private String identityBaseURI;
+
     @Bean
     @LoadBalanced
     public WebClient.Builder webClientBuilder() {
         return WebClient.builder();
     }
 
-    @Bean
+    @Bean(value = "identityWebClient")
+    public WebClient identityWebClient(WebClient.Builder builder) {
+        return createWebClient(builder, identityBaseURI);
+    }
+
+    @Bean(value = "profileWebClient")
     public WebClient profileWebClient(WebClient.Builder builder) {
         return createWebClient(builder, profileBaseURI);
-    }
-
-    @Bean
-    public ProfileWebClient profileServiceClient(WebClient profileWebClient) {
-        return createClient(profileWebClient, ProfileWebClient.class);
-    }
-
-    private <T> T createClient(WebClient webClient, Class<T> clientClass) {
-        var factory = HttpServiceProxyFactory.builderFor(WebClientAdapter.create(webClient)).build();
-        return factory.createClient(clientClass);
     }
 
     private WebClient createWebClient(WebClient.Builder builder, String baseURI) {

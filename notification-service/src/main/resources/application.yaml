@@ -39,3 +39,5 @@ eureka:
 
 profile-service:
   domain: lb://profile-service
+identity-service:
+  domain: lb://identity-service

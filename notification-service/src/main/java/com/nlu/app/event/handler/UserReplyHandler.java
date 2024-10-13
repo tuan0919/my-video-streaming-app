@@ -3,21 +3,23 @@ package com.nlu.app.event.handler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nlu.app.common.share.KafkaMessage;
-import com.nlu.app.common.share.SagaAction;
 import com.nlu.app.common.share.event.CommentReplyEvent;
-import com.nlu.app.constant.NotificationType;
-import com.nlu.app.entity.CommentNotification;
-import com.nlu.app.entity.Notification;
-import com.nlu.app.repository.CommentNotificationRepository;
+import com.nlu.app.configuration.WebClientBuilder;
+import com.nlu.app.mapper.NotificationMapper;
+import com.nlu.app.mapper.OutboxMapper;
 import com.nlu.app.repository.NotificationRepository;
+import com.nlu.app.repository.OutboxRepository;
+import com.nlu.app.repository.webclient.IdentityWebClient;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
-
-import java.time.LocalDateTime;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Component
 @RequiredArgsConstructor
@@ -25,33 +27,31 @@ import java.time.LocalDateTime;
 @Slf4j
 public class UserReplyHandler {
     NotificationRepository notificationRepository;
-    CommentNotificationRepository repository;
     ObjectMapper objectMapper;
+    NotificationMapper notificationMapper;
+    OutboxRepository outboxRepository;
+    OutboxMapper outboxMapper;
+    @NonFinal
+    private WebClient webClient;
+
+    @Autowired
+    public void setWebClient(@Qualifier("identityWebClient") WebClient webClient) {
+        this.webClient = webClient;
+    }
 
     public void consumeEvent(KafkaMessage message, Acknowledgment ack) throws JsonProcessingException {
         var event = objectMapper.readValue(message.payload(), CommentReplyEvent.class);
         String userId = event.getUserId();
-        String parentCommentId = event.getParentCommentId();
-        // TODO: notification for the user with corresponding userId
-        var notification = Notification.builder()
-                .time(LocalDateTime.now())
-                .type(NotificationType.INFO)
-                .content("You have someone replied your comment.")
-                .isRead(false)
-                .userId(userId)
-                .build();
-        notificationRepository.save(notification); // FIXME: need to send event for this notification's creation as well.
-
-        /* TODO:
-         *  link this comment id with corresponding notification for reference them in future.
-         *  in case this comment is deleted, notifications which related to it will be deleted,
-         *  that's why we need a way to reference the notifications based on commentId.
-         */
-        var link = CommentNotification.builder()
-                .commentId(parentCommentId)
-                .notificationId(notification.getNotificationId())
-                .build();
-        repository.save(link);
+        var identityWebClient = WebClientBuilder.createClient(webClient, IdentityWebClient.class);
+        var userIdentity = identityWebClient.getUser(userId).block().getResult();
+        String content = String.format(
+                "Người dùng %s đã phản hồi bình luận của bạn: \"%s\""
+                , userIdentity.getUsername(), event.getContent());
+        var notification = notificationMapper.forCommentReply(event, content);
+        notificationRepository.save(notification);
+        var createdEvent = notificationMapper.mapToCreatedEvent(notification);
+        var outbox = outboxMapper.toSuccessOutbox(createdEvent, userId, message.sagaAction());
+        outboxRepository.save(outbox);
         log.info("consumed thành công event: {}", message.sagaAction());
         ack.acknowledge();
     }
