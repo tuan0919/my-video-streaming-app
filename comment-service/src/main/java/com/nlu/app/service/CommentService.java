@@ -115,8 +115,8 @@ public class CommentService {
          *  Then other services will catch the event and handle the rest.
          */
         if (parentId != null) {
-            isNotification = !parentId.equalsIgnoreCase(userId); // Make no sense if notify about yourself
             var parent = commentRepository.findById(parentId).get();
+            isNotification = !parent.getUserId().equalsIgnoreCase(userId); // Make no sense if notify about yourself
             comment.setParent(parent);
         }
 
