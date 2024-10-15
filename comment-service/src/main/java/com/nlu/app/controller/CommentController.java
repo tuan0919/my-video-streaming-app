@@ -37,7 +37,7 @@ public class CommentController {
 
     @GetMapping("/comment/{commentId}")
     public AppResponse<List<CommentResponse>> getCommentsReplied(@PathVariable("commentId") String commentId) {
-        var response = commentService.getCommentsRely(commentId);
+        var response = commentService.getCommentsReply(commentId);
         return AppResponse.<List<CommentResponse>>builder()
                 .result(response)
                 .build();

@@ -41,16 +41,17 @@ public class UserReplyHandler {
 
     public void consumeEvent(KafkaMessage message, Acknowledgment ack) throws JsonProcessingException {
         var event = objectMapper.readValue(message.payload(), CommentReplyEvent.class);
-        String userId = event.getUserId();
+        String senderId = event.getUserId();
+        String receiverId = event.getParentUserId();
         var identityWebClient = WebClientBuilder.createClient(webClient, IdentityWebClient.class);
-        var userIdentity = identityWebClient.getUser(userId).block().getResult();
+        var userIdentity = identityWebClient.getUser(senderId).block().getResult();
         String content = String.format(
                 "Người dùng %s đã phản hồi bình luận của bạn: \"%s\""
                 , userIdentity.getUsername(), event.getContent());
         var notification = notificationMapper.forCommentReply(event, content);
         notificationRepository.save(notification);
         var createdEvent = notificationMapper.mapToCreatedEvent(notification);
-        var outbox = outboxMapper.toSuccessOutbox(createdEvent, userId, message.sagaAction());
+        var outbox = outboxMapper.toSuccessOutbox(createdEvent, receiverId, message.sagaAction());
         outboxRepository.save(outbox);
         log.info("consumed thành công event: {}", message.sagaAction());
         ack.acknowledge();

@@ -22,8 +22,8 @@ public interface CommentMapper {
 
     @Mappings({
             @Mapping(target = "commentId", source = "comment.id"),
-            @Mapping(target = "parentCommentId", source = "comment.parent.id"),
-            @Mapping(target = "parentUserId", source = "comment.parent", qualifiedByName = "mapToId")
+            @Mapping(target = "parentUserId", source = "comment.parent.userId"),
+            @Mapping(target = "parentCommentId", source = "comment.parent", qualifiedByName = "mapToId")
     })
     CommentReplyEvent mapToCommentReplyEvent(Comment comment);
 

@@ -76,7 +76,7 @@ public class CommentService {
      * @return danh sách các comment
      */
     @Transactional
-    public List<CommentResponse> getCommentsRely(String parentId) {
+    public List<CommentResponse> getCommentsReply(String parentId) {
         if (!commentRepository.existsById(parentId)) {
             throw new ApplicationException(ErrorCode.COMMENT_NOT_EXISTED);
         }
@@ -108,6 +108,7 @@ public class CommentService {
     private Comment _insertToDB_(Comment comment, String parentId) {
         boolean isNotification = false;
         String userId = comment.getUserId();
+        Comment parent = null;
         /*
          *  Need to check first if this comment is worth for notification.
          *  when a comment need to be notified, its mean it either send USER_REPLY_COMMENT
@@ -115,7 +116,7 @@ public class CommentService {
          *  Then other services will catch the event and handle the rest.
          */
         if (parentId != null) {
-            var parent = commentRepository.findById(parentId).get();
+            parent = commentRepository.findById(parentId).get();
             isNotification = !parent.getUserId().equalsIgnoreCase(userId); // Make no sense if notify about yourself
             comment.setParent(parent);
         }
@@ -126,7 +127,7 @@ public class CommentService {
 //                  In case comment is a reply, we need to publish its DTO to topic, using outbox pattern.
             var event = commentMapper.mapToCommentReplyEvent(comment);
 //                    Insert to outbox table
-            Outbox outbox = outboxMapper.toSuccessOutbox(event, userId, SagaAction.USER_REPLY_COMMENT);
+            Outbox outbox = outboxMapper.toSuccessOutbox(event, parent.getUserId(), SagaAction.USER_REPLY_COMMENT);
             outboxRepository.save(outbox);
         }
         return comment;
