@@ -1,7 +1,7 @@
 package com.nlu.app.mapper;
 
 import com.nlu.app.common.share.dto.comment_service.response.CommentResponse;
-import com.nlu.app.common.share.event.CommentReplyEvent;
+import com.nlu.app.common.share.event.comment.CommentReplyEvent;
 import com.nlu.app.dto.request.CommentCreationRequestDTO;
 import com.nlu.app.entity.Comment;
 import org.mapstruct.*;
