@@ -1,17 +1,20 @@
 package com.nlu.app.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nlu.app.common.share.SagaAction;
+import com.nlu.app.common.share.dto.comment_service.request.InteractCommentRequest;
 import com.nlu.app.common.share.dto.comment_service.response.CommentResponse;
-import com.nlu.app.common.share.event.CommentReplyEvent;
+import com.nlu.app.common.share.event.comment.CommentReplyEvent;
 import com.nlu.app.configuration.WebClientBuilder;
 import com.nlu.app.dto.request.CommentCreationRequestDTO;
 import com.nlu.app.entity.Comment;
+import com.nlu.app.entity.CommentInteract;
 import com.nlu.app.entity.Outbox;
 import com.nlu.app.exception.ApplicationException;
 import com.nlu.app.exception.ErrorCode;
+import com.nlu.app.mapper.CommentInteractMapper;
 import com.nlu.app.mapper.CommentMapper;
 import com.nlu.app.mapper.OutboxMapper;
+import com.nlu.app.repository.CommentInteractRepository;
 import com.nlu.app.repository.CommentRepository;
 import com.nlu.app.repository.OutboxRepository;
 import com.nlu.app.repository.webclient.VideoStreamingWebClient;
@@ -23,8 +26,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +40,8 @@ public class CommentService {
     private WebClient vWebClient;
     private final CommentMapper commentMapper;
     private final OutboxMapper outboxMapper;
+    private final CommentInteractRepository interactRepository;
+    private final CommentInteractMapper interactMapper;
 
     @Autowired
     public void setvWebClient(@Qualifier("videoStreamingWebClient") WebClient vWebClient) {
@@ -131,5 +138,48 @@ public class CommentService {
             outboxRepository.save(outbox);
         }
         return comment;
+    }
+
+    @Transactional
+    public String interactComment(String userId, String commentId, InteractCommentRequest request) {
+        String action = request.getAction();
+        if (!commentRepository.existsById(commentId)) {
+            throw new ApplicationException(ErrorCode.COMMENT_NOT_EXISTED);
+        }
+        var comment = commentRepository.findById(commentId).get();
+        // Nếu interact của user này chưa tồn tại thì tạo mới một interact
+        CommentInteract interact = null;
+        var oInteract = interactRepository.findByComment_IdAndUserId(commentId, userId);
+        if (oInteract.isEmpty()) {
+            interact = CommentInteract.builder()
+                    .comment(comment).userId(userId).action(action)
+                    .build();
+        } else {
+            interact = oInteract.get();
+            interact.setAction(action);
+            interact.setUpdateTime(LocalDateTime.now());
+        }
+        var event = interactMapper.toReactedToCommentEvent(interact);
+        var outbox = outboxMapper.toSuccessOutbox(event, userId, SagaAction.INTERACT_COMMENT);
+        interactRepository.save(interact);
+        outboxRepository.save(outbox);
+        return "OK";
+    }
+
+    public Map<String, String> getUserReactionsForComments(String userId, List<String> commentIds) {
+        List<CommentInteract> reactions = interactRepository.findUserInteractForComments(userId, commentIds);
+
+        // Map commentId to reactionType (e.g. like or dislike)
+        Map<String, String> commentReactionMap = new HashMap<>();
+        for (CommentInteract reaction : reactions) {
+            commentReactionMap.put(reaction.getComment().getId(), reaction.getAction());
+        }
+
+        // Set default value (null or empty) for comments that the user has no reaction
+        for (String commentId : commentIds) {
+            commentReactionMap.putIfAbsent(commentId, null); // Or "none" to indicate no reaction
+        }
+
+        return commentReactionMap;
     }
 }

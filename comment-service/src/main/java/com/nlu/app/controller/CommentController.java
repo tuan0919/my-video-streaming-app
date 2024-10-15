@@ -1,4 +1,5 @@
 package com.nlu.app.controller;
+import com.nlu.app.common.share.dto.comment_service.request.InteractCommentRequest;
 import com.nlu.app.common.share.dto.comment_service.response.CommentResponse;
 import com.nlu.app.dto.AppResponse;
 import com.nlu.app.dto.request.CommentCreationRequestDTO;
@@ -10,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
@@ -47,6 +49,25 @@ public class CommentController {
     public AppResponse<List<CommentResponse>> getCommentsByVideoId(@PathVariable("videoId") String videoId) {
         var response = commentService.getCommentsOfVideo(videoId);
         return AppResponse.<List<CommentResponse>>builder()
+                .result(response)
+                .build();
+    }
+
+    @PostMapping("/comment/{commentId}/interact")
+    public AppResponse<String> interactWithComment(@PathVariable("commentId") String commentId,
+                                                   @RequestBody InteractCommentRequest request,
+                                                   @RequestHeader("X-UserId") String userId) {
+        var response = commentService.interactComment(userId, commentId, request);
+        return AppResponse.<String>builder()
+                .result(response)
+                .build();
+    }
+
+    @PostMapping("/comment/interacts")
+    public AppResponse<Map<String, String>> getUserReactionsForComments(@RequestBody List<String> commentIds,
+                                                                        @RequestHeader("X-UserId") String userId) {
+        var response = commentService.getUserReactionsForComments(userId, commentIds);
+        return AppResponse.<Map<String, String>>builder()
                 .result(response)
                 .build();
     }

@@ -33,4 +33,11 @@ public class Comment {
     @ToString.Exclude
     @JsonIgnore
     Set<Comment> reply = new HashSet<>();
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    Set<CommentInteract> interactions = new HashSet<>();
+    @Column(columnDefinition = "default 0")
+    Integer likeCounts = 0;
+    @Column(columnDefinition = "default 0")
+    Integer dislikeCounts = 0;
 }
