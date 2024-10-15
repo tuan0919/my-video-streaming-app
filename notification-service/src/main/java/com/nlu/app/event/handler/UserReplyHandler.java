@@ -3,7 +3,7 @@ package com.nlu.app.event.handler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nlu.app.common.share.KafkaMessage;
-import com.nlu.app.common.share.event.CommentReplyEvent;
+import com.nlu.app.common.share.event.comment.CommentReplyEvent;
 import com.nlu.app.configuration.WebClientBuilder;
 import com.nlu.app.mapper.NotificationMapper;
 import com.nlu.app.mapper.OutboxMapper;
