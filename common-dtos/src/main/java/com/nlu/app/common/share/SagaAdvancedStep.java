@@ -10,4 +10,5 @@ public class SagaAdvancedStep {
     public static final String VIDEO_UPVOTE = "VIDEO_UPVOTE";
     public static final String VIDEO_DOWNVOTE = "VIDEO_DOWNVOTE";
     public static final String FIRST_INTERACT_WITH_VIDEO = "FIRST_INTERACT_WITH_VIDEO";
+    public static final String UPDATE_COMMENT_INTERACTION = "UPDATE_COMMENT_INTERACTION";
 }
