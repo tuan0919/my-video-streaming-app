@@ -1,4 +1,4 @@
-package com.nlu.app.common.share.event;
+package com.nlu.app.common.share.event.comment;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

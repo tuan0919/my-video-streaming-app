@@ -3,7 +3,6 @@ package com.nlu.app.event;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nlu.app.common.share.KafkaMessage;
 import com.nlu.app.common.share.SagaAction;
-import com.nlu.app.common.share.event.CommentReplyEvent;
 import com.nlu.app.event.handler.CreateNewVideoHandler;
 import com.nlu.app.event.handler.UserReplyHandler;
 import lombok.AccessLevel;

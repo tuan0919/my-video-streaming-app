@@ -2,7 +2,7 @@ package com.nlu.app.mapper;
 
 import com.nlu.app.common.share.dto.notification_service.request.NotificationCreationRequest;
 import com.nlu.app.common.share.dto.notification_service.response.NotificationResponse;
-import com.nlu.app.common.share.event.CommentReplyEvent;
+import com.nlu.app.common.share.event.comment.CommentReplyEvent;
 import com.nlu.app.common.share.event.NewVideoCreatedEvent;
 import com.nlu.app.common.share.event.NotificationCreatedEvent;
 import com.nlu.app.constant.NotificationType;
