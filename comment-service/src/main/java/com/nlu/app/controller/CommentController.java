@@ -63,7 +63,7 @@ public class CommentController {
                 .build();
     }
 
-    @PostMapping("/comment/interacts")
+    @PostMapping("/interacts")
     public AppResponse<Map<String, String>> getUserReactionsForComments(@RequestBody List<String> commentIds,
                                                                         @RequestHeader("X-UserId") String userId) {
         var response = commentService.getUserReactionsForComments(userId, commentIds);
