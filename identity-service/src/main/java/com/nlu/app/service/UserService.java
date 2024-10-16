@@ -1,8 +1,6 @@
 package com.nlu.app.service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import com.nlu.app.common.share.SagaAction;
 import com.nlu.app.common.share.dto.notification_service.request.NotificationCreationRequest;
@@ -117,5 +115,17 @@ public class UserService {
     public UserResponse getUser(String id) {
         return userMapper.toUserResponse(
                 userRepository.findById(id).orElseThrow(() -> new ApplicationException(ErrorCode.USER_NOT_EXISTED)));
+    }
+
+    public Map<String, UserResponse> getUsersMapByIds(List<String> userIds) {
+        List<User> users = userRepository.findUsersByIdIn(userIds);
+        Map<String, UserResponse> map = new HashMap<>();
+        for (var user : users) {
+            map.putIfAbsent(user.getId(), userMapper.toUserResponse(user));
+        }
+        for (String userId : userIds) {
+            map.putIfAbsent(userId, null);
+        }
+        return map;
     }
 }
