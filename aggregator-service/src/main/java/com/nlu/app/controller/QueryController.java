@@ -1,8 +1,10 @@
 package com.nlu.app.controller;
 
+import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_CommentDTO;
 import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_UserDetailsDTO;
 import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_VideoDetailsDTO;
 import com.nlu.app.dto.AppResponse;
+import com.nlu.app.service.CommentAggregateQuery;
 import com.nlu.app.service.UserAggregateQuery;
 import com.nlu.app.service.VideoAggregateQuery;
 import lombok.AccessLevel;
@@ -12,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/query")
 @RequiredArgsConstructor
@@ -20,6 +24,7 @@ import reactor.core.publisher.Mono;
 public class QueryController {
     UserAggregateQuery userAggregateQuery;
     VideoAggregateQuery videoAggregateQuery;
+    CommentAggregateQuery commentAggregateQuery;
 
     @GetMapping("/{userId}")
     public Mono<AppResponse<ClientView_UserDetailsDTO>> query(@PathVariable String userId) {
@@ -30,11 +35,31 @@ public class QueryController {
     }
 
     @GetMapping("/video/{videoId}")
-    public Mono<AppResponse<ClientView_VideoDetailsDTO>> query(@PathVariable String videoId,
+    public Mono<AppResponse<ClientView_VideoDetailsDTO>> queryVideoDetails(@PathVariable String videoId,
                                                               @RequestHeader("X-UserId") String userId,
                                                               @RequestHeader("X-Username") String username) {
         return videoAggregateQuery.getVideoDetails(videoId, userId, username)
                 .map(response -> AppResponse.<ClientView_VideoDetailsDTO>builder()
+                        .result(response)
+                        .build());
+    }
+
+    @GetMapping("/video/{videoId}/comments")
+    public Mono<AppResponse<List<ClientView_CommentDTO>>> queryCommentOfVideo(@PathVariable String videoId,
+                                                                @RequestHeader("X-UserId") String userId,
+                                                                @RequestHeader("X-Username") String username) {
+        return commentAggregateQuery.getCommentsByVideoId(videoId, userId, username)
+                .map(response -> AppResponse.<List<ClientView_CommentDTO>>builder()
+                        .result(response)
+                        .build());
+    }
+
+    @GetMapping("/comment/{commentId}/reply")
+    public Mono<AppResponse<List<ClientView_CommentDTO>>> queryCommentRepiedOfComment(@PathVariable String commentId,
+                                                                              @RequestHeader("X-UserId") String userId,
+                                                                              @RequestHeader("X-Username") String username) {
+        return commentAggregateQuery.getReplyComments(commentId, userId, username)
+                .map(response -> AppResponse.<List<ClientView_CommentDTO>>builder()
                         .result(response)
                         .build());
     }

@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -18,4 +19,7 @@ public class CommentResponse implements Serializable {
     String content;
     String parentId;
     Integer replyCounts;
+    Integer likeCounts;
+    Integer dislikeCounts;
+    LocalDateTime createAt;
 }
