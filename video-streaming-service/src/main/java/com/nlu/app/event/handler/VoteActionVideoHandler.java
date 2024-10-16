@@ -4,19 +4,26 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nlu.app.common.share.KafkaMessage;
 import com.nlu.app.common.share.SagaAction;
+import com.nlu.app.common.share.dto.notification_service.request.SendMessageWsRequest;
 import com.nlu.app.common.share.event.VideoDownVotedEvent;
 import com.nlu.app.common.share.event.VideoUpvotedEvent;
+import com.nlu.app.configuration.WebClientBuilder;
+import com.nlu.app.repository.NotificationWebClient;
 import com.nlu.app.repository.VideoInteractRepository;
 import com.nlu.app.repository.VideoRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +36,13 @@ public class VoteActionVideoHandler {
     ObjectMapper objectMapper;
     VideoRepository videoRepository;
     VideoInteractRepository videoInteractRepository;
-    SimpMessagingTemplate messagingTemplate;
+    @NonFinal
+    private WebClient nWebClient;
+
+    @Autowired
+    private void setnWebClient(@Qualifier("notificationWebClient") WebClient nWebClient) {
+        this.nWebClient = nWebClient;
+    }
 
     /**
      * Consumed sự kiện {@link VideoDownVotedEvent} và {@link VideoUpvotedEvent}
@@ -40,6 +53,7 @@ public class VoteActionVideoHandler {
     @Transactional
     public void consumeEvent(KafkaMessage message, Acknowledgment ack) throws JsonProcessingException {
         String videoId = null;
+        var notificationWebClient = WebClientBuilder.createClient(nWebClient, NotificationWebClient.class);
         if (message.sagaAction().equalsIgnoreCase(SagaAction.VIDEO_UPVOTE)) {
             videoId = objectMapper.readValue(message.payload(), VideoUpvotedEvent.class).getVideoId();
         }
@@ -60,17 +74,17 @@ public class VoteActionVideoHandler {
         Integer upVote = videoInteractRepository.countDistinctByVoteAndVideo_VideoId("UP_VOTE", videoId);
         Integer downVote = videoInteractRepository.countDistinctByVoteAndVideo_VideoId("DOWN_VOTE", videoId);
         log.info("consumed event {}, upVote: {}, downVote: {}", message.sagaAction(), upVote, downVote);
-        sendToClient(videoId, upVote, downVote);
+        Map<String, Object> messageToClient = new HashMap<>();
+        messageToClient.put("action", "VOTE_VIDEO_CHANGE");
+        messageToClient.put("videoId", videoId);
+        messageToClient.put("upVotes", upVote);
+        messageToClient.put("downVotes", downVote);
+        var request = SendMessageWsRequest.builder()
+                .action("VIDEO_CHANGE")
+                .topic("/topic/video/"+videoId)
+                .payload(objectMapper.writeValueAsString(messageToClient))
+                .build();
+        notificationWebClient.sendToClient(request).block();
         ack.acknowledge();
-    }
-
-    void sendToClient(String videoId, int upVote, int downVote) {
-        Map<String, Object> message = new HashMap<>();
-        message.put("action", "VOTE_VIDEO_CHANGE");
-        message.put("videoId", videoId);
-        message.put("upVotes", upVote);
-        message.put("downVotes", downVote);
-        log.info("send message to: {}", "/topic/video/"+videoId, message);
-        messagingTemplate.convertAndSend("/topic/video/"+videoId, message);
     }
 }

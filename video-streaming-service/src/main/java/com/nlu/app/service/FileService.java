@@ -50,7 +50,6 @@ public class FileService {
     @Value("${amazon.cloudfront.url}") @NonFinal
     String cloudFrontUrl;
     S3AsyncClient s3Client;
-    IdentityWebClient identityWebClient;
     @NonFinal
     S3Presigner signer;
 
