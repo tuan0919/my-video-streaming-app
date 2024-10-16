@@ -23,3 +23,5 @@ video-streaming-service:
   domain: lb://video-streaming-service
 notification-service:
   domain: lb://notification-service
+comment-service:
+  domain: lb://comment-service

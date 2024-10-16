@@ -42,3 +42,6 @@ eureka:
     register-with-eureka: true
   instance:
     prefer-ip-address: true
+
+notification-service:
+  domain: lb://notification-service

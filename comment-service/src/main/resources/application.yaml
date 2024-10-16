@@ -12,6 +12,10 @@ spring:
       discovery:
         enabled: true
         service-id: cloud-config-service
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
   kafka:
     consumer:
       bootstrap-servers: localhost:19092,localhost:29092,localhost:39092
@@ -37,3 +41,5 @@ eureka:
 
 video-streaming-service:
   domain: lb://video-streaming-service
+notification-service:
+  domain: lb://notification-service

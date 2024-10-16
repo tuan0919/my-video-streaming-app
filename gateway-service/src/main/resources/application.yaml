@@ -51,6 +51,14 @@ gateway-service:
       method: ["GET"]
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]
 
+    - path: /aggregator/query/video/*/comments
+      method: [ "GET" ]
+      roles: [ "ROLE_USER", "ROLE_ADMIN" ]
+
+    - path: /aggregator/query/comment/*/reply
+      method: [ "GET" ]
+      roles: [ "ROLE_USER", "ROLE_ADMIN" ]
+
     - path: /profile/users/follow
       method: [ "PUT" ]
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]
@@ -61,6 +69,14 @@ gateway-service:
 
     - path: /comment/users/video/*
       method: [ "GET" ]
+      roles: [ "ROLE_USER", "ROLE_ADMIN" ]
+
+    - path: /comment/users/comment/*/interact
+      method: [ "POST" ]
+      roles: [ "ROLE_USER", "ROLE_ADMIN" ]
+
+    - path: /comment/users/interacts
+      method: [ "POST" ]
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]
 
     - path: /comment/users/comment/*
