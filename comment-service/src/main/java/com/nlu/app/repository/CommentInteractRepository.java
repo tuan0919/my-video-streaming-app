@@ -13,4 +13,5 @@ public interface CommentInteractRepository extends JpaRepository<CommentInteract
     Optional<CommentInteract> findByComment_IdAndUserId(String commentId, String userId);
     @Query("SELECT ci FROM CommentInteract ci WHERE ci.userId = :userId AND ci.comment.id IN :commentIds")
     List<CommentInteract> findUserInteractForComments(@Param("userId") String userId, @Param("commentIds") List<String> commentIds);
+    Integer countByComment_IdAndAction(String commentId, String action);
 }

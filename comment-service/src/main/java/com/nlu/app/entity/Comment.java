@@ -12,7 +12,7 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "comments")
+@Entity
 @Getter
 @Setter
 public class Comment {
@@ -36,8 +36,4 @@ public class Comment {
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     Set<CommentInteract> interactions = new HashSet<>();
-    @Column(columnDefinition = "default 0")
-    Integer likeCounts = 0;
-    @Column(columnDefinition = "default 0")
-    Integer dislikeCounts = 0;
 }

@@ -3,6 +3,7 @@ package com.nlu.app.service;
 import com.nlu.app.common.share.SagaAction;
 import com.nlu.app.common.share.dto.comment_service.request.InteractCommentRequest;
 import com.nlu.app.common.share.dto.comment_service.response.CommentResponse;
+import com.nlu.app.common.share.dto.notification_service.request.SendMessageWsRequest;
 import com.nlu.app.common.share.event.comment.CommentReplyEvent;
 import com.nlu.app.configuration.WebClientBuilder;
 import com.nlu.app.dto.request.CommentCreationRequestDTO;
@@ -17,6 +18,7 @@ import com.nlu.app.mapper.OutboxMapper;
 import com.nlu.app.repository.CommentInteractRepository;
 import com.nlu.app.repository.CommentRepository;
 import com.nlu.app.repository.OutboxRepository;
+import com.nlu.app.repository.webclient.NotificationWebClient;
 import com.nlu.app.repository.webclient.VideoStreamingWebClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,14 +40,20 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final OutboxRepository outboxRepository;
     private WebClient vWebClient;
+    private WebClient nWebClient;
     private final CommentMapper commentMapper;
     private final OutboxMapper outboxMapper;
     private final CommentInteractRepository interactRepository;
     private final CommentInteractMapper interactMapper;
 
     @Autowired
-    public void setvWebClient(@Qualifier("videoStreamingWebClient") WebClient vWebClient) {
+    private void setvWebClient(@Qualifier("videoStreamingWebClient") WebClient vWebClient) {
         this.vWebClient = vWebClient;
+    }
+
+    @Autowired
+    private void setnWebClient(@Qualifier("notificationWebClient") WebClient nWebClient) {
+        this.nWebClient = nWebClient;
     }
 
     @Transactional
@@ -64,6 +72,13 @@ public class CommentService {
         }
         var comment = commentMapper.mapToEntity(userId, request);
         _insertToDB_(comment, parentId);
+        var notificationWebClient = WebClientBuilder.createClient(nWebClient, NotificationWebClient.class);
+        var wsRequest = SendMessageWsRequest.builder()
+                .topic("/topic/video/"+comment.getVideoId())
+                .action("COMMENT_CHANGE")
+                .payload("none")
+                .build();
+        notificationWebClient.sendToClient(wsRequest).block();
         return "OK";
     }
 
@@ -74,7 +89,10 @@ public class CommentService {
             throw new ApplicationException(ErrorCode.COMMENT_NOT_EXISTED);
         }
         var comment = oComment.get();
-        return commentMapper.mapToDTO(comment, comment.getReply().size());
+        Integer replyCounts = comment.getReply().size();
+        Integer likeCounts = interactRepository.countByComment_IdAndAction(comment.getId(), "LIKE");
+        Integer dislikeCounts = interactRepository.countByComment_IdAndAction(comment.getId(), "DISLIKE");
+        return commentMapper.mapToDTO(comment, replyCounts, likeCounts, dislikeCounts);
     }
 
     /**
@@ -89,7 +107,10 @@ public class CommentService {
         }
         var commentList = commentRepository.findCommentsByParent_Id(parentId);
         return commentList.stream().map(comment -> {
-            return commentMapper.mapToDTO(comment, comment.getReply().size());
+            Integer replyCounts = comment.getReply().size();
+            Integer likeCounts = interactRepository.countByComment_IdAndAction(comment.getId(), "LIKE");
+            Integer dislikeCounts = interactRepository.countByComment_IdAndAction(comment.getId(), "DISLIKE");
+            return commentMapper.mapToDTO(comment, replyCounts, likeCounts, dislikeCounts);
         }).toList();
     }
 
@@ -102,7 +123,10 @@ public class CommentService {
     public List<CommentResponse> getCommentsOfVideo(String videoId) {
         var commentList = commentRepository.findCommentsByVideoIdAndParentIsNull(videoId);
         return commentList.stream().map(comment -> {
-            return commentMapper.mapToDTO(comment, comment.getReply().size());
+            Integer replyCounts = comment.getReply().size();
+            Integer likeCounts = interactRepository.countByComment_IdAndAction(comment.getId(), "LIKE");
+            Integer dislikeCounts = interactRepository.countByComment_IdAndAction(comment.getId(), "DISLIKE");
+            return commentMapper.mapToDTO(comment, replyCounts, likeCounts, dislikeCounts);
         }).toList();
     }
 
@@ -163,6 +187,13 @@ public class CommentService {
         var outbox = outboxMapper.toSuccessOutbox(event, userId, SagaAction.INTERACT_COMMENT);
         interactRepository.save(interact);
         outboxRepository.save(outbox);
+        var notificationWebClient = WebClientBuilder.createClient(nWebClient, NotificationWebClient.class);
+        var wsRequest = SendMessageWsRequest.builder()
+                .topic("/topic/video/"+comment.getVideoId())
+                .action("COMMENT_CHANGE")
+                .payload("none")
+                .build();
+        notificationWebClient.sendToClient(wsRequest).block();
         return "OK";
     }
 

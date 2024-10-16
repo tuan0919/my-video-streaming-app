@@ -30,7 +30,7 @@ public interface CommentMapper {
     @Mappings({
             @Mapping(target = "parentId", source = "comment.parent", qualifiedByName = "mapToId")
     })
-    CommentResponse mapToDTO(Comment comment, Integer replyCounts);
+    CommentResponse mapToDTO(Comment comment, Integer replyCounts, Integer likeCounts, Integer dislikeCounts);
 
     @Named("mapToId")
     default String mapToId(Comment comment) {
