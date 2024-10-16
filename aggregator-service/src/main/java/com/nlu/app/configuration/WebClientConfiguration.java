@@ -23,6 +23,8 @@ public class WebClientConfiguration {
     private String videoStreamingBaseURI;
     @Value("${notification-service.domain}")
     private String notificationBaseURI;
+    @Value("${comment-service.domain}")
+    private String commentBaseURI;
 
     @Bean
     @LoadBalanced
@@ -48,6 +50,11 @@ public class WebClientConfiguration {
     @Bean(value = "notificationWebClient")
     public WebClient notificationStreamingWebClient(WebClient.Builder builder) {
         return createWebClient(builder, notificationBaseURI);
+    }
+
+    @Bean(value = "commentWebClient")
+    public WebClient commentWebClient(WebClient.Builder builder) {
+        return createWebClient(builder, commentBaseURI);
     }
 
     private WebClient createWebClient(WebClient.Builder builder, String baseURI) {

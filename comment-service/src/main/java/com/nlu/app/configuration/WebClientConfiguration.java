@@ -12,6 +12,8 @@ import reactor.netty.http.client.HttpClient;
 public class WebClientConfiguration {
     @Value("${video-streaming-service.domain}")
     private String videoStreamingBaseURI;
+    @Value("${notification-service.domain}")
+    private String notificationBaseURI;
 
     @Bean
     @LoadBalanced
@@ -22,6 +24,11 @@ public class WebClientConfiguration {
     @Bean(value = "videoStreamingWebClient")
     public WebClient videoStreamingWebClient(WebClient.Builder builder) {
         return createWebClient(builder, videoStreamingBaseURI);
+    }
+
+    @Bean(value = "notificationWebClient")
+    public WebClient notificationWebClient(WebClient.Builder builder) {
+        return createWebClient(builder, notificationBaseURI);
     }
 
     private WebClient createWebClient(WebClient.Builder builder, String baseURI) {
