@@ -1,6 +1,8 @@
 package com.nlu.app.controller;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import jakarta.validation.Valid;
 
@@ -64,6 +66,14 @@ public class UserController {
     AppResponse<UserResponse> updateUser(@PathVariable String userId, @RequestBody UserUpdateRequest request) {
         return AppResponse.<UserResponse>builder()
                 .result(userService.updateUser(userId, request))
+                .build();
+    }
+
+    @PostMapping("/query/map-by-ids")
+    AppResponse<Map<String, UserResponse>> getUsersAndMapByIds(@RequestBody List<String> userIds) {
+        var response = userService.getUsersMapByIds(userIds);
+        return AppResponse.<Map<String, UserResponse>>builder()
+                .result(response)
                 .build();
     }
 }
