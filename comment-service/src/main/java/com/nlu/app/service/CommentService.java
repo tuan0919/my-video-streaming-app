@@ -57,7 +57,7 @@ public class CommentService {
     }
 
     @Transactional
-    public String createComment(String userId, CommentCreationRequestDTO request) {
+    public CommentResponse createComment(String userId, CommentCreationRequestDTO request) {
         var videoStreamingWebClient = WebClientBuilder.createClient(vWebClient, VideoStreamingWebClient.class);
         boolean isVideoExisted = videoStreamingWebClient
                 .checkExisted(request.getVideoId())
@@ -79,7 +79,7 @@ public class CommentService {
                 .payload("none")
                 .build();
         notificationWebClient.sendToClient(wsRequest).block();
-        return "OK";
+        return commentMapper.mapToDTO(comment, 0, 0, 0);
     }
 
     @Transactional

@@ -22,10 +22,10 @@ public class CommentController {
     CommentService commentService;
 
     @PostMapping("/new")
-    public AppResponse<String> addComment(@RequestBody CommentCreationRequestDTO request,
+    public AppResponse<CommentResponse> addComment(@RequestBody CommentCreationRequestDTO request,
                                           @RequestHeader("X-UserId") String userId) {
         var response  = commentService.createComment(userId, request);
-        return AppResponse.<String>builder()
+        return AppResponse.<CommentResponse>builder()
                 .result(response).build();
     }
 
