@@ -52,7 +52,8 @@ public class EventListener {
         }
         catch (Exception e) {
             e.printStackTrace();
-            ack.nack(Duration.ofSeconds(5)); // Retry after 5 seconds
+            log.error("Message này bị lỗi, skip. {}", message.sagaAction());
+            ack.acknowledge();
         }
     }
 }

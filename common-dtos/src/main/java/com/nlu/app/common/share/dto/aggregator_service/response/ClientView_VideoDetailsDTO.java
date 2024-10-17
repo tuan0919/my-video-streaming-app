@@ -43,6 +43,6 @@ public class ClientView_VideoDetailsDTO {
         Float progress = 0f;
         @Builder.Default
         String action = null;
-        LocalDateTime createAt;
+        String createTime;
     }
 }

@@ -38,6 +38,6 @@ public class ClientView_CommentDTO {
         Integer replyCounts;
         Integer likeCounts;
         Integer dislikeCounts;
-        LocalDateTime createAt;
+        String createTime;
     }
 }

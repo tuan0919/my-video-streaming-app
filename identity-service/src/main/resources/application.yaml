@@ -12,7 +12,7 @@ spring:
       port: 6379
       cache-null-values: true
       time-to-live:
-        jwtToken: 300000
+        jwtToken: 30000000
   application:
     name: identity-service
   servlet:
@@ -39,6 +39,9 @@ spring:
       enable-auto-commit: false
     listener:
       ack-mode: manual
+  jpa:
+    hibernate:
+      ddl-auto: update
 
 eureka:
   client:
