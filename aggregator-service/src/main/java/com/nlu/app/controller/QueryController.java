@@ -1,6 +1,7 @@
 package com.nlu.app.controller;
 
 import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_CommentDTO;
+import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_NotificationDTO;
 import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_UserDetailsDTO;
 import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_VideoDetailsDTO;
 import com.nlu.app.dto.AppResponse;
@@ -60,6 +61,15 @@ public class QueryController {
                                                                               @RequestHeader("X-Username") String username) {
         return commentAggregateQuery.getReplyComments(commentId, userId, username)
                 .map(response -> AppResponse.<List<ClientView_CommentDTO>>builder()
+                        .result(response)
+                        .build());
+    }
+
+    @GetMapping("/notifications")
+    public Mono<AppResponse<List<ClientView_NotificationDTO>>> queryUserNotifications(@RequestHeader("X-UserId") String userId,
+                                                                                      @RequestHeader("X-Username") String username) {
+        return userAggregateQuery.queryNotifications(userId)
+                .map(response -> AppResponse.<List<ClientView_NotificationDTO>>builder()
                         .result(response)
                         .build());
     }
