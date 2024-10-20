@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.util.UUID;
 
@@ -39,7 +40,8 @@ public class FileService {
         try {
             String link = fileWebClient.getFile(key).block().getResult().getLink();
             return link;
-        } catch (WebClientException e) {
+        } catch (WebClientResponseException e) {
+            e.printStackTrace();
             throw MyUtils.convertException(e);
         }
     }
@@ -55,7 +57,7 @@ public class FileService {
             return SaveFileResponse.builder()
                     .key(newKey)
                     .build();
-        } catch (WebClientException e) {
+        } catch (WebClientResponseException e) {
             throw MyUtils.convertException(e);
         }
     }

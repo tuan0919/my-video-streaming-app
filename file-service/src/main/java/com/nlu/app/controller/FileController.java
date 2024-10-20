@@ -32,8 +32,8 @@ public class FileController {
                 .result(response).build();
     }
 
-    @GetMapping("/{key}")
-    public AppResponse<SignedURLResponse> getFile(@PathVariable("key") String key) {
+    @GetMapping
+    public AppResponse<SignedURLResponse> getFile(@RequestParam("key") String key) {
         var response = fileService.generateURL(key);
         return AppResponse.<SignedURLResponse>builder()
                 .result(response).build();

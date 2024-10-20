@@ -6,6 +6,7 @@ import com.nlu.app.common.share.dto.file_service.response.SignedURLResponse;
 import com.nlu.app.dto.AppResponse;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.service.annotation.GetExchange;
 import org.springframework.web.service.annotation.PostExchange;
 import org.springframework.web.service.annotation.PutExchange;
@@ -18,6 +19,6 @@ public interface FileWebClient {
     @PostExchange("files/s3")
     Mono<AppResponse<String>> moveObject(@RequestBody MoveFileRequest request);
 
-    @GetExchange("files/s3/{key}")
-    Mono<AppResponse<SignedURLResponse>> getFile(@PathVariable("key") String key);
+    @GetExchange("files/s3")
+    Mono<AppResponse<SignedURLResponse>> getFile(@RequestParam("key") String key);
 }

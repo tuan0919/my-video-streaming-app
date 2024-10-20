@@ -26,7 +26,7 @@ public class VideoController {
     InteractVideoService interactVideoService;
 
     @PutMapping("/upload")
-    public AppResponse<SignedURLResponse> getTempUploadUrl(PutFileRequest request,
+    public AppResponse<SignedURLResponse> getTempUploadUrl(@RequestBody PutFileRequest request,
                                                            @RequestHeader("X-UserId") String userId,
                                                            @RequestHeader("X-Username") String username) {
         var response = fileService.getUrlUploadToTemp(request, userId, username);
