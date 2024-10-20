@@ -18,6 +18,6 @@ public interface FileWebClient {
     @PostExchange("files/s3")
     Mono<AppResponse<String>> moveObject(@RequestBody MoveFileRequest request);
 
-    @GetExchange("files/{key}")
+    @GetExchange("files/s3/{key}")
     Mono<AppResponse<SignedURLResponse>> getFile(@PathVariable("key") String key);
 }
