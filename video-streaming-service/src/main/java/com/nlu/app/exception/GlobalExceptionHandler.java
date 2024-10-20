@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.reactive.function.client.WebClientException;
 
 @ControllerAdvice
 @Slf4j
@@ -28,5 +29,15 @@ public class GlobalExceptionHandler {
                 .build();
         return ResponseEntity.status(ex.getErrorCode().getStatusCode())
                 .body(response);
+    }
+
+    @ExceptionHandler(ServiceException.class)
+    ResponseEntity<AppResponse<?>> handleServiceException(ServiceException ex) {
+        var body = AppResponse.builder()
+                .message(ex.getMessage())
+                .code(ex.getErrorCode())
+                .build();
+        return ResponseEntity.status(ex.getStatusCode())
+                .body(body);
     }
 }
