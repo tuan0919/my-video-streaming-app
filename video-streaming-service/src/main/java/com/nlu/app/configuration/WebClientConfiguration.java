@@ -14,6 +14,8 @@ public class WebClientConfiguration {
     private String identityBaseURI;
     @Value("${notification-service.domain}")
     private String notificationBaseURI;
+    @Value("${file-service.domain}")
+    private String fileBaseURI;
 
     @Bean
     @LoadBalanced
@@ -27,8 +29,13 @@ public class WebClientConfiguration {
     }
 
     @Bean(value = "notificationWebClient")
-    public WebClient notificationStreamingWebClient(WebClient.Builder builder) {
+    public WebClient notificationWebClient(WebClient.Builder builder) {
         return createWebClient(builder, notificationBaseURI);
+    }
+
+    @Bean(value = "fileWebClient")
+    public WebClient fileWebClient(WebClient.Builder builder) {
+        return createWebClient(builder, fileBaseURI);
     }
 
     private WebClient createWebClient(WebClient.Builder builder, String baseURI) {

@@ -1,9 +1,11 @@
 package com.nlu.app.controller;
 
+import com.nlu.app.common.share.dto.file_service.response.SignedURLResponse;
 import com.nlu.app.dto.AppResponse;
 import com.nlu.app.dto.request.*;
 import com.nlu.app.dto.response.VideoCreationResponse;
 import com.nlu.app.common.share.dto.videoStreaming_service.response.VideoDetailsResponse;
+import com.nlu.app.service.FileService;
 import com.nlu.app.service.InteractVideoService;
 import com.nlu.app.service.VideoService;
 import lombok.AccessLevel;
@@ -20,7 +22,18 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class VideoController {
     VideoService videoService;
+    FileService fileService;
     InteractVideoService interactVideoService;
+
+    @PutMapping("/upload")
+    public AppResponse<SignedURLResponse> getTempUploadUrl(PutFileRequest request,
+                                                           @RequestHeader("X-UserId") String userId,
+                                                           @RequestHeader("X-Username") String username) {
+        var response = fileService.getUrlUploadToTemp(request, userId, username);
+        return AppResponse.<SignedURLResponse>builder()
+                .result(response)
+                .build();
+    }
 
     @PostMapping
     public AppResponse<VideoCreationResponse> upNewVideo(@RequestBody VideoCreationRequest request,

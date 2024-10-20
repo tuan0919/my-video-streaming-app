@@ -9,3 +9,6 @@ amazon:
     url: https://cdn.wjbu.online
     public-key: KELN0DV2RMYI1
     secret-key-location: ${HOME}/resource/pk-APKAZQ3DSOCM42AQIJCR.pem
+server:
+  servlet:
+    context-path: /files

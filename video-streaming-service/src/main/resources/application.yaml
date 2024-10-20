@@ -45,3 +45,5 @@ eureka:
 
 notification-service:
   domain: lb://notification-service
+file-service:
+  domain: lb://file-service

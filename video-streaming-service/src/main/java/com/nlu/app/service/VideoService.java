@@ -50,8 +50,8 @@ public class VideoService {
     }
 
     private VideoCreationResponse _mapToResponse_(Video video) {
-        var response = fileService.generateURL(video.getVideoKey());
-        String link = response.getLink();
+        var response = fileService.generateResourceURL(video.getVideoKey());
+        String link = response;
         return videoMapper.toVideoCreationResponse(video, link);
     }
 

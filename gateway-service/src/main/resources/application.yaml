@@ -39,8 +39,8 @@ gateway-service:
       method: ["GET"]
       roles: ["ROLE_USER", "ROLE_ADMIN"]
 
-    - path: /video-streaming/files
-      method: ["GET", "PUT", "POST"]
+    - path: /video-streaming/videos/upload
+      method: [ "PUT" ]
       roles: ["ROLE_USER", "ROLE_ADMIN"]
 
     - path: /video-streaming/videos/view
