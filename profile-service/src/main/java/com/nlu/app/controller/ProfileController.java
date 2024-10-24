@@ -1,7 +1,11 @@
 package com.nlu.app.controller;
 import com.nlu.app.common.share.dto.CompensationRequest;
+import com.nlu.app.common.share.dto.profile_service.request.ChangeAvatarRequest;
 import com.nlu.app.common.share.dto.profile_service.request.FollowRequest;
+import com.nlu.app.common.share.dto.profile_service.request.GetLinkUploadAvatarRequest;
+import com.nlu.app.common.share.dto.profile_service.response.ChangeAvatarResponse;
 import com.nlu.app.common.share.dto.profile_service.response.FollowerUserIdsResponse;
+import com.nlu.app.common.share.dto.profile_service.response.GetLinkUploadAvatarResponse;
 import com.nlu.app.common.share.dto.profile_service.response.ProfileResponseDTO;
 import com.nlu.app.common.share.dto.saga.SagaAdvancedRequest;
 import com.nlu.app.dto.AppResponse;
@@ -59,6 +63,24 @@ public class ProfileController {
     public AppResponse<ProfileResponseDTO> getUserProfile(@PathVariable String userId) {
         return AppResponse.<ProfileResponseDTO>builder()
                 .result(profileService.getUserProfile(userId))
+                .build();
+    }
+
+    @PutMapping("/get/avatar")
+    public AppResponse<GetLinkUploadAvatarResponse> getLinkUploadAvatar(@RequestBody GetLinkUploadAvatarRequest request,
+                                                                        @RequestHeader("X-UserId") String userId,
+                                                                        @RequestHeader("X-Username") String username) {
+        return AppResponse.<GetLinkUploadAvatarResponse>builder()
+                .result(profileService.getLinkForUpload(request, userId, username))
+                .build();
+    }
+
+    @PutMapping("/avatar")
+    public AppResponse<ChangeAvatarResponse> changeAvatar(@RequestBody ChangeAvatarRequest request,
+                                                          @RequestHeader("X-UserId") String userId,
+                                                          @RequestHeader("X-Username") String username) {
+        return AppResponse.<ChangeAvatarResponse>builder()
+                .result(profileService.changeAvatar(request, userId, username))
                 .build();
     }
 

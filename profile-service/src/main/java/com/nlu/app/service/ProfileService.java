@@ -3,11 +3,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nlu.app.common.share.SagaAction;
 import com.nlu.app.common.share.SagaAdvancedStep;
+import com.nlu.app.common.share.dto.file_service.request.MoveFileRequest;
+import com.nlu.app.common.share.dto.file_service.request.UploadFileRequest;
+import com.nlu.app.common.share.dto.profile_service.request.ChangeAvatarRequest;
 import com.nlu.app.common.share.dto.profile_service.request.FollowRequest;
+import com.nlu.app.common.share.dto.profile_service.request.GetLinkUploadAvatarRequest;
 import com.nlu.app.common.share.dto.profile_service.request.ProfileCreationRequest;
-import com.nlu.app.common.share.dto.profile_service.response.FollowerUserIdsResponse;
-import com.nlu.app.common.share.dto.profile_service.response.ProfileCreationResponse;
-import com.nlu.app.common.share.dto.profile_service.response.ProfileResponseDTO;
+import com.nlu.app.common.share.dto.profile_service.response.*;
 import com.nlu.app.common.share.dto.saga.SagaAdvancedRequest;
 import com.nlu.app.entity.Outbox;
 import com.nlu.app.entity.Profile;
@@ -22,6 +24,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -31,6 +35,7 @@ public class ProfileService implements IProfileService {
     private final OutboxMapper outboxMapper;
     private final ProfileMapper profileMapper;
     private final ObjectMapper objectMapper;
+    private final FileService fileService;
 
     @Transactional
     public String follow(FollowRequest request, String userId) {
@@ -45,6 +50,39 @@ public class ProfileService implements IProfileService {
         profileRepository.save(userProfile);
         profileRepository.save(followProfile);
         return "OK";
+    }
+
+    @Override
+    public GetLinkUploadAvatarResponse getLinkForUpload(GetLinkUploadAvatarRequest request, String username, String userId) {
+        var oProfile = profileRepository.findProfileByUserId(userId);
+        if (oProfile.isEmpty()) {
+            throw new ApplicationException(ErrorCode.USER_NOT_EXISTED);
+        }
+        String fileName = request.getFileName();
+        String fileKey = "temp/"+username+"/"+fileName;
+        UploadFileRequest uploadRequest = new UploadFileRequest(fileKey);
+        String link = fileService.getUrlUploadToTemp(uploadRequest).getLink();
+        return new GetLinkUploadAvatarResponse(link);
+    }
+
+    @Override
+    @Transactional
+    public ChangeAvatarResponse changeAvatar(ChangeAvatarRequest request, String username, String userId) {
+        var oProfile = profileRepository.findProfileByUserId(userId);
+        if (oProfile.isEmpty()) {
+            throw new ApplicationException(ErrorCode.USER_NOT_EXISTED);
+        }
+        String oldKey = "temp/"+username+"/"+request.getAvatarKey();
+        String extension = oldKey.substring(oldKey.lastIndexOf(".") + 1);
+        String newKey = UUID.randomUUID().toString() + "." + extension;
+        newKey = "inventory/"+username+"/"+newKey;
+        var requestMoveFile = new MoveFileRequest(oldKey, newKey);
+        fileService.moveFile(requestMoveFile);
+        var profile = oProfile.get();
+        profile.setAvatarId(newKey);
+        profileRepository.save(profile);
+        var link = fileService.generateResourceURL(newKey);
+        return new ChangeAvatarResponse(link);
     }
 
     public FollowerUserIdsResponse getFollowerIds(String userId) {
