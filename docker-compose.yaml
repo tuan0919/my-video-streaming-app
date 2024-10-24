@@ -133,6 +133,15 @@ services:
 #    ports:
 #      - "3000:3000"
 
+  ngrok:
+    container_name: ngrok
+    image: ngrok/ngrok
+    environment:
+      - NGROK_AUTHTOKEN=2n9Qj53AYNHN3MANvrQfbez89p9_6F59DS2Agfwv5eaMj28Ur
+    network_mode: "host"
+    command: http 18686 --host-header=rewrite
+    tty: true
+
   broker1:
     container_name: broker1
     image: confluentinc/cp-server:5.4.0
