@@ -67,6 +67,15 @@ gateway-service:
       method: [ "PUT" ]
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]
 
+    - path: /profile/users/avatar
+      method: [ "PUT" ]
+      roles: [ "ROLE_USER", "ROLE_ADMIN" ]
+
+    - path: /profile/users/get/avatar
+      method: [ "PUT" ]
+      roles: [ "ROLE_USER", "ROLE_ADMIN" ]
+
+
     - path: /comment/users/new
       method: [ "POST" ]
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]

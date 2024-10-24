@@ -22,14 +22,13 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class VideoController {
     VideoService videoService;
-    FileService fileService;
     InteractVideoService interactVideoService;
 
     @PutMapping("/upload")
     public AppResponse<SignedURLResponse> getTempUploadUrl(@RequestBody PutFileRequest request,
                                                            @RequestHeader("X-UserId") String userId,
                                                            @RequestHeader("X-Username") String username) {
-        var response = fileService.getUrlUploadToTemp(request, userId, username);
+        var response = videoService.getUrlUploadToTemp(request, userId, username);
         return AppResponse.<SignedURLResponse>builder()
                 .result(response)
                 .build();

@@ -1,8 +1,13 @@
 package com.nlu.app.service;
 
 import com.nlu.app.common.share.SagaAction;
+import com.nlu.app.common.share.dto.file_service.request.MoveFileRequest;
+import com.nlu.app.common.share.dto.file_service.request.UploadFileRequest;
+import com.nlu.app.common.share.dto.file_service.response.SignedURLResponse;
+import com.nlu.app.dto.request.PutFileRequest;
 import com.nlu.app.dto.request.SaveFileRequest;
 import com.nlu.app.dto.request.VideoCreationRequest;
+import com.nlu.app.dto.response.SaveFileResponse;
 import com.nlu.app.dto.response.VideoCreationResponse;
 import com.nlu.app.common.share.dto.videoStreaming_service.response.VideoDetailsResponse;
 import com.nlu.app.entity.Video;
@@ -20,21 +25,23 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class VideoService {
     VideoRepository videoRepository;
-    FileService fileService;
     ResponseDTOMapper responseMapper;
     OutboxRepository outboxRepository;
     OutboxMapper outboxMapper;
     VideoMapper videoMapper;
     VideoInteractRepository interactRepository;
+    FileService fileService;
 
     public VideoCreationResponse createVideo(String userId, String username, VideoCreationRequest request) {
         var requestSaveFile = SaveFileRequest.builder().filename(request.getVideoKey()).build();
-        var response = fileService.moveToInventory(requestSaveFile, userId, username);
+        var response = moveToInventory(requestSaveFile, userId, username);
         var result = _insertVideo_(request, userId, response.getKey());
         return _mapToResponse_(result);
     }
@@ -75,5 +82,24 @@ public class VideoService {
     public Boolean checkExists(String videoId) {
         var oVideo = videoRepository.findById(videoId);
         return oVideo.isPresent();
+    }
+
+    public SaveFileResponse moveToInventory(SaveFileRequest request, String userId, String username) {
+        String oldKey = "temp/"+username+"/"+request.getFilename();
+        String extension = oldKey.substring(oldKey.lastIndexOf(".") + 1);
+        String newKey = UUID.randomUUID().toString() + "." + extension;
+        newKey = "inventory/"+username+"/"+newKey;
+        var requestMoveFile = new MoveFileRequest(oldKey, newKey);
+        fileService.moveFile(requestMoveFile);
+        return SaveFileResponse.builder()
+                .key(newKey)
+                .build();
+    }
+
+    public SignedURLResponse getUrlUploadToTemp (PutFileRequest request, String userId, String username) {
+        String fileName = request.getFilename();
+        String fileKey = "temp/"+username+"/"+fileName;
+        UploadFileRequest uploadRequest = new UploadFileRequest(fileKey);
+        return fileService.getUrlUploadToTemp(uploadRequest);
     }
 }
