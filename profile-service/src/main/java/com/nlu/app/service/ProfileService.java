@@ -53,7 +53,7 @@ public class ProfileService implements IProfileService {
     }
 
     @Override
-    public GetLinkUploadAvatarResponse getLinkForUpload(GetLinkUploadAvatarRequest request, String username, String userId) {
+    public GetLinkUploadAvatarResponse getLinkForUpload(GetLinkUploadAvatarRequest request, String userId, String username) {
         var oProfile = profileRepository.findProfileByUserId(userId);
         if (oProfile.isEmpty()) {
             throw new ApplicationException(ErrorCode.USER_NOT_EXISTED);
