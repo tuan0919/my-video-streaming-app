@@ -31,3 +31,5 @@ eureka:
     register-with-eureka: true
   instance:
     prefer-ip-address: true
+file-service:
+  domain: lb://file-service
