@@ -93,7 +93,6 @@ public class FileService {
         return SignedURLResponse.builder().link(link).build();
     }
 
-    @Cacheable(value = "resourceLinks", key = "#key")
     public String generateResourceURL (String key) {
         return getCloudFrontUrl(key);
     }
