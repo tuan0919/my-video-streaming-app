@@ -1,7 +1,7 @@
 server:
   servlet:
     context-path: /aggregator
-  port: 17979
+  port: 0
 spring:
   application:
     name: aggregator-service

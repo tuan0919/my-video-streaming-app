@@ -5,7 +5,7 @@ spring:
     config:
       server:
         git:
-          uri: ${HOME}/Desktop/my-video-streaming-app
+          uri: E:\github-repository\my-video-streaming-app
           search-paths: configuration/
 server:
   port: 18181

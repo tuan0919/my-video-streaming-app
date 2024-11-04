@@ -1,6 +1,7 @@
 server:
   servlet:
     context-path: /profile
+  port: 0
 spring:
   application:
     name: profile-service

@@ -7,12 +7,12 @@ amazon:
     bucket: nqat0919-bucket
   cloudfront:
     url: https://cdn.wjbu.online
-    public-key: KELN0DV2RMYI1
-    secret-key-location: ${HOME}/resource/pk-APKAZQ3DSOCM42AQIJCR.pem
+    public-key: KU831GZ7MVVM1
+    secret-key-location: ${USERPROFILE}/cloudfront_private_key.pem
 server:
   servlet:
     context-path: /files
-
+  port: 0
 eureka:
   client:
     server-url:
