@@ -40,15 +40,34 @@ public class VideoService {
     FileService fileService;
 
     public VideoCreationResponse createVideo(String userId, String username, VideoCreationRequest request) {
-        var requestSaveFile = SaveFileRequest.builder().filename(request.getVideoKey()).build();
-        var response = moveToInventory(requestSaveFile, userId, username);
-        var result = _insertVideo_(request, userId, response.getKey());
+        var requestSaveFile_Video = SaveFileRequest.builder().filename(request.getVideoKey()).build();
+        var requestSaveFile_Thumbnail = SaveFileRequest.builder().filename(request.getThumbnailKey()).build();
+        var saveVideoResponse = moveToInventory(requestSaveFile_Video, userId, username);
+        var saveThumbnailResponse = moveToInventory(requestSaveFile_Thumbnail, userId, username);
+        var result = _insertVideo_(request, userId, saveVideoResponse.getKey(), saveThumbnailResponse.getKey());
+        return _mapToResponse_(result);
+    }
+
+    public VideoCreationResponse createVideoWithoutThumbnail(String userId, String username, VideoCreationRequest request) {
+        var requestSaveFile_Video = SaveFileRequest.builder().filename(request.getVideoKey()).build();
+        var saveVideoResponse = moveToInventory(requestSaveFile_Video, userId, username);
+        var result = _insertVideo_(request, userId, saveVideoResponse.getKey());
         return _mapToResponse_(result);
     }
 
     @Transactional
     Video _insertVideo_(VideoCreationRequest request, String userId, String key) {
         var video = videoMapper.toEntity(request, userId, key);
+        videoRepository.save(video);
+        var videoEvent = videoMapper.toNewVideoCreatedEvent(video);
+        var outbox = outboxMapper.toSuccessOutbox(videoEvent, videoEvent.getVideoId(), SagaAction.CREATE_NEW_VIDEO);
+        outboxRepository.save(outbox);
+        return video;
+    }
+
+    @Transactional
+    Video _insertVideo_(VideoCreationRequest request, String userId, String videoKey, String thumbnailKey) {
+        var video = videoMapper.toEntity(request, userId, videoKey, thumbnailKey);
         videoRepository.save(video);
         var videoEvent = videoMapper.toNewVideoCreatedEvent(video);
         var outbox = outboxMapper.toSuccessOutbox(videoEvent, videoEvent.getVideoId(), SagaAction.CREATE_NEW_VIDEO);
@@ -87,7 +106,7 @@ public class VideoService {
     public SaveFileResponse moveToInventory(SaveFileRequest request, String userId, String username) {
         String oldKey = "temp/"+username+"/"+request.getFilename();
         String extension = oldKey.substring(oldKey.lastIndexOf(".") + 1);
-        String newKey = UUID.randomUUID().toString() + "." + extension;
+        String newKey = UUID.randomUUID() + "." + extension;
         newKey = "inventory/"+username+"/"+newKey;
         var requestMoveFile = new MoveFileRequest(oldKey, newKey);
         fileService.moveFile(requestMoveFile);

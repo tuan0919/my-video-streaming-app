@@ -14,13 +14,21 @@ import java.time.LocalDateTime;
         builder = @Builder(disableBuilder = true))
 public interface VideoMapper {
     NewVideoCreatedEvent toNewVideoCreatedEvent(Video video);
+    @Mapping(target = "thumbnailKey", source = "thumbnailKey")
+    @Mapping(target = "videoDescription", source = "request.description")
+    @Mapping(target = "videoName", source = "request.videoName")
+    @Mapping(target = "createAt", expression = "java(now())")
+    @Mapping(target = "userId", source = "userId")
+    @Mapping(target = "videoKey", source = "videoKey")
+    Video toEntity(VideoCreationRequest request, String userId, String videoKey, String thumbnailKey);
+
     @Mapping(target = "thumbnailKey", constant = "DEFAULT-KEY")
     @Mapping(target = "videoDescription", source = "request.description")
     @Mapping(target = "videoName", source = "request.videoName")
     @Mapping(target = "createAt", expression = "java(now())")
     @Mapping(target = "userId", source = "userId")
-    @Mapping(target = "videoKey", source = "key")
-    Video toEntity(VideoCreationRequest request, String userId, String key);
+    @Mapping(target = "videoKey", source = "videoKey")
+    Video toEntity(VideoCreationRequest request, String userId, String videoKey);
 
     @Mapping(target = "videoURL", source = "videoURL")
     @Mapping(target = "videoName", source = "video.videoName")

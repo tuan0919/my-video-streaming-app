@@ -43,6 +43,15 @@ public class VideoController {
                 .result(response).build();
     }
 
+    @PostMapping("/test")
+    public AppResponse<VideoCreationResponse> upNewVideoWithoutThumbnail(@RequestBody VideoCreationRequest request,
+                                                         @RequestHeader("X-UserId") String userId,
+                                                         @RequestHeader("X-Username") String username) {
+        var response = videoService.createVideoWithoutThumbnail(userId, username, request);
+        return AppResponse.<VideoCreationResponse>builder()
+                .result(response).build();
+    }
+
     @PostMapping("/up-vote")
     public Mono<AppResponse<String>> upVote(@RequestBody LikeVideoRequest request,
                                             @RequestHeader("X-UserId") String userId,
