@@ -17,9 +17,10 @@ public interface ResponseDTOMapper {
             @Mapping(target = "viewCount", source = "video.viewCount"),
             @Mapping(target = "progress", source = "interact", qualifiedByName = "progress"),
             @Mapping(target = "action", source = "interact", qualifiedByName = "action"),
-            @Mapping(target = "link", source = "videoLink")
+            @Mapping(target = "link", source = "videoLink"),
+            @Mapping(target = "thumbnail", source = "thumbnail")
     })
-    VideoDetailsResponse toResponseDTO(Video video, VideoInteract interact, String videoLink);
+    VideoDetailsResponse toResponseDTO(Video video, VideoInteract interact, String videoLink, String thumbnail);
 
     @Named("action")
     default String action(VideoInteract interact) {

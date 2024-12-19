@@ -90,7 +90,13 @@ public class VideoService {
         var oInteract = interactRepository.findByVideoVideoIdAndUserId(videoId, userId);
         var interact = oInteract.orElse(null);
         String videoLink = fileService.generateResourceURL(video.getVideoKey());
-        var response = responseMapper.toResponseDTO(video, interact, videoLink);
+        String thumbnail; // trong trường hợp thumbnail không tồn tại thì sử dụng thumbnail default
+        try {
+            thumbnail = fileService.generateResourceURL(video.getThumbnailKey());
+        } catch (Exception e) {
+            thumbnail = "https://ff.hcmuaf.edu.vn/data/image/slide/nonglam1.jpg";
+        }
+        var response = responseMapper.toResponseDTO(video, interact, videoLink, thumbnail);
         Integer downVote = interactRepository.countDistinctByVoteAndVideo_VideoId("DOWN_VOTE", videoId);
         Integer upVote = interactRepository.countDistinctByVoteAndVideo_VideoId("UP_VOTE", videoId);
         response.setUpVote(upVote);

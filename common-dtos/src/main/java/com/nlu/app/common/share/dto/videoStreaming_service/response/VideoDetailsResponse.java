@@ -17,6 +17,7 @@ public class VideoDetailsResponse {
     String ownerId;
     String name;
     String link;
+    String thumbnail;
     String description;
     LocalDateTime createAt;
     Integer viewCount;

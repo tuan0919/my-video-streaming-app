@@ -35,6 +35,7 @@ public class ClientView_VideoDetailsDTO {
         String videoId;
         String name;
         String link;
+        String thumbnail;
         String description;
         Integer viewCount;
         Integer downVote;
