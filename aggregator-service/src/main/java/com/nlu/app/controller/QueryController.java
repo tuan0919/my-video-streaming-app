@@ -45,6 +45,17 @@ public class QueryController {
                         .build());
     }
 
+    @GetMapping("/video/new-feed")
+    public Mono<AppResponse<List<ClientView_VideoDetailsDTO>>> queryNewFeed(@RequestParam("page") Integer page,
+                                                                           @RequestParam("pageSize") Integer pageSize,
+                                                                           @RequestHeader("X-UserId") String userId,
+                                                                           @RequestHeader("X-Username") String username) {
+        return videoAggregateQuery.getVideoFeed(userId, username, page,pageSize)
+                .map(response -> AppResponse.<List<ClientView_VideoDetailsDTO>>builder()
+                        .result(response)
+                        .build());
+    }
+
     @GetMapping("/video/{videoId}/comments")
     public Mono<AppResponse<List<ClientView_CommentDTO>>> queryCommentOfVideo(@PathVariable String videoId,
                                                                 @RequestHeader("X-UserId") String userId,

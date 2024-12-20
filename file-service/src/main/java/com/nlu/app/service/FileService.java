@@ -106,21 +106,23 @@ public class FileService {
                     .bucket(bucket)
                     .key(oldKey)
                     .build();
-            s3Client.headObject(headRequest);
+            s3Client.headObject(headRequest).get();
             CopyObjectRequest copyRequest = CopyObjectRequest.builder()
                     .sourceBucket(bucket)
                     .destinationBucket(bucket)
                     .sourceKey(oldKey)
                     .destinationKey(newKey)
                     .build();
-            s3Client.copyObject(copyRequest);
+            s3Client.copyObject(copyRequest).get();
             DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
                     .bucket(bucket)
                     .key(oldKey)
                     .build();
-            s3Client.deleteObject(deleteRequest);
+            s3Client.deleteObject(deleteRequest).get();
             return "OK";
         } catch (S3Exception e) {
+            throw new ApplicationException(ErrorCode.RESOURCE_NOT_FOUND);
+        } catch (Exception e) {
             throw new ApplicationException(ErrorCode.RESOURCE_NOT_FOUND);
         }
     }

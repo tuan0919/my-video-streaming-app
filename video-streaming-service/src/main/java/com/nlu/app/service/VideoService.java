@@ -18,10 +18,14 @@ import com.nlu.app.mapper.ResponseDTOMapper;
 import com.nlu.app.mapper.VideoMapper;
 import com.nlu.app.repository.OutboxRepository;
 import com.nlu.app.repository.VideoInteractRepository;
+import com.nlu.app.repository.VideoPagingRepository;
 import com.nlu.app.repository.VideoRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +36,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class VideoService {
     VideoRepository videoRepository;
+    VideoPagingRepository videoPagingRepository;
     ResponseDTOMapper responseMapper;
     OutboxRepository outboxRepository;
     OutboxMapper outboxMapper;
@@ -119,6 +124,11 @@ public class VideoService {
         return SaveFileResponse.builder()
                 .key(newKey)
                 .build();
+    }
+
+    public Page<String> videoIdsFromStart(Integer page, Integer pageSize) {
+        var pageable = PageRequest.of(page, pageSize);
+        return videoPagingRepository.fetchFromStart(pageable);
     }
 
     public SignedURLResponse getUrlUploadToTemp (PutFileRequest request, String userId, String username) {

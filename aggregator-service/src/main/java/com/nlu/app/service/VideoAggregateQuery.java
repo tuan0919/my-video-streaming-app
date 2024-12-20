@@ -19,6 +19,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -71,6 +75,20 @@ public class VideoAggregateQuery {
                     }
                     e.printStackTrace();
                     return Mono.error(e);
+                });
+    }
+
+    public Mono<List<ClientView_VideoDetailsDTO>> getVideoFeed(String userId, String username, Integer page, Integer pageSize) {
+        var videoStreamingWebClient = WebClientBuilder.createClient(vWebClient, VideoStreamingWebClient.class);
+        return videoStreamingWebClient.getIds_SortByPoints(page, pageSize)
+                .map(result -> result.getResult())
+                .flatMap(ids -> {
+                    List<Mono<ClientView_VideoDetailsDTO>> detailsMonos = ids.stream()
+                            .map(videoId -> getVideoDetails(videoId, userId, username))  // Gọi getVideoDetails cho mỗi videoId
+                            .collect(Collectors.toList());
+                    return Mono.zip(detailsMonos, results -> Arrays.stream(results)
+                            .map(result -> (ClientView_VideoDetailsDTO) result)
+                            .collect(Collectors.toList()));
                 });
     }
 }

@@ -12,8 +12,12 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/videos")
@@ -97,6 +101,15 @@ public class VideoController {
                     return AppResponse.<String>builder().result(response)
                             .build();
                 });
+    }
+
+    @GetMapping("new-feed")
+    public AppResponse<List<String>> getVideoIdsFromStart(@RequestParam("page") Integer page,
+                                                          @RequestParam("pageSize") Integer pageSize) {
+        var response = videoService.videoIdsFromStart(page, pageSize);
+        return AppResponse.<List<String>>builder()
+                .result(response.stream().toList())
+                .build();
     }
 
     @GetMapping("/link/{videoId}")
