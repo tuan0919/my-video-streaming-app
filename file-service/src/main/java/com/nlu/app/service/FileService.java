@@ -29,6 +29,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 @Service
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
@@ -89,11 +90,20 @@ public class FileService {
     }
 
     public SignedURLResponse generateURL(String fileName) {
-        String link = generateResourceURL(fileName);
-        return SignedURLResponse.builder().link(link).build();
+        try {
+            String link = generateResourceURL(fileName);
+            return SignedURLResponse.builder().link(link).build();
+        } catch (Exception e) {
+            throw new ApplicationException(ErrorCode.RESOURCE_NOT_FOUND);
+        }
     }
 
-    public String generateResourceURL (String key) {
+    public String generateResourceURL (String key) throws ExecutionException, InterruptedException {
+        HeadObjectRequest headRequest = HeadObjectRequest.builder()
+                .bucket(bucket)
+                .key(key)
+                .build();
+        s3Client.headObject(headRequest).get();
         return getCloudFrontUrl(key);
     }
 

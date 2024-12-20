@@ -105,8 +105,11 @@ public class VideoController {
 
     @GetMapping("new-feed")
     public AppResponse<List<String>> getVideoIdsFromStart(@RequestParam("page") Integer page,
-                                                          @RequestParam("pageSize") Integer pageSize) {
-        var response = videoService.videoIdsFromStart(page, pageSize);
+                                                          @RequestParam("pageSize") Integer pageSize,
+                                                          @RequestParam(value = "exclude", required = false) String excludeId) {
+        var response = (excludeId == null)
+                ? videoService.videoIdsFromStart(page, pageSize)
+                : videoService.videoIdsFromStart(page, pageSize, excludeId);
         return AppResponse.<List<String>>builder()
                 .result(response.stream().toList())
                 .build();

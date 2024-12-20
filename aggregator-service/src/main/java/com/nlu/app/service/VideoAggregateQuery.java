@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -89,6 +90,7 @@ public class VideoAggregateQuery {
                     return Mono.zip(detailsMonos, results -> Arrays.stream(results)
                             .map(result -> (ClientView_VideoDetailsDTO) result)
                             .collect(Collectors.toList()));
-                });
+                })
+                .switchIfEmpty(Mono.just(Arrays.asList()));
     }
 }

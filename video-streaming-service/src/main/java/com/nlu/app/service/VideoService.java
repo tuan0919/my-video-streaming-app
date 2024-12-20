@@ -94,11 +94,17 @@ public class VideoService {
         var video = oVideo.get();
         var oInteract = interactRepository.findByVideoVideoIdAndUserId(videoId, userId);
         var interact = oInteract.orElse(null);
-        String videoLink = fileService.generateResourceURL(video.getVideoKey());
+        String videoLink;
+        try {
+            videoLink = fileService.generateResourceURL(video.getVideoKey());
+        } catch (Exception e) {
+            videoLink = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4";
+        }
         String thumbnail; // trong trường hợp thumbnail không tồn tại thì sử dụng thumbnail default
         try {
             thumbnail = fileService.generateResourceURL(video.getThumbnailKey());
         } catch (Exception e) {
+            e.printStackTrace();
             thumbnail = "https://ff.hcmuaf.edu.vn/data/image/slide/nonglam1.jpg";
         }
         var response = responseMapper.toResponseDTO(video, interact, videoLink, thumbnail);
@@ -129,6 +135,11 @@ public class VideoService {
     public Page<String> videoIdsFromStart(Integer page, Integer pageSize) {
         var pageable = PageRequest.of(page, pageSize);
         return videoPagingRepository.fetchFromStart(pageable);
+    }
+
+    public Page<String> videoIdsFromStart(Integer page, Integer pageSize, String excludeId) {
+        var pageable = PageRequest.of(page, pageSize);
+        return videoPagingRepository.fetchFromStartExcludeId(pageable, excludeId);
     }
 
     public SignedURLResponse getUrlUploadToTemp (PutFileRequest request, String userId, String username) {
