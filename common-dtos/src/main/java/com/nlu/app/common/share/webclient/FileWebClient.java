@@ -25,7 +25,7 @@ public interface FileWebClient {
     @GetExchange("files/s3")
     Mono<AppResponse<SignedURLResponse>> getFile(@RequestParam("key") String key);
 
-    @PostMapping("files/s3/query")
+    @PostExchange("files/s3/query")
     Mono<AppResponse<Map<String, SignedURLResponse>>> getFiles(@RequestBody List<String> keys);
 
 }

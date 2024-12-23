@@ -23,6 +23,5 @@ public interface ProfileMapper {
     ProfileCreatedEvent toProfileCreatedEvent(Profile profile);
     ProfileRemovedEvent toProfileRemovedEvent(Profile profile);
     ProfileCreationResponse toResponseCreationDTO(Profile profile);
-    @Mapping(target = "avatarKey", source = "profile.avatarId")
     ProfileResponseDTO toResponseDTO(Profile profile);
 }

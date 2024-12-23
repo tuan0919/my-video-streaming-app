@@ -19,13 +19,19 @@ public interface CommentAggregateMapper {
     @Mappings({
             @Mapping(target = "action", source = "action"),
             @Mapping(target = "comment", expression = "java(toComment(comment))"),
-            @Mapping(target = "ownerProfile", expression = "java(toOwnerProfile(ownerIdentity))")
+            @Mapping(target = "ownerProfile", expression = "java(toOwnerProfile(ownerIdentity, ownerProfile))")
     })
-    ClientView_CommentDTO toDTO(CommentResponse comment, UserResponse ownerIdentity, String action);
+    ClientView_CommentDTO toDTO(CommentResponse comment,
+                                UserResponse ownerIdentity,
+                                ProfileResponseDTO ownerProfile,
+                                String action);
     @Mapping(target = "createTime", source = "comment.createAt", qualifiedByName = "mapToTime")
     ClientView_CommentDTO.Comment toComment(CommentResponse comment);
-    @Mapping(target = "userId", source = "id")
-    ClientView_CommentDTO.OwnerProfile toOwnerProfile(UserResponse ownerIdentity);
+    @Mappings({
+            @Mapping(target = "userId", source = "ownerIdentity.id"),
+    })
+    ClientView_CommentDTO.OwnerProfile toOwnerProfile(UserResponse ownerIdentity,
+                                                      ProfileResponseDTO profile);
 
     @Named("mapToTime")
     default String mapToTime(LocalDateTime dateTime) {

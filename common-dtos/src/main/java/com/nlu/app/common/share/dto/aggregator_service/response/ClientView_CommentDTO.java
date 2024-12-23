@@ -23,6 +23,7 @@ public class ClientView_CommentDTO {
     public static class OwnerProfile {
         String userId;
         String username;
+        String avatar;
     }
 
     @Data

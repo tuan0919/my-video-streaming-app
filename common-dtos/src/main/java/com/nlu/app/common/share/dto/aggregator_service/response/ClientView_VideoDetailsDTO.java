@@ -24,6 +24,7 @@ public class ClientView_VideoDetailsDTO {
         String userId;
         String username;
         String fullName;
+        String avatar;
     }
 
     @Data

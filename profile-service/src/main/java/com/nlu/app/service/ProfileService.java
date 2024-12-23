@@ -24,10 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -140,14 +137,25 @@ public class ProfileService implements IProfileService {
         if (oProfile.isEmpty()) {
             throw new ApplicationException(ErrorCode.USER_NOT_EXISTED);
         }
-        return profileMapper.toResponseDTO(oProfile.get());
+        var dto = profileMapper.toResponseDTO(oProfile.get());
+        var avatar = fileService.generateResourceURL(oProfile.get().getAvatarId());
+        dto.setAvatar(avatar);
+        return dto;
     }
 
     public Map<String, ProfileResponseDTO> getUserProfile(List<String> userIds) {
         var list = profileRepository.findProfilesByUserIdIn(userIds);
+        var mapURLs = fileService.generateResourceURLs(list.stream()
+                .map(Profile::getAvatarId)
+                .toList());
         var map = new HashMap<String, ProfileResponseDTO>();
         for (var profile : list) {
-            map.put(profile.getUserId(), profileMapper.toResponseDTO(profile));
+            String avatarLink =
+                    Optional.ofNullable(mapURLs.get(profile.getAvatarId()))
+                    .orElse("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwdIVSqaMsmZyDbr9mDPk06Nss404fosHjLg&s");
+            var dto = profileMapper.toResponseDTO(profile);
+            dto.setAvatar(avatarLink);
+            map.put(profile.getUserId(), dto);
         }
         return map;
     }

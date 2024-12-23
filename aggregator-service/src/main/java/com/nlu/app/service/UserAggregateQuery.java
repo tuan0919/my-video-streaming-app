@@ -1,16 +1,16 @@
 package com.nlu.app.service;
 
+import com.nlu.app.common.share.dto.AppResponse;
 import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_NotificationDTO;
 import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_UserDetailsDTO;
 import com.nlu.app.common.share.dto.identity_service.response.RoleResponse;
 import com.nlu.app.common.share.dto.identity_service.response.UserResponse;
 import com.nlu.app.common.share.dto.profile_service.response.ProfileResponseDTO;
-import com.nlu.app.dto.AppResponse;
 import com.nlu.app.exception.ServiceException;
 import com.nlu.app.mapper.NotificationAggregateMapper;
-import com.nlu.app.repository.webclient.IdentityWebClient;
-import com.nlu.app.repository.webclient.NotificationWebClient;
-import com.nlu.app.repository.webclient.ProfileWebClient;
+import com.nlu.app.common.share.webclient.IdentityWebClient;
+import com.nlu.app.common.share.webclient.NotificationWebClient;
+import com.nlu.app.common.share.webclient.ProfileWebClient;
 import com.nlu.app.util.MyUtils;
 import com.nlu.app.configuration.WebClientBuilder;
 import lombok.AccessLevel;

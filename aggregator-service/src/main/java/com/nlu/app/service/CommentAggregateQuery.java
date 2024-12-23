@@ -1,18 +1,12 @@
 package com.nlu.app.service;
 
 import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_CommentDTO;
-import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_VideoDetailsDTO;
 import com.nlu.app.common.share.dto.comment_service.response.CommentResponse;
-import com.nlu.app.common.share.dto.identity_service.response.UserResponse;
-import com.nlu.app.common.share.dto.profile_service.response.ProfileResponseDTO;
-import com.nlu.app.common.share.dto.videoStreaming_service.response.VideoDetailsResponse;
+import com.nlu.app.common.share.webclient.ProfileWebClient;
 import com.nlu.app.exception.ServiceException;
 import com.nlu.app.mapper.CommentAggregateMapper;
-import com.nlu.app.mapper.VideoAggregateMapper;
-import com.nlu.app.repository.webclient.CommentWebClient;
-import com.nlu.app.repository.webclient.IdentityWebClient;
-import com.nlu.app.repository.webclient.ProfileWebClient;
-import com.nlu.app.repository.webclient.VideoStreamingWebClient;
+import com.nlu.app.common.share.webclient.CommentWebClient;
+import com.nlu.app.common.share.webclient.IdentityWebClient;
 import com.nlu.app.util.MyUtils;
 import com.nlu.app.configuration.WebClientBuilder;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +18,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -53,24 +46,27 @@ public class CommentAggregateQuery {
     public Mono<List<ClientView_CommentDTO>> getReplyComments(String commentId, String userId, String username) {
         var identityWebClient = WebClientBuilder.createClient(iWebClient, IdentityWebClient.class);
         var commentWebClient = WebClientBuilder.createClient(cWebClient, CommentWebClient.class);
-
+        var profileWebClient = WebClientBuilder.createClient(pWebClient, ProfileWebClient.class);
         return commentWebClient.getCommentsReplied(commentId, userId, username)
                 .flatMap(response -> {
                     var commentIds = response.getResult().stream().map(CommentResponse::getId).toList();
                     var ownerIds = response.getResult().stream().map(CommentResponse::getUserId).toList();
                     return Mono.zip(identityWebClient.getUsersAndMapByIds(ownerIds)
+                            , profileWebClient.getProfileMapByUserId(ownerIds)
                             , commentWebClient.getUserReactionsForComments(commentIds, userId, username)
                             , Mono.just(response));
                 }).map(tuple -> {
                     var userId_identityResponse = tuple.getT1().getResult();
-                    var commentId_action = tuple.getT2().getResult();
-                    var listCommentsResponses = tuple.getT3().getResult();
+                    var profileMap = tuple.getT2().getResult();
+                    var commentId_action = tuple.getT3().getResult();
+                    var listCommentsResponses = tuple.getT4().getResult();
                     return listCommentsResponses.stream()
                             .map(comment -> {
                                 String ownerId = comment.getUserId();
                                 String cId = comment.getId();
                                 return commentAggregateMapper.toDTO(comment,
                                         userId_identityResponse.get(ownerId),
+                                        profileMap.get(ownerId),
                                         commentId_action.get(cId));
                             }).toList();
                 }).onErrorResume(e -> {
@@ -87,24 +83,27 @@ public class CommentAggregateQuery {
     public Mono<List<ClientView_CommentDTO>> getCommentsByVideoId(String videoId, String userId, String username) {
         var identityWebClient = WebClientBuilder.createClient(iWebClient, IdentityWebClient.class);
         var commentWebClient = WebClientBuilder.createClient(cWebClient, CommentWebClient.class);
-
+        var profileWebClient = WebClientBuilder.createClient(pWebClient, ProfileWebClient.class);
         return commentWebClient.getCommentsByVideoId(videoId, userId, username)
                 .flatMap(response -> {
                     var commentIds = response.getResult().stream().map(CommentResponse::getId).toList();
                     var ownerIds = response.getResult().stream().map(CommentResponse::getUserId).toList();
                     return Mono.zip(identityWebClient.getUsersAndMapByIds(ownerIds)
+                    , profileWebClient.getProfileMapByUserId(ownerIds)
                     , commentWebClient.getUserReactionsForComments(commentIds, userId, username)
                     , Mono.just(response));
                 }).map(tuple -> {
                     var userId_identityResponse = tuple.getT1().getResult();
-                    var commentId_action = tuple.getT2().getResult();
-                    var listCommentsResponses = tuple.getT3().getResult();
+                    var profileMap = tuple.getT2().getResult();
+                    var commentId_action = tuple.getT3().getResult();
+                    var listCommentsResponses = tuple.getT4().getResult();
                     return listCommentsResponses.stream()
                             .map(comment -> {
                                 String ownerId = comment.getUserId();
                                 String commentId = comment.getId();
                                 return commentAggregateMapper.toDTO(comment,
                                         userId_identityResponse.get(ownerId),
+                                        profileMap.get(ownerId),
                                         commentId_action.get(commentId));
                             }).toList();
                 }).onErrorResume(e -> {

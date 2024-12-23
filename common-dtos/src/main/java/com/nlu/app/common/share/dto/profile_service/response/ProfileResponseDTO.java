@@ -12,6 +12,6 @@ public class ProfileResponseDTO {
     String fullName;
     String country;
     String bio;
-    String avatarKey;
+    String avatar;
     String profileId;
 }
