@@ -82,9 +82,9 @@ public class UserAggregateQuery {
                 });
     }
 
-    public Mono<List<ClientView_NotificationDTO>> queryNotifications(String userId) {
+    public Mono<List<ClientView_NotificationDTO>> queryNotifications(String userId, Integer page, Integer pageSize) {
         var notificationWebClient = WebClientBuilder.createClient(nWebClient, NotificationWebClient.class);
-        return notificationWebClient.getNotifications(userId)
+        return notificationWebClient.getNotifications(userId, page, pageSize)
                 .map(response -> {
                     var notifications = response.getResult();
                     return notifications.stream()

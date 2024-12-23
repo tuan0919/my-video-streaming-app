@@ -10,6 +10,9 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/s3")
 @RequiredArgsConstructor
@@ -36,6 +39,13 @@ public class FileController {
     public AppResponse<SignedURLResponse> getFile(@RequestParam("key") String key) {
         var response = fileService.generateURL(key);
         return AppResponse.<SignedURLResponse>builder()
+                .result(response).build();
+    }
+
+    @PostMapping("/query")
+    public AppResponse<Map<String, SignedURLResponse>> getFile(@RequestBody List<String> keys) {
+        var response = fileService.generateURLs(keys);
+        return AppResponse.<Map<String, SignedURLResponse>>builder()
                 .result(response).build();
     }
 }

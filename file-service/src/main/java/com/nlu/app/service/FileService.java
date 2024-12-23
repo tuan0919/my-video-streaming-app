@@ -28,6 +28,9 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -96,6 +99,15 @@ public class FileService {
         } catch (Exception e) {
             throw new ApplicationException(ErrorCode.RESOURCE_NOT_FOUND);
         }
+    }
+
+
+    public Map<String, SignedURLResponse> generateURLs(List<String> keys) {
+        var map = new HashMap<String, SignedURLResponse>();
+        for (String key : keys) {
+            map.put(key, generateURL(key));
+        }
+        return map;
     }
 
     public String generateResourceURL (String key) throws ExecutionException, InterruptedException {

@@ -10,4 +10,5 @@ public class SagaAction {
     public static final String VIDEO_DOWNVOTE = "VIDEO_DOWNVOTE";
     public static final String MARK_VIEW_VIDEO = "MARK_VIEW_VIDEO";
     public static final String INTERACT_COMMENT = "INTERACT_COMMENT";
+    public static final String CREATE_NEW_NOTIFICATION = "CREATE_NEW_NOTIFICATION";
 }

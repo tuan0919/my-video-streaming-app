@@ -18,4 +18,8 @@ public interface VideoStreamingWebClient {
     @GetExchange(url = "video-streaming/videos/new-feed")
     Mono<AppResponse<List<String>>> getIds_SortByPoints(@RequestParam("page") Integer page,
                                                 @RequestParam("pageSize") Integer pageSize);
+    @GetExchange(url = "video-streaming/videos/new-feed")
+    Mono<AppResponse<List<String>>> getIds_SortByPointsExcludeId(@RequestParam("page") Integer page,
+                                                        @RequestParam("pageSize") Integer pageSize,
+                                                         @RequestParam("exclude") String videoId);
 }

@@ -67,6 +67,10 @@ gateway-service:
       method: [ "PUT" ]
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]
 
+    - path: /profile/users/query
+      method: [ "POST" ]
+      roles: [ "ROLE_USER", "ROLE_ADMIN" ]
+
     - path: /profile/users/avatar
       method: [ "PUT" ]
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]
@@ -74,7 +78,6 @@ gateway-service:
     - path: /profile/users/get/avatar
       method: [ "PUT" ]
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]
-
 
     - path: /comment/users/new
       method: [ "POST" ]
@@ -97,6 +100,10 @@ gateway-service:
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]
 
     - path: /notification/users
+      method: [ "GET" ]
+      roles: [ "ROLE_USER", "ROLE_ADMIN" ]
+
+    - path: /notification/websocket
       method: [ "GET" ]
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]
 

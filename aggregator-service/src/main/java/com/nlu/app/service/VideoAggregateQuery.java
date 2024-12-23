@@ -93,4 +93,19 @@ public class VideoAggregateQuery {
                 })
                 .switchIfEmpty(Mono.just(Arrays.asList()));
     }
+
+    public Mono<List<ClientView_VideoDetailsDTO>> getVideoFeedExcludeId(String userId, String username, Integer page, Integer pageSize, String excludeId) {
+        var videoStreamingWebClient = WebClientBuilder.createClient(vWebClient, VideoStreamingWebClient.class);
+        return videoStreamingWebClient.getIds_SortByPointsExcludeId(page, pageSize, excludeId)
+                .map(result -> result.getResult())
+                .flatMap(ids -> {
+                    List<Mono<ClientView_VideoDetailsDTO>> detailsMonos = ids.stream()
+                            .map(videoId -> getVideoDetails(videoId, userId, username))  // Gọi getVideoDetails cho mỗi videoId
+                            .collect(Collectors.toList());
+                    return Mono.zip(detailsMonos, results -> Arrays.stream(results)
+                            .map(result -> (ClientView_VideoDetailsDTO) result)
+                            .collect(Collectors.toList()));
+                })
+                .switchIfEmpty(Mono.just(Arrays.asList()));
+    }
 }

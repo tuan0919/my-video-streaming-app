@@ -3,6 +3,7 @@ package com.nlu.app.event;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nlu.app.common.share.KafkaMessage;
 import com.nlu.app.common.share.SagaAction;
+import com.nlu.app.event.handler.CreateNewNotification;
 import com.nlu.app.event.handler.CreateNewVideoHandler;
 import com.nlu.app.event.handler.UserReplyHandler;
 import lombok.AccessLevel;
@@ -24,8 +25,9 @@ public class EventListener {
     ObjectMapper objectMapper;
     UserReplyHandler USER_REPLY_EVENT_HANDLER;
     CreateNewVideoHandler CREATE_NEW_VIDEO_HANDLER;
+    CreateNewNotification CREATE_NEW_NOTIFICATION_HANDLER;
 
-    @KafkaListener(topics = {"comment.topics", "video.topics"}, groupId = "notification-service")
+    @KafkaListener(topics = {"comment.topics", "video.topics", "notification.topics"}, groupId = "notification-service")
     public void handleComment(@Payload String payload,
                               @Header("sagaAction") String sagaAction,
                               @Header("sagaStep") String sagaStep,
@@ -43,6 +45,9 @@ public class EventListener {
                 // send notification to followers of video's owner.
                 case SagaAction.CREATE_NEW_VIDEO -> {
                     CREATE_NEW_VIDEO_HANDLER.consumeEvent(message, ack);
+                }
+                case SagaAction.CREATE_NEW_NOTIFICATION -> {
+                    CREATE_NEW_NOTIFICATION_HANDLER.consumeEvent(message, ack);
                 }
                 default -> {
                     // message này không thuộc nhiệm vụ của consumer group này, skip

@@ -17,14 +17,17 @@ import com.nlu.app.exception.ApplicationException;
 import com.nlu.app.exception.ErrorCode;
 import com.nlu.app.mapper.NotificationMapper;
 import com.nlu.app.mapper.OutboxMapper;
+import com.nlu.app.repository.NotificationPaginationRepository;
 import com.nlu.app.repository.NotificationRepository;
 import com.nlu.app.repository.OutboxRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +38,7 @@ public class NotificationService {
     private final OutboxMapper outboxMapper;
     private final ObjectMapper objectMapper;
     private final NotificationRepository notificationRepository;
+    private final NotificationPaginationRepository notificationPaginationRepository;
 
     @Transactional
     public String insert(NotificationCreationRequest request) {
@@ -48,8 +52,8 @@ public class NotificationService {
         return "OK";
     }
 
-    public List<NotificationResponse> getNotificationsOfUser(String userId) {
-        var list = notificationRepository.findAllByUserId(userId);
+    public List<NotificationResponse> getNotificationsOfUser(String userId, Integer page, Integer pageSize) {
+        var list = notificationPaginationRepository.findAllByUserId(PageRequest.of(page, pageSize), userId);
         return list.stream().map(notificationMapper::mapToDTO).toList();
     }
 

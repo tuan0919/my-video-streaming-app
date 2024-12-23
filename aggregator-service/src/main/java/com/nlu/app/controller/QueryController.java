@@ -47,10 +47,20 @@ public class QueryController {
 
     @GetMapping("/video/new-feed")
     public Mono<AppResponse<List<ClientView_VideoDetailsDTO>>> queryNewFeed(@RequestParam("page") Integer page,
-                                                                           @RequestParam("pageSize") Integer pageSize,
-                                                                           @RequestHeader("X-UserId") String userId,
-                                                                           @RequestHeader("X-Username") String username) {
-        return videoAggregateQuery.getVideoFeed(userId, username, page,pageSize)
+                                                                            @RequestParam("pageSize") Integer pageSize,
+                                                                            @RequestParam(value = "exclude", required = false) String exclude,
+                                                                            @RequestHeader("X-UserId") String userId,
+                                                                            @RequestHeader("X-Username") String username) {
+        System.out.println("exclude: "+exclude);
+        if (exclude != null) {
+            System.out.println("getVideoFeedExcludeId");
+            return videoAggregateQuery.getVideoFeedExcludeId(userId, username, page, pageSize, exclude)
+                    .map(response -> AppResponse.<List<ClientView_VideoDetailsDTO>>builder()
+                            .result(response)
+                            .build());
+        }
+        System.out.println("getVideoFeed");
+        return videoAggregateQuery.getVideoFeed(userId, username, page, pageSize)
                 .map(response -> AppResponse.<List<ClientView_VideoDetailsDTO>>builder()
                         .result(response)
                         .build());
@@ -78,8 +88,10 @@ public class QueryController {
 
     @GetMapping("/notifications")
     public Mono<AppResponse<List<ClientView_NotificationDTO>>> queryUserNotifications(@RequestHeader("X-UserId") String userId,
-                                                                                      @RequestHeader("X-Username") String username) {
-        return userAggregateQuery.queryNotifications(userId)
+                                                                                      @RequestHeader("X-Username") String username,
+                                                                                      @RequestParam("page") Integer page,
+                                                                                      @RequestParam("pageSize") Integer pageSize) {
+        return userAggregateQuery.queryNotifications(userId, page, pageSize)
                 .map(response -> AppResponse.<List<ClientView_NotificationDTO>>builder()
                         .result(response)
                         .build());

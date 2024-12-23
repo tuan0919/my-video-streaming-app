@@ -14,5 +14,7 @@ public class ClientView_NotificationDTO {
     String createTime;
     String thumbnail;
     String href;
+    String relatedObjectId;
     String avatar;
+    String relatedEvent;
 }

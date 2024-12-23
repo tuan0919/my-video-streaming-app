@@ -24,6 +24,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -138,6 +141,15 @@ public class ProfileService implements IProfileService {
             throw new ApplicationException(ErrorCode.USER_NOT_EXISTED);
         }
         return profileMapper.toResponseDTO(oProfile.get());
+    }
+
+    public Map<String, ProfileResponseDTO> getUserProfile(List<String> userIds) {
+        var list = profileRepository.findProfilesByUserIdIn(userIds);
+        var map = new HashMap<String, ProfileResponseDTO>();
+        for (var profile : list) {
+            map.put(profile.getUserId(), profileMapper.toResponseDTO(profile));
+        }
+        return map;
     }
 
     @Override

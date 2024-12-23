@@ -43,8 +43,10 @@ public class NotificationController {
     }
 
     @GetMapping
-    public AppResponse<List<NotificationResponse>> getNotificationsByUserId(@RequestHeader("X-UserId") String userId) {
-        var response = service.getNotificationsOfUser(userId);
+    public AppResponse<List<NotificationResponse>> getNotificationsByUserId(@RequestHeader("X-UserId") String userId,
+                                                                            @RequestParam("page") Integer page,
+                                                                            @RequestParam("pageSize") Integer pageSize) {
+        var response = service.getNotificationsOfUser(userId, page, pageSize);
         return AppResponse.<List<NotificationResponse>>builder()
                 .result(response)
                 .build();

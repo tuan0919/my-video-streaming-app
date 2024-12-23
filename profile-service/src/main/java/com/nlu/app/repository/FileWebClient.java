@@ -1,9 +1,9 @@
-package com.nlu.app.common.share.webclient;
+package com.nlu.app.repository;
 
-import com.nlu.app.common.share.dto.AppResponse;
 import com.nlu.app.common.share.dto.file_service.request.MoveFileRequest;
 import com.nlu.app.common.share.dto.file_service.request.UploadFileRequest;
 import com.nlu.app.common.share.dto.file_service.response.SignedURLResponse;
+import com.nlu.app.dto.AppResponse;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,8 +24,4 @@ public interface FileWebClient {
 
     @GetExchange("files/s3")
     Mono<AppResponse<SignedURLResponse>> getFile(@RequestParam("key") String key);
-
-    @PostMapping("files/s3/query")
-    Mono<AppResponse<Map<String, SignedURLResponse>>> getFiles(@RequestBody List<String> keys);
-
 }

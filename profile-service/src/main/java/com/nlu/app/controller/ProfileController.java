@@ -11,11 +11,15 @@ import com.nlu.app.common.share.dto.saga.SagaAdvancedRequest;
 import com.nlu.app.dto.AppResponse;
 import com.nlu.app.service.ICompensationService;
 import com.nlu.app.service.IProfileService;
+import com.nlu.app.service.ProfileService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -24,7 +28,7 @@ import org.springframework.web.bind.annotation.*;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class ProfileController {
-    IProfileService profileService;
+    ProfileService profileService;
     ICompensationService compensationService;
 
     @PostMapping("/internal/saga")
@@ -63,6 +67,13 @@ public class ProfileController {
     public AppResponse<ProfileResponseDTO> getUserProfile(@PathVariable String userId) {
         return AppResponse.<ProfileResponseDTO>builder()
                 .result(profileService.getUserProfile(userId))
+                .build();
+    }
+
+    @PostMapping("/query")
+    public AppResponse<Map<String, ProfileResponseDTO>> getUserProfiles(@RequestBody List<String> userIds) {
+        return AppResponse.<Map<String, ProfileResponseDTO>>builder()
+                .result(profileService.getUserProfile(userIds))
                 .build();
     }
 

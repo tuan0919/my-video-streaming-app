@@ -179,15 +179,15 @@ services:
     ports:
       - "8083:8083"
 
-  schema-registry:
-    image: confluentinc/cp-schema-registry:5.5.3
-    environment:
-      - SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL=zookeeper:2181
-      - SCHEMA_REGISTRY_HOST_NAME=schema-registry
-      - SCHEMA_REGISTRY_LISTENERS=http://schema-registry:8081,http://localhost:8081
-    ports:
-      - 8081:8081
-    depends_on: [zookeeper, broker1, broker2, broker3]
+#  schema-registry:
+#    image: confluentinc/cp-schema-registry:5.5.3
+#    environment:
+#      - SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL=zookeeper:2181
+#      - SCHEMA_REGISTRY_HOST_NAME=schema-registry
+#      - SCHEMA_REGISTRY_LISTENERS=http://schema-registry:8081,http://localhost:8081
+#    ports:
+#      - 8081:8081
+#    depends_on: [zookeeper, broker1, broker2, broker3]
 
 volumes:
   video-service-mysql-volumes:
