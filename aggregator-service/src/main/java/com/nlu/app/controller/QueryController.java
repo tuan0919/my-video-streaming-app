@@ -68,9 +68,12 @@ public class QueryController {
 
     @GetMapping("/video/{videoId}/comments")
     public Mono<AppResponse<List<ClientView_CommentDTO>>> queryCommentOfVideo(@PathVariable String videoId,
-                                                                @RequestHeader("X-UserId") String userId,
-                                                                @RequestHeader("X-Username") String username) {
-        return commentAggregateQuery.getCommentsByVideoId(videoId, userId, username)
+                                                                        @RequestParam("page") Integer page,
+                                                                        @RequestParam("pageSize") Integer pageSize,
+                                                                        @RequestParam(value = "exclude", required = false) String exclude,
+                                                                        @RequestHeader("X-UserId") String userId,
+                                                                        @RequestHeader("X-Username") String username) {
+        return commentAggregateQuery.getCommentsByVideoId(videoId, userId, username, page, pageSize)
                 .map(response -> AppResponse.<List<ClientView_CommentDTO>>builder()
                         .result(response)
                         .build());
@@ -91,7 +94,7 @@ public class QueryController {
                                                                                       @RequestHeader("X-Username") String username,
                                                                                       @RequestParam("page") Integer page,
                                                                                       @RequestParam("pageSize") Integer pageSize) {
-        return userAggregateQuery.queryNotifications(userId, page, pageSize)
+        return userAggregateQuery.queryNotifications(userId, username, page, pageSize)
                 .map(response -> AppResponse.<List<ClientView_NotificationDTO>>builder()
                         .result(response)
                         .build());

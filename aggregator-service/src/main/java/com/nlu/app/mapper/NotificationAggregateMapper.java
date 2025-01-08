@@ -19,7 +19,7 @@ public interface NotificationAggregateMapper {
             @Mapping(target = "content", source = "notification.content"),
             @Mapping(target = "createTime", source = "notification.time", qualifiedByName = "mapToTime"),
     })
-    ClientView_NotificationDTO mapToDTO(NotificationResponse notification, String thumbnail, String href, String avatar);
+    ClientView_NotificationDTO mapToDTO(NotificationResponse notification, String thumbnail, String routeObjectId, String avatar);
 
     @Named("mapToTime")
     default String mapToTime(LocalDateTime dateTime) {

@@ -46,8 +46,12 @@ public class CommentController {
     }
 
     @GetMapping("/video/{videoId}")
-    public AppResponse<List<CommentResponse>> getCommentsByVideoId(@PathVariable("videoId") String videoId) {
-        var response = commentService.getCommentsOfVideo(videoId);
+    public AppResponse<List<CommentResponse>> getCommentsByVideoIdWithPagination(
+            @PathVariable("videoId") String videoId,
+            @RequestParam("page") Integer page,
+            @RequestParam("pageSize") Integer pageSize
+    ){
+        var response = commentService.getCommentsOfVideoWithPagination(videoId, page, pageSize);
         return AppResponse.<List<CommentResponse>>builder()
                 .result(response)
                 .build();

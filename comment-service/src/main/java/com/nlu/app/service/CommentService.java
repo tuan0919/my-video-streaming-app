@@ -16,6 +16,7 @@ import com.nlu.app.mapper.CommentInteractMapper;
 import com.nlu.app.mapper.CommentMapper;
 import com.nlu.app.mapper.OutboxMapper;
 import com.nlu.app.repository.CommentInteractRepository;
+import com.nlu.app.repository.CommentPaginationRepository;
 import com.nlu.app.repository.CommentRepository;
 import com.nlu.app.repository.OutboxRepository;
 import com.nlu.app.repository.webclient.NotificationWebClient;
@@ -24,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -38,6 +40,7 @@ import java.util.Map;
 @Slf4j
 public class CommentService {
     private final CommentRepository commentRepository;
+    private final CommentPaginationRepository commentPaginationRepository;
     private final OutboxRepository outboxRepository;
     private WebClient vWebClient;
     private WebClient nWebClient;
@@ -122,6 +125,23 @@ public class CommentService {
     @Transactional
     public List<CommentResponse> getCommentsOfVideo(String videoId) {
         var commentList = commentRepository.findCommentsByVideoIdAndParentIsNull(videoId);
+        return commentList.stream().map(comment -> {
+            Integer replyCounts = comment.getReply().size();
+            Integer likeCounts = interactRepository.countByComment_IdAndAction(comment.getId(), "LIKE");
+            Integer dislikeCounts = interactRepository.countByComment_IdAndAction(comment.getId(), "DISLIKE");
+            return commentMapper.mapToDTO(comment, replyCounts, likeCounts, dislikeCounts);
+        }).toList();
+    }
+
+    /**
+     * Lấy tất cả các comment (có parent = null) của một video có phân trang
+     * @param videoId, pageSize, pageNumber
+     * @return danh sách comment cho trang hiện tại
+     */
+    @Transactional
+    public List<CommentResponse> getCommentsOfVideoWithPagination(String videoId, int pageNumber, int pageSize) {
+        var pageable = PageRequest.of(pageNumber, pageSize);
+        var commentList = commentPaginationRepository.findCommentByVideoIdAndParentIsNull(videoId, pageable);
         return commentList.stream().map(comment -> {
             Integer replyCounts = comment.getReply().size();
             Integer likeCounts = interactRepository.countByComment_IdAndAction(comment.getId(), "LIKE");

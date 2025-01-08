@@ -3,7 +3,7 @@ package com.nlu.app.event;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nlu.app.common.share.KafkaMessage;
 import com.nlu.app.common.share.SagaAction;
-import com.nlu.app.event.handler.CreateNewNotification;
+import com.nlu.app.event.handler.CreateNewNotificationHandler;
 import com.nlu.app.event.handler.CreateNewVideoHandler;
 import com.nlu.app.event.handler.UserReplyHandler;
 import lombok.AccessLevel;
@@ -15,7 +15,6 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
-import java.time.Duration;
 
 @Component
 @RequiredArgsConstructor
@@ -25,7 +24,7 @@ public class EventListener {
     ObjectMapper objectMapper;
     UserReplyHandler USER_REPLY_EVENT_HANDLER;
     CreateNewVideoHandler CREATE_NEW_VIDEO_HANDLER;
-    CreateNewNotification CREATE_NEW_NOTIFICATION_HANDLER;
+    CreateNewNotificationHandler CREATE_NEW_NOTIFICATION_HANDLER;
 
     @KafkaListener(topics = {"comment.topics", "video.topics", "notification.topics"}, groupId = "notification-service")
     public void handleComment(@Payload String payload,

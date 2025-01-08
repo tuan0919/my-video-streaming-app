@@ -13,7 +13,7 @@ public class ClientView_NotificationDTO {
     String content;
     String createTime;
     String thumbnail;
-    String href;
+    String routeObjectId;
     String relatedObjectId;
     String avatar;
     String relatedEvent;

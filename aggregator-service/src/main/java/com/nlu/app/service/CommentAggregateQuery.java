@@ -80,11 +80,17 @@ public class CommentAggregateQuery {
                 });
     }
 
-    public Mono<List<ClientView_CommentDTO>> getCommentsByVideoId(String videoId, String userId, String username) {
+    public Mono<List<ClientView_CommentDTO>> getCommentsByVideoId(
+            String videoId,
+            String userId,
+            String username,
+            int page,
+            int pageSize
+    ) {
         var identityWebClient = WebClientBuilder.createClient(iWebClient, IdentityWebClient.class);
         var commentWebClient = WebClientBuilder.createClient(cWebClient, CommentWebClient.class);
         var profileWebClient = WebClientBuilder.createClient(pWebClient, ProfileWebClient.class);
-        return commentWebClient.getCommentsByVideoId(videoId, userId, username)
+        return commentWebClient.getCommentsByVideoId(videoId, userId, username, page, pageSize)
                 .flatMap(response -> {
                     var commentIds = response.getResult().stream().map(CommentResponse::getId).toList();
                     var ownerIds = response.getResult().stream().map(CommentResponse::getUserId).toList();
