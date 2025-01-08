@@ -25,3 +25,5 @@ profile-service:
   domain: lb://profile-service
 aggregator-service:
   domain: lb://aggregator-service
+socket-service:
+  domain: lb://socket-service

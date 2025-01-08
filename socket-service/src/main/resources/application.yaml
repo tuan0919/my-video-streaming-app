@@ -4,7 +4,7 @@ spring:
   application:
     name: socket-service
   servlet:
-    context-path: /notification
+    context-path: /socket
   kafka:
     consumer:
       bootstrap-servers: localhost:19092,localhost:29092,localhost:39092
