@@ -27,3 +27,5 @@ aggregator-service:
   domain: lb://aggregator-service
 socket-service:
   domain: lb://socket-service
+notification-service:
+  domain: lb://notification-service
