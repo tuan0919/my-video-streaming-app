@@ -14,7 +14,6 @@ gateway-service:
     /identity/auth/introspect,
     /identity/users/registration,
     /identity/auth/refresh,
-# Test purpose only:
     /socket/websocket/send,
 
 identity-service:
