@@ -14,7 +14,7 @@ gateway-service:
     /identity/auth/introspect,
     /identity/users/registration,
     /identity/auth/refresh,
-    /socket/websocket/send,
+    /socket/send,
 
 identity-service:
   domain: lb://identity-service
