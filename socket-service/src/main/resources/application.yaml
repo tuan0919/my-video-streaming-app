@@ -1,10 +1,10 @@
 server:
   port: 0
+  servlet:
+    context-path: /socket
 spring:
   application:
     name: socket-service
-  servlet:
-    context-path: /socket
   kafka:
     consumer:
       bootstrap-servers: localhost:19092,localhost:29092,localhost:39092

@@ -104,7 +104,7 @@ gateway-service:
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]
 
     - path: /socket/websocket
-      method: [ "GET" ]
+      method: [ "GET", "POST", "PUT" ]
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]
 
 eureka:

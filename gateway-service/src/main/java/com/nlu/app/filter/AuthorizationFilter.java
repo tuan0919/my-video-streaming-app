@@ -83,6 +83,8 @@ public class AuthorizationFilter extends AbstractGatewayFilterFactory<Authorizat
             }
             for (var role : roles) {
                 if (authorRequired.getRoles().contains(role)) {
+                    log.info(String.format("OK, path: %s is accept role: %s", path, role));
+                    log.info("end AuthorizationFilter");
                     return chain.filter(exchange);
                 }
             }

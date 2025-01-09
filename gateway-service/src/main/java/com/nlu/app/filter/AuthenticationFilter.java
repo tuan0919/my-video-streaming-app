@@ -83,6 +83,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                                     .header("X-Roles", String.join(",", roles))
                                     .build();
                             exchange.getAttributes().put("roles", roles);
+                            log.info("end AuthenticationFilter");
                             return chain.filter(exchange.mutate().request(mutatedRequest).build());
                         }
                         else {

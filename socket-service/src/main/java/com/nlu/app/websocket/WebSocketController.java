@@ -1,7 +1,10 @@
 package com.nlu.app.websocket;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nlu.app.common.share.dto.AppResponse;
 import com.nlu.app.common.share.dto.notification_service.request.SendMessageWsRequest;
+import com.nlu.app.dto.MessageDTO;
 import com.nlu.app.service.WebSocketService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -26,12 +29,9 @@ public class WebSocketController {
     private final SimpMessagingTemplate messagingTemplate;
 
     // Lắng nghe tin nhắn từ client gửi tới "/app/message"
-    @MessageMapping("/message")
-    public void handleMessage(@Payload String message, StompHeaderAccessor stompHeaderAccessor) {
-        System.out.println("Received message: " + message);
-        String username = stompHeaderAccessor.getSessionAttributes().get("userId").toString();
-        String topic = String.format("/topic/%s/notification", username);
-        messagingTemplate.convertAndSend(topic, "You sent: "+message);
+    @PostMapping("/send")
+    public void handleMessage(@RequestBody MessageDTO msg) {
+        messagingTemplate.convertAndSend(msg.getTopic(), msg.getMessage());
     }
 
     @PostMapping("/ws")
