@@ -103,6 +103,10 @@ gateway-service:
       method: [ "GET" ]
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]
 
+    - path: /notification/users/count
+      method: [ "POST" ]
+      roles: [ "ROLE_USER" ]
+
     - path: /socket/websocket
       method: [ "GET", "POST", "PUT" ]
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]

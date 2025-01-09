@@ -57,6 +57,10 @@ public class NotificationService {
         return list.stream().map(notificationMapper::mapToDTO).toList();
     }
 
+    public int countUnreadMessage(String userId) {
+        return repository.countAllByUserIdAndAndIsRead(userId, false);
+    }
+
     @Transactional
     public String insert(SagaAdvancedRequest sagaRequest) {
         String sagaStep = sagaRequest.getSagaStep();

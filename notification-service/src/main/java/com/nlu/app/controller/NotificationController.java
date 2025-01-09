@@ -5,6 +5,7 @@ import com.nlu.app.common.share.dto.AppResponse;
 import com.nlu.app.common.share.dto.CompensationRequest;
 import com.nlu.app.common.share.dto.notification_service.request.NotificationCreationRequest;
 import com.nlu.app.common.share.dto.notification_service.response.NotificationResponse;
+import com.nlu.app.common.share.dto.notification_service.response.UnreadCountResponse;
 import com.nlu.app.common.share.dto.saga.SagaAdvancedRequest;
 import com.nlu.app.service.CompensationService;
 import com.nlu.app.service.NotificationService;
@@ -48,6 +49,15 @@ public class NotificationController {
                                                                             @RequestParam("pageSize") Integer pageSize) {
         var response = service.getNotificationsOfUser(userId, page, pageSize);
         return AppResponse.<List<NotificationResponse>>builder()
+                .result(response)
+                .build();
+    }
+
+    @PostMapping("/count")
+    public AppResponse<UnreadCountResponse> countUnreadNotification(@RequestHeader("X-UserId") String userId) {
+        int count = service.countUnreadMessage(userId);
+        var response = UnreadCountResponse.builder().unreadCount(count).build();
+        return AppResponse.<UnreadCountResponse>builder()
                 .result(response)
                 .build();
     }

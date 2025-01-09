@@ -27,3 +27,14 @@ eureka:
     register-with-eureka: true
   instance:
     prefer-ip-address: true
+
+profile-service:
+  domain: lb://profile-service
+identity-service:
+  domain: lb://identity-service
+video-streaming-service:
+  domain: lb://video-streaming-service
+notification-service:
+  domain: lb://notification-service
+comment-service:
+  domain: lb://comment-service

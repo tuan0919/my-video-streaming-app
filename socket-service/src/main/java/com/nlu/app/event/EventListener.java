@@ -3,6 +3,7 @@ package com.nlu.app.event;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nlu.app.common.share.KafkaMessage;
 import com.nlu.app.common.share.SagaAction;
+import com.nlu.app.event.handler.CreateNewNotificationHandler;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -18,8 +19,7 @@ import org.springframework.stereotype.Component;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class EventListener {
-    ObjectMapper objectMapper;
-
+    CreateNewNotificationHandler CREATE_NEW_NOTIFICATION_HANDLER;
     @KafkaListener(topics = {"notification.topics"}, groupId = "socket-service")
     public void handleComment(@Payload String payload,
                               @Header("sagaAction") String sagaAction,
@@ -32,10 +32,12 @@ public class EventListener {
         try {
             switch (sagaAction) {
                 case SagaAction.CREATE_NEW_NOTIFICATION -> {
-
+                    log.info("SagaAction: {}, xử lý message này", sagaAction);
+                    CREATE_NEW_NOTIFICATION_HANDLER.consumeEvent(message, ack);
                 }
                 default -> {
                     // message này không thuộc nhiệm vụ của consumer group này, skip
+                    log.info("SagaAction: {}, skip", sagaAction);
                     ack.acknowledge();
                 }
             }

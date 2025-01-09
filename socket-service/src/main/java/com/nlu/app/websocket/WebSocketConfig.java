@@ -35,15 +35,15 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                     @Override
                     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
                         // Lấy thông tin userId từ header
-                        String username = request.getHeaders().getFirst("X-Username");
-                        System.out.println("Current websocket username: " + username);
-                        if (username == null) {
+                        String userId = request.getHeaders().getFirst("X-UserId");
+                        System.out.println("Current websocket userId: " + userId);
+                        if (userId == null) {
                             response.setStatusCode(HttpStatus.FORBIDDEN); // Nếu không có userId, từ chối kết nối
                             return false;
                         }
 
                         // Lưu userId vào attributes để có thể truy cập sau này trong WebSocket session
-                        attributes.put("userId", username);
+                        attributes.put("userId", userId);
                         return true;
                     }
 

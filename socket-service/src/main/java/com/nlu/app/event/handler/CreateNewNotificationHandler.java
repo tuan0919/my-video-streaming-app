@@ -3,8 +3,8 @@ package com.nlu.app.event.handler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nlu.app.common.share.KafkaMessage;
-import com.nlu.app.common.share.event.NewVideoCreatedEvent;
-import com.nlu.app.repository.NotificationRepository;
+import com.nlu.app.common.share.event.NotificationCreatedEvent;
+import com.nlu.app.service.NotificationService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -19,20 +19,25 @@ import org.springframework.transaction.annotation.Transactional;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class CreateNewNotificationHandler {
-    NotificationRepository notificationRepository;
     ObjectMapper objectMapper;
+    NotificationService notificationService;
     private final SimpMessagingTemplate messageBus;
     @Transactional
     public void consumeEvent(KafkaMessage message, Acknowledgment ack) throws JsonProcessingException {
-        var event = objectMapper.readValue(message.payload(), NewVideoCreatedEvent.class);
-        int unreadMessage = notificationRepository.countAllByUserIdAndAndIsRead(event.getUserId(), false);
-        System.out.println("consumed message for userId: " + event.getUserId());
-        messageBus.convertAndSend(String.format("/topic/%s/notification", event.getUserId()),
-                String.format("""
+        var event = objectMapper.readValue(message.payload(), NotificationCreatedEvent.class);
+        var unreadMessage = notificationService.countUnreadNotification(event.getUserId());
+        // publish event nay vao topic tuong ung
+        String topic = String.format("/topic/%s/notification", event.getUserId());
+        log.info("NotificationCreatedEvent: {}", event);
+        String payload = String.format("""
                 {
-                    "message_count": %d
+                    "type": "count_unread"
+                    "payload": %s,
                 }
-                """, unreadMessage));
+                """, objectMapper.writeValueAsString(unreadMessage));
+        log.info("Publish message vào topic: {}", topic);
+        messageBus.convertAndSend(topic, payload);
+        log.info("Consumed message thành công!");
         ack.acknowledge();
     }
 }

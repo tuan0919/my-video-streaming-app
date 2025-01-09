@@ -27,10 +27,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class WebSocketController {
     WebSocketService webSocketService;
     private final SimpMessagingTemplate messagingTemplate;
-
-    // Lắng nghe tin nhắn từ client gửi tới "/app/message"
     @PostMapping("/send")
     public void handleMessage(@RequestBody MessageDTO msg) {
+        log.info("Send message to: {}", msg.getTopic());
+        log.info("Message: {}", msg.getMessage());
         messagingTemplate.convertAndSend(msg.getTopic(), msg.getMessage());
     }
 

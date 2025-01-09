@@ -75,13 +75,6 @@ public class CommentService {
         }
         var comment = commentMapper.mapToEntity(userId, request);
         _insertToDB_(comment, parentId);
-        var notificationWebClient = WebClientBuilder.createClient(nWebClient, NotificationWebClient.class);
-        var wsRequest = SendMessageWsRequest.builder()
-                .topic("/topic/video/"+comment.getVideoId())
-                .action("COMMENT_CHANGE")
-                .payload("none")
-                .build();
-        notificationWebClient.sendToClient(wsRequest).block();
         return commentMapper.mapToDTO(comment, 0, 0, 0);
     }
 
