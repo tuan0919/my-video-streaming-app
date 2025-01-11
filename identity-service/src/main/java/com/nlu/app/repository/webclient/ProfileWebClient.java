@@ -16,8 +16,8 @@ import com.nlu.app.dto.AppResponse;
 import reactor.core.publisher.Mono;
 
 public interface ProfileWebClient {
-    @PostExchange(url = "profile/users/internal/new", contentType = MediaType.APPLICATION_JSON_VALUE)
-    Mono<AppResponse<ProfileCreationResponse>> createProfile(@RequestBody ProfileCreationRequest request);
+    @PostExchange(url = "profile/users", contentType = MediaType.APPLICATION_JSON_VALUE)
+    Mono<AppResponse<String>> createProfile(@RequestBody ProfileCreationRequest request);
     @PostExchange(url = "profile/users/internal/saga", contentType = MediaType.APPLICATION_JSON_VALUE)
     Mono<String> sagaRequest(@RequestBody SagaAdvancedRequest request);
     @PostExchange(url = "profile/users/internal/compensation", contentType = MediaType.APPLICATION_JSON_VALUE)

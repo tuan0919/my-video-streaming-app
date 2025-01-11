@@ -11,6 +11,7 @@ import com.nlu.app.common.share.dto.profile_service.response.ProfileFollowStatus
 import com.nlu.app.common.share.dto.profile_service.response.ProfileResponseDTO;
 import com.nlu.app.common.share.event.ProfileCreatedEvent;
 import com.nlu.app.common.share.event.ProfileRemovedEvent;
+import com.nlu.app.common.share.event.ProfileUpdatedEvent;
 import com.nlu.app.entity.Outbox;
 import com.nlu.app.entity.Profile;
 import com.nlu.app.exception.ApplicationException;
@@ -25,6 +26,7 @@ public interface ProfileMapper {
     Profile toEntity(ProfileCreationRequest request);
     ProfileCreatedEvent toProfileCreatedEvent(Profile profile);
     ProfileRemovedEvent toProfileRemovedEvent(Profile profile);
+    ProfileUpdatedEvent toProfileUpdatedEvent(Profile profile);
     ProfileCreationResponse toResponseCreationDTO(Profile profile);
     ProfileResponseDTO toResponseDTO(Profile profile);
     @Mappings({

@@ -3,6 +3,8 @@ package com.nlu.app.event;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nlu.app.common.share.KafkaMessage;
 import com.nlu.app.common.share.SagaAction;
+import com.nlu.app.common.share.SagaAdvancedStep;
+import com.nlu.app.event.handler.CreateNewUserHandler;
 import com.nlu.app.event.handler.CreateNewVideoHandler;
 import com.nlu.app.event.handler.UserReplyHandler;
 import lombok.AccessLevel;
@@ -23,6 +25,7 @@ public class EventListener {
     ObjectMapper objectMapper;
     UserReplyHandler USER_REPLY_EVENT_HANDLER;
     CreateNewVideoHandler CREATE_NEW_VIDEO_HANDLER;
+    CreateNewUserHandler CREATE_NEW_USER_HANDLER;
 
     @KafkaListener(topics = {"comment.topics", "video.topics"}, groupId = "notification-service")
     public void handleComment(@Payload String payload,
@@ -44,6 +47,15 @@ public class EventListener {
                 case SagaAction.CREATE_NEW_VIDEO -> {
                     log.info("SagaAction: {}, xử lý message này", sagaAction);
                     CREATE_NEW_VIDEO_HANDLER.consumeEvent(message, ack);
+                }
+                case SagaAction.CREATE_NEW_USER -> {
+                    if (message.sagaStep().equals(SagaAdvancedStep.PROFILE_CREATE)) {
+                        log.info("SagaAction: {}, SagaStep: {}, xử lý message này", sagaAction, message.sagaStep());
+                        CREATE_NEW_USER_HANDLER.consumeEvent(message, ack);
+                    } else {
+                        log.info("SagaAction: {}, SagaStep: {}, bỏ qua message này", sagaAction, message.sagaStep());
+                        ack.acknowledge();
+                    }
                 }
                 default -> {
                     // message này không thuộc nhiệm vụ của consumer group này, skip

@@ -5,10 +5,7 @@ import com.nlu.app.common.share.SagaAction;
 import com.nlu.app.common.share.SagaAdvancedStep;
 import com.nlu.app.common.share.dto.file_service.request.MoveFileRequest;
 import com.nlu.app.common.share.dto.file_service.request.UploadFileRequest;
-import com.nlu.app.common.share.dto.profile_service.request.ChangeAvatarRequest;
-import com.nlu.app.common.share.dto.profile_service.request.FollowRequest;
-import com.nlu.app.common.share.dto.profile_service.request.GetLinkUploadAvatarRequest;
-import com.nlu.app.common.share.dto.profile_service.request.ProfileCreationRequest;
+import com.nlu.app.common.share.dto.profile_service.request.*;
 import com.nlu.app.common.share.dto.profile_service.response.*;
 import com.nlu.app.common.share.dto.saga.SagaAdvancedRequest;
 import com.nlu.app.entity.Outbox;
@@ -110,6 +107,22 @@ public class ProfileService implements IProfileService {
         return profileMapper.toResponseCreationDTO(profile);
     }
 
+    @Transactional
+    public void update(String userId, UpdateProfileRequest request) {
+        var oProfile = profileRepository.findProfileByUserId(userId);
+        if (oProfile.isEmpty()) {
+            throw new ApplicationException(ErrorCode.PROFILE_NOT_EXISTED);
+        }
+        var profile = oProfile.get();
+        profile.setAddress(request.getAddress());
+        profile.setCountry(request.getCountry());
+        profile.setFullName(request.getFullName());
+        profile.setGender(request.getGender());
+        var event = profileMapper.toProfileUpdatedEvent(profile);
+        Outbox outbox = outboxMapper.toSuccessOutbox(event, profile.getUserId(), SagaAction.UPDATE_PROFILE);
+        outboxRepository.save(outbox);
+    }
+
     /**
      * Kiểm tra xem liệu một user có id là userId có đang follow một user khác có id là followId không
      * @param userId
@@ -138,7 +151,12 @@ public class ProfileService implements IProfileService {
             throw new ApplicationException(ErrorCode.USER_NOT_EXISTED);
         }
         var dto = profileMapper.toResponseDTO(oProfile.get());
-        var avatar = fileService.generateResourceURL(oProfile.get().getAvatarId());
+        String avatar;
+        try {
+             avatar = fileService.generateResourceURL(oProfile.get().getAvatarId());
+        } catch (Exception e) {
+            avatar = "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
+        }
         dto.setAvatar(avatar);
         return dto;
     }
@@ -194,6 +212,15 @@ public class ProfileService implements IProfileService {
         profileRepository.save(profile);
         var event = profileMapper.toProfileCreatedEvent(profile);
         Outbox outbox = outboxMapper.toSuccessOutbox(event, sagaId, sagaAction);
+        outboxRepository.save(outbox);
+        return "OK";
+    }
+
+    public String create(ProfileCreationRequest request) {
+        var profile = profileMapper.toEntity(request);
+        profileRepository.save(profile);
+        var event = profileMapper.toProfileCreatedEvent(profile);
+        Outbox outbox = outboxMapper.toSuccessOutbox(event, request.getUserId(), SagaAction.CREATE_NEW_USER);
         outboxRepository.save(outbox);
         return "OK";
     }

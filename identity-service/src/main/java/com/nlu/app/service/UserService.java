@@ -5,6 +5,7 @@ import java.util.*;
 import com.nlu.app.common.share.SagaAction;
 import com.nlu.app.common.share.dto.notification_service.request.NotificationCreationRequest;
 import com.nlu.app.common.share.dto.profile_service.request.ProfileCreationRequest;
+import com.nlu.app.common.share.dto.profile_service.request.UpdateProfileRequest;
 import com.nlu.app.mapper.OutboxMapper;
 import com.nlu.app.repository.UserPaginationRepository;
 import com.nlu.app.repository.webclient.NotificationWebClient;
@@ -50,6 +51,7 @@ public class UserService {
     OutboxMapper outboxMapper;
     PasswordEncoder passwordEncoder;
     RedisTemplate<String, Object> redisTemplate;
+    ProfileService profileService;
 
     @Transactional
     public String createUser(UserCreationRequest request) {
@@ -71,6 +73,35 @@ public class UserService {
         Outbox outbox = outboxMapper.toSuccessOutbox(event, sagaId, SagaAction.CREATE_NEW_USER);
         outboxRepository.save(outbox);
         return sagaId;
+    }
+
+    @Transactional
+    public String createUser_synchronous(UserCreationRequest request) {
+        if(userRepository.findByUsername(request.getUsername()).isPresent()) {
+            throw new ApplicationException(ErrorCode.USER_ALREADY_EXISTED);
+        }
+        User user = userMapper.toUser(request);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        HashSet<Role> roles = new HashSet<>();
+
+        roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
+        user.setRoles(roles);
+        user.setEmailVerified(false);
+
+        userRepository.save(user);
+        var event = userMapper.toUserCreatedEvent(user);
+        Outbox outbox = outboxMapper.toSuccessOutbox(event, user.getId(), SagaAction.CREATE_NEW_USER);
+        outboxRepository.save(outbox);
+        var profileCreationRequest = ProfileCreationRequest.builder()
+                .fullName(user.getUsername())
+                .userId(event.getUserId())
+                .bio(null)
+                .address(null)
+                .gender(true)
+                .country(null)
+                .build();
+        profileService.createProfile(profileCreationRequest);
+        return "OK";
     }
 
     public Page<String> searchUserIdByUsername(Integer page, Integer pageSize, String username) {

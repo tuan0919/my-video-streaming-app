@@ -8,6 +8,7 @@ import com.nlu.app.common.share.SagaCompensationStep;
 import com.nlu.app.common.share.SagaStatus;
 import com.nlu.app.common.share.event.ProfileCreatedEvent;
 import com.nlu.app.common.share.event.ProfileRemovedEvent;
+import com.nlu.app.common.share.event.ProfileUpdatedEvent;
 import com.nlu.app.entity.Outbox;
 import com.nlu.app.exception.ApplicationException;
 import com.nlu.app.exception.ErrorCode;
@@ -24,6 +25,15 @@ public interface OutboxMapper {
     @Mapping(target = "payload", source = "event", qualifiedByName = "mapToJSON")
     @Mapping(target = "aggregateId", source = "event.profileId")
     Outbox toSuccessOutbox(ProfileCreatedEvent event, String sagaId, String sagaAction);
+
+    @Mapping(target = "aggregateType", constant = "profile.topics")
+    @Mapping(target = "sagaId", source = "sagaId")
+    @Mapping(target = "sagaAction", source = "sagaAction")
+    @Mapping(target = "sagaStep", constant = SagaAdvancedStep.PROFILE_UPDATE)
+    @Mapping(target = "sagaStepStatus", constant = SagaStatus.SUCCESS)
+    @Mapping(target = "payload", source = "event", qualifiedByName = "mapToJSON")
+    @Mapping(target = "aggregateId", source = "event.profileId")
+    Outbox toSuccessOutbox(ProfileUpdatedEvent event, String sagaId, String sagaAction);
 
     @Mapping(target = "aggregateType", constant = "profile.topics")
     @Mapping(target = "sagaId", source = "sagaId")

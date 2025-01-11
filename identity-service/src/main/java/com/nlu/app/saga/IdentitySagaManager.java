@@ -22,7 +22,7 @@ public class IdentitySagaManager {
     CreateNewUserSaga NEW_USER_SAGA;
     UpdateIdentitySaga UPDATE_IDENTITY_SAGA;
 
-    @KafkaListener(topics = {"identity.topics", "notification.topics", "profile.topics"}, groupId = "identity-service.saga")
+    // @KafkaListener(topics = {"identity.topics", "notification.topics", "profile.topics"}, groupId = "identity-service.saga")
     public void handleSagaEvent(@Payload String payload,
                                 @Header("sagaAction") String sagaAction,
                                 @Header("sagaStep") String sagaStep,

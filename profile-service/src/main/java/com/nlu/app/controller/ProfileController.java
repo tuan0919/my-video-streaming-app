@@ -1,13 +1,10 @@
 package com.nlu.app.controller;
 import com.nlu.app.common.share.dto.CompensationRequest;
-import com.nlu.app.common.share.dto.profile_service.request.ChangeAvatarRequest;
-import com.nlu.app.common.share.dto.profile_service.request.FollowRequest;
-import com.nlu.app.common.share.dto.profile_service.request.GetLinkUploadAvatarRequest;
+import com.nlu.app.common.share.dto.profile_service.request.*;
 import com.nlu.app.common.share.dto.profile_service.response.*;
 import com.nlu.app.common.share.dto.saga.SagaAdvancedRequest;
 import com.nlu.app.dto.AppResponse;
 import com.nlu.app.service.ICompensationService;
-import com.nlu.app.service.IProfileService;
 import com.nlu.app.service.ProfileService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +29,13 @@ public class ProfileController {
     public AppResponse<String> requestSaga(@RequestBody SagaAdvancedRequest sagaRequest) {
         return AppResponse.<String>builder()
                 .result(profileService.sagaRequest(sagaRequest))
+                .build();
+    }
+
+    @PostMapping
+    public AppResponse<String> requestSaga(@RequestBody ProfileCreationRequest request) {
+        return AppResponse.<String>builder()
+                .result(profileService.create(request))
                 .build();
     }
 
@@ -96,6 +100,16 @@ public class ProfileController {
                                                           @RequestHeader("X-Username") String username) {
         return AppResponse.<ChangeAvatarResponse>builder()
                 .result(profileService.changeAvatar(request, userId, username))
+                .build();
+    }
+
+    @PutMapping("/info")
+    public AppResponse<String> updateProfile(@RequestBody UpdateProfileRequest request,
+                                                           @RequestHeader("X-UserId") String userId,
+                                                           @RequestHeader("X-Username") String username) {
+        profileService.update(userId, request);
+        return AppResponse.<String>builder()
+                .result("OK")
                 .build();
     }
 
