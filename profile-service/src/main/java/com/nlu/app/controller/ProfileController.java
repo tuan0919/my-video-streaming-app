@@ -113,6 +113,24 @@ public class ProfileController {
                 .build();
     }
 
+    @PostMapping("/save/video")
+    public AppResponse<String> saveVideo(@RequestHeader("X-UserId") String userId,
+                                         @RequestBody SaveVideoRequest request) {
+        return AppResponse.<String>builder()
+                .result(profileService.saveVideo(userId, request))
+                .build();
+    }
+
+    @GetMapping("/save/video")
+    public AppResponse<List<String>> findSavedVideo(@RequestHeader("X-UserId") String userId,
+                                                    @RequestParam("page") Integer page,
+                                                    @RequestParam("pageSize") Integer pageSize) {
+        return AppResponse.<List<String>>builder()
+                .result(profileService.getSavedVideoIds(page, pageSize, userId)
+                        .stream().toList())
+                .build();
+    }
+
     @PostMapping("/internal/compensation")
     public String compensation(@RequestBody CompensationRequest request) {
         compensationService.doCompensation(request.getSagaId());

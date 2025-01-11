@@ -3,6 +3,7 @@ package com.nlu.app.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -41,4 +42,10 @@ public class Profile {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     Set<Profile> followers;
+    @ElementCollection
+    @CollectionTable(name = "saved_videos", joinColumns = @JoinColumn(name = "profile_id"))
+    @Column(name = "video_id")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    Set<String> savedVideoIds = new HashSet<>();
 }

@@ -18,6 +18,9 @@ import com.nlu.app.repository.OutboxRepository;
 import com.nlu.app.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -185,6 +188,28 @@ public class ProfileService implements IProfileService {
         }
         var profile = oProfile.get();
         return profileMapper.toResponseFollowStatusDTO(profile);
+    }
+
+    @Transactional
+    public String saveVideo(String userId, SaveVideoRequest request) {
+        var oProfile = profileRepository.findProfileByUserId(userId);
+        if (oProfile.isEmpty()) {
+            throw new ApplicationException(ErrorCode.PROFILE_NOT_EXISTED);
+        }
+        var profile = oProfile.get();
+        profile.getSavedVideoIds().add(request.getVideoId());
+        profileRepository.save(profile);
+        return "OK";
+    }
+
+    public Page<String> getSavedVideoIds(Integer page, Integer pageSize, String userId) {
+        var oProfile = profileRepository.findProfileByUserId(userId);
+        if (oProfile.isEmpty()) {
+            throw new ApplicationException(ErrorCode.PROFILE_NOT_EXISTED);
+        }
+        var profile = oProfile.get();
+        Pageable pageable = PageRequest.of(page, pageSize);
+        return profileRepository.findSavedVideosByProfileId(profile.getProfileId(), pageable);
     }
 
     @Override

@@ -63,6 +63,10 @@ gateway-service:
       method: [ "GET" ]
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]
 
+    - path: /aggregator/query/user/saved
+      method: [ "GET" ]
+      roles: [ "ROLE_USER", "ROLE_ADMIN" ]
+
     - path: /aggregator/query/video/*/comments
       method: [ "GET" ]
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]
@@ -97,6 +101,10 @@ gateway-service:
 
     - path: /profile/users/info
       method: [ "PUT" ]
+      roles: [ "ROLE_USER", "ROLE_ADMIN" ]
+
+    - path: /profile/users/save/video
+      method: [ "POST" ]
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]
 
     - path: /profile/users/get/avatar

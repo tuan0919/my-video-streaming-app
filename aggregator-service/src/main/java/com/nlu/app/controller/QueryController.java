@@ -54,6 +54,17 @@ public class QueryController {
                         .build());
     }
 
+    @GetMapping("/user/saved")
+    public Mono<AppResponse<List<ClientView_SearchVideoDTO>>> getSavedVideos(@RequestHeader("X-UserId") String userId,
+                                                                          @RequestHeader("X-Username") String username,
+                                                                          @RequestParam("page") Integer page,
+                                                                          @RequestParam("pageSize") Integer pageSize) {
+        return videoAggregateQuery.getSavedVideo(page, pageSize, userId, username)
+                .map(response -> AppResponse.<List<ClientView_SearchVideoDTO>>builder()
+                        .result(response)
+                        .build());
+    }
+
     @GetMapping("/search/user")
     public Mono<AppResponse<List<ClientView_SearchUserDTO>>> searchUser(@RequestParam("page") Integer page,
                                                                                 @RequestParam("pageSize") Integer pageSize,

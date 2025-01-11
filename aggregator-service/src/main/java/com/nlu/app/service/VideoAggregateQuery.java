@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
@@ -107,6 +108,27 @@ public class VideoAggregateQuery {
                             .map(result -> (ClientView_VideoDetailsDTO) result)
                             .collect(Collectors.toList()));
                 })
+                .switchIfEmpty(Mono.just(Arrays.asList())).onErrorResume(e -> {
+                    if (e instanceof Exception) {
+                        ServiceException exception = MyUtils.convertException((Exception) e);
+                        return Mono.error(exception);
+                    }
+                    e.printStackTrace();
+                    return Mono.error(e);
+                });
+    }
+
+    public Mono<List<ClientView_SearchVideoDTO>> getSavedVideo(Integer page, Integer pageSize, String userId, String username) {
+        var profileWebClient = WebClientBuilder.createClient(pWebClient, ProfileWebClient.class);
+        var videoStreamingWebClient = WebClientBuilder.createClient(vWebClient, VideoStreamingWebClient.class);
+        return profileWebClient.getSavedVideoIds(userId, page, pageSize).map(AppResponse::getResult)
+                .flatMapMany(ids -> Flux.fromIterable(ids))
+                .flatMap(videoId -> {
+                    return videoStreamingWebClient.getVideoDetails(videoId, userId, username)
+                            .map(AppResponse::getResult);
+                })
+                .map(details -> videoAggregateMapper.mapToDTO(details))
+                .collectList()
                 .switchIfEmpty(Mono.just(Arrays.asList())).onErrorResume(e -> {
                     if (e instanceof Exception) {
                         ServiceException exception = MyUtils.convertException((Exception) e);
