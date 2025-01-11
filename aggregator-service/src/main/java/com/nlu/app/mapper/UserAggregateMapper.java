@@ -1,6 +1,7 @@
 package com.nlu.app.mapper;
 
 import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_CommentDTO;
+import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_SearchUserDTO;
 import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_UserPageDetailsDTO;
 import com.nlu.app.common.share.dto.comment_service.response.CommentResponse;
 import com.nlu.app.common.share.dto.identity_service.response.UserResponse;
@@ -45,4 +46,23 @@ public interface UserAggregateMapper {
     })
     ClientView_UserPageDetailsDTO.UserStats toStats(ProfileFollowStatusResponse statusResponse,
                                                     VideoCountsResponse videoCountsResponse);
+
+/////////////////////////////////////////////////////////////////////
+    @Mappings({
+            @Mapping(target = "user", expression = "java(toUser(user, profile))"),
+            @Mapping(target = "stat", expression = "java(toStat(status))"),
+    })
+    ClientView_SearchUserDTO toDTO(UserResponse user,
+                                   ProfileResponseDTO profile,
+                                   ProfileFollowStatusResponse status);
+    @Mappings({
+            @Mapping(target = "userId", source = "userResponse.id"),
+            @Mapping(target = "username", source = "userResponse.username"),
+            @Mapping(target = "avatar", source = "profileResponse.avatar"),
+            @Mapping(target = "bio", source = "profileResponse.bio"),
+    })
+    ClientView_SearchUserDTO.User toUser(UserResponse userResponse,
+                                         ProfileResponseDTO profileResponse);
+    @Mapping(target = "followersCounts", source = "status.followersCounts")
+    ClientView_SearchUserDTO.Stat toStat(ProfileFollowStatusResponse status);
 }

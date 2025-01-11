@@ -19,6 +19,10 @@ gateway-service:
       method: ["PUT", "DELETE"]
       roles: ["ROLE_ADMIN"]
 
+    - path: /identity/users/search/id
+      method: [ "GET" ]
+      roles: [ "ROLE_USER" ]
+
     - path: /video-streaming/videos
       method: ["POST"]
       roles: ["ROLE_USER", "ROLE_ADMIN"]
@@ -52,6 +56,10 @@ gateway-service:
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]
 
     - path: /aggregator/query/search/video
+      method: [ "GET" ]
+      roles: [ "ROLE_USER", "ROLE_ADMIN" ]
+
+    - path: /aggregator/query/search/user
       method: [ "GET" ]
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]
 

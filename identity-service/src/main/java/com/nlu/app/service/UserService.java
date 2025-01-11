@@ -6,8 +6,11 @@ import com.nlu.app.common.share.SagaAction;
 import com.nlu.app.common.share.dto.notification_service.request.NotificationCreationRequest;
 import com.nlu.app.common.share.dto.profile_service.request.ProfileCreationRequest;
 import com.nlu.app.mapper.OutboxMapper;
+import com.nlu.app.repository.UserPaginationRepository;
 import com.nlu.app.repository.webclient.NotificationWebClient;
 import com.nlu.app.repository.webclient.ProfileWebClient;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -40,6 +43,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 @Slf4j
 public class UserService {
     UserRepository userRepository;
+    UserPaginationRepository userPaginationRepository;
     RoleRepository roleRepository;
     OutboxRepository outboxRepository;
     UserMapper userMapper;
@@ -67,6 +71,11 @@ public class UserService {
         Outbox outbox = outboxMapper.toSuccessOutbox(event, sagaId, SagaAction.CREATE_NEW_USER);
         outboxRepository.save(outbox);
         return sagaId;
+    }
+
+    public Page<String> searchUserIdByUsername(Integer page, Integer pageSize, String username) {
+        var pageable = PageRequest.of(page, pageSize);
+        return userPaginationRepository.searchUserIdByUsername(username, pageable);
     }
 
     public UserResponse getMyInfo() {

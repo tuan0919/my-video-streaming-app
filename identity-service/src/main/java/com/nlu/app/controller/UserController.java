@@ -69,6 +69,16 @@ public class UserController {
                 .build();
     }
 
+    @GetMapping("/search/id")
+    AppResponse<List<String>> searchUserIdByUsername(@RequestParam("page") Integer page,
+                                                     @RequestParam("pageSize") Integer pageSize,
+                                                     String username) {
+        return AppResponse.<List<String>>builder()
+                .result(userService.searchUserIdByUsername(page, pageSize, username)
+                        .stream().toList())
+                .build();
+    }
+
     @PostMapping("/query/map-by-ids")
     AppResponse<Map<String, UserResponse>> getUsersAndMapByIds(@RequestBody List<String> userIds) {
         var response = userService.getUsersMapByIds(userIds);

@@ -27,7 +27,8 @@ public class SecurityConfig {
         "/actuator/**",
         "/sagaTask/**",
         "/users/get/**",
-        "/users/query/map-by-ids"
+        "/users/query/map-by-ids",
+        "/users/search/id"
     };
 
     private final CustomJwtDecoder customJwtDecoder;

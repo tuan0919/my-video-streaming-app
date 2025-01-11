@@ -2,9 +2,11 @@ package com.nlu.app.service;
 
 import com.nlu.app.common.share.dto.AppResponse;
 import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_NotificationDTO;
+import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_SearchUserDTO;
 import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_UserDetailsDTO;
 import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_UserPageDetailsDTO;
 import com.nlu.app.common.share.dto.identity_service.response.RoleResponse;
+import com.nlu.app.common.share.dto.identity_service.response.UserProfileResponse;
 import com.nlu.app.common.share.dto.identity_service.response.UserResponse;
 import com.nlu.app.common.share.dto.notification_service.response.NotificationResponse;
 import com.nlu.app.common.share.dto.profile_service.response.ProfileFollowStatusResponse;
@@ -129,8 +131,6 @@ public class UserAggregateQuery {
                     e.printStackTrace();
                     return Mono.error(e);
                 });
-
-
     }
 
     public Mono<List<ClientView_NotificationDTO>> queryNotifications(String userId, String username, Integer page, Integer pageSize) {
@@ -160,6 +160,37 @@ public class UserAggregateQuery {
                 });
     }
 
+    public Mono<List<ClientView_SearchUserDTO>> searchUserByUsername(Integer page, Integer pageSize, String username) {
+        var identityWebClient = WebClientBuilder.createClient(iWebClient, IdentityWebClient.class);
+        var profileWebClient = WebClientBuilder.createClient(pWebClient, ProfileWebClient.class);
+        return identityWebClient.getUserIds_SearchByUsername(page, pageSize, username)
+                .flatMapMany(response -> Flux.fromIterable(response.getResult()))
+                .flatMap(id -> {
+                    Mono<UserResponse> userResponseMono = identityWebClient.getUser(id)
+                            .map(AppResponse::getResult);
+                    Mono<ProfileResponseDTO> userProfileResponseMono = profileWebClient.getProfile(id)
+                            .map(AppResponse::getResult);
+                    Mono<ProfileFollowStatusResponse> statusResponseMono = profileWebClient.getFollowStatus(id)
+                            .map(AppResponse::getResult);
+                    return Mono.zip(userResponseMono, userProfileResponseMono, statusResponseMono)
+                            .map(tuple -> {
+                                var userResponse = tuple.getT1();
+                                var profileResponse = tuple.getT2();
+                                var statResponse = tuple.getT3();
+                                return userAggregateMapper.toDTO(userResponse, profileResponse, statResponse);
+                            });
+                })
+                .collectList()
+                .onErrorResume(e -> {
+                    if (e instanceof Exception) {
+                        ServiceException exception = MyUtils.convertException((Exception) e);
+                        return Mono.error(exception);
+                    }
+                    e.printStackTrace();
+                    return Mono.error(e);
+                });
+    }
+
     private Mono<String> getVideoThumbnail(NotificationResponse notification, String userId, String username) {
         var commentWebClient = WebClientBuilder.createClient(cWebClient, CommentWebClient.class);
         var videoWebClient = WebClientBuilder.createClient(vWebClient, VideoStreamingWebClient.class);
@@ -174,7 +205,6 @@ public class UserAggregateQuery {
                         }).map(details -> details.getResult().getThumbnail());
             }
         }
-        // TODO: làm gì đó tại đây để lấy thông tin thumbnail video...
         return Mono.just("https://minecraft.wiki/images/thumb/New_Options_Screen.png/1200px-New_Options_Screen.png?1bde7");
     }
 

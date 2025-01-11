@@ -28,6 +28,6 @@ public class ClientView_SearchUserDTO {
     @Builder
     @FieldDefaults(level = AccessLevel.PRIVATE)
     public static class Stat {
-        int followersCount;
+        int followersCounts;
     }
 }
