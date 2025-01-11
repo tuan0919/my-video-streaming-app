@@ -1,6 +1,7 @@
 package com.nlu.app.common.share.webclient;
 
 import com.nlu.app.common.share.dto.AppResponse;
+import com.nlu.app.common.share.dto.profile_service.response.ProfileFollowStatusResponse;
 import com.nlu.app.common.share.dto.profile_service.response.ProfileResponseDTO;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +16,8 @@ import java.util.Map;
 public interface ProfileWebClient {
     @GetExchange(url = "profile/users/get/{userId}")
     Mono<AppResponse<ProfileResponseDTO>> getProfile(@PathVariable String userId);
+    @GetExchange(url = "profile/users/get/follow/{userId}")
+    Mono<AppResponse<ProfileFollowStatusResponse>> getFollowStatus(@PathVariable String userId);
     @GetExchange("profile/users/following/{followId}")
     Mono<AppResponse<Boolean>> checkUserFollowing(@PathVariable String followId,
                                                   @RequestHeader("X-UserId") String userId,

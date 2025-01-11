@@ -138,10 +138,9 @@ public class CreateNewUserSaga {
             String sagaId = message.sagaId();
             UserCreatedEvent event = objectMapper.readValue(payload, UserCreatedEvent.class);
             var profileCreate = ProfileCreationRequest.builder()
-                    .bio("none")
                     .userId(event.getUserId())
-                    .country("vn")
-                    .fullName("")
+                    .country("Việt Nam")
+                    .gender(true)
                     .build();
             var sagaRequest = SagaAdvancedRequest.builder()
                     .sagaId(sagaId)

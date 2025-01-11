@@ -160,6 +160,15 @@ public class ProfileService implements IProfileService {
         return map;
     }
 
+    public ProfileFollowStatusResponse getFollowStatus(String userId) {
+        var oProfile = profileRepository.findProfileByUserId(userId);
+        if (oProfile.isEmpty()) {
+            throw new ApplicationException(ErrorCode.USER_NOT_EXISTED);
+        }
+        var profile = oProfile.get();
+        return profileMapper.toResponseFollowStatusDTO(profile);
+    }
+
     @Override
     public String sagaRequest(SagaAdvancedRequest sagaRequest) {
         String sagaStep = sagaRequest.getSagaStep();

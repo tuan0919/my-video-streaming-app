@@ -3,13 +3,17 @@ package com.nlu.app.service;
 import com.nlu.app.common.share.dto.AppResponse;
 import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_NotificationDTO;
 import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_UserDetailsDTO;
+import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_UserPageDetailsDTO;
 import com.nlu.app.common.share.dto.identity_service.response.RoleResponse;
 import com.nlu.app.common.share.dto.identity_service.response.UserResponse;
 import com.nlu.app.common.share.dto.notification_service.response.NotificationResponse;
+import com.nlu.app.common.share.dto.profile_service.response.ProfileFollowStatusResponse;
 import com.nlu.app.common.share.dto.profile_service.response.ProfileResponseDTO;
+import com.nlu.app.common.share.dto.videoStreaming_service.response.VideoCountsResponse;
 import com.nlu.app.common.share.webclient.*;
 import com.nlu.app.exception.ServiceException;
 import com.nlu.app.mapper.NotificationAggregateMapper;
+import com.nlu.app.mapper.UserAggregateMapper;
 import com.nlu.app.util.MyUtils;
 import com.nlu.app.configuration.WebClientBuilder;
 import lombok.AccessLevel;
@@ -36,6 +40,7 @@ public class UserAggregateQuery {
     WebClient cWebClient;
     WebClient vWebClient;
     private final NotificationAggregateMapper notificationAggregateMapper;
+    private UserAggregateMapper userAggregateMapper;
 
     @Autowired
     private void setiWebClient(@Qualifier("identityWebClient") WebClient iWebClient) {
@@ -92,6 +97,40 @@ public class UserAggregateQuery {
                     e.printStackTrace();
                     return Mono.error(e);
                 });
+    }
+
+    public Mono<ClientView_UserPageDetailsDTO> queryUserPageDetails(String targetId, boolean isMySelf, String userId, String username) {
+        var videoStreamingWebClient = WebClientBuilder.createClient(vWebClient, VideoStreamingWebClient.class);
+        var profileWebClient = WebClientBuilder.createClient(pWebClient, ProfileWebClient.class);
+        var identityWebClient = WebClientBuilder.createClient(iWebClient, IdentityWebClient.class);
+        Mono<UserResponse> monoIdentity = identityWebClient.getUser(targetId).map(AppResponse::getResult);
+        Mono<ProfileResponseDTO> monoProfile = profileWebClient.getProfile(targetId).map(AppResponse::getResult);
+        Mono<ProfileFollowStatusResponse> monoProfileFollowStats = profileWebClient.getFollowStatus(targetId).map(AppResponse::getResult);
+        Mono<VideoCountsResponse> monoVideoCount = videoStreamingWebClient.getVideoCounts(targetId).map(AppResponse::getResult);
+        Mono<Boolean> monoIsFollow;
+        if (!isMySelf) {
+            monoIsFollow = profileWebClient.checkUserFollowing(targetId, userId, username).map(AppResponse::getResult);
+        } else {
+            monoIsFollow = Mono.just(false);
+        }
+        return Mono.zip(monoIdentity, monoProfile, monoProfileFollowStats, monoVideoCount, monoIsFollow)
+                .map(tuple -> {
+                    var identity = tuple.getT1();
+                    var profile = tuple.getT2();
+                    var stats = tuple.getT3();
+                    var count = tuple.getT4();
+                    var isFollow = tuple.getT5();
+                    return userAggregateMapper.mapToDTO(identity, profile, stats, count, isMySelf, isFollow);
+                }).onErrorResume(e -> {
+                    if (e instanceof Exception) {
+                        ServiceException exception = MyUtils.convertException((Exception) e);
+                        return Mono.error(exception);
+                    }
+                    e.printStackTrace();
+                    return Mono.error(e);
+                });
+
+
     }
 
     public Mono<List<ClientView_NotificationDTO>> queryNotifications(String userId, String username, Integer page, Integer pageSize) {
@@ -181,5 +220,10 @@ public class UserAggregateQuery {
             }
         }
         return Mono.empty();
+    }
+
+    @Autowired
+    public void setUserAggregateMapper(UserAggregateMapper userAggregateMapper) {
+        this.userAggregateMapper = userAggregateMapper;
     }
 }

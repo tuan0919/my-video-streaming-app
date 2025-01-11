@@ -63,8 +63,16 @@ gateway-service:
       method: [ "GET" ]
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]
 
+    - path: /aggregator/query/user/page/*
+      method: [ "GET" ]
+      roles: [ "ROLE_USER", "ROLE_ADMIN" ]
+
     - path: /profile/users/follow
       method: [ "PUT" ]
+      roles: [ "ROLE_USER", "ROLE_ADMIN" ]
+
+    - path: /profile/users/get/follow/*
+      method: [ "GET" ]
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]
 
     - path: /profile/users/query

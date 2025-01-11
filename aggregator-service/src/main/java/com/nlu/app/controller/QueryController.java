@@ -1,9 +1,6 @@
 package com.nlu.app.controller;
 
-import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_CommentDTO;
-import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_NotificationDTO;
-import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_UserDetailsDTO;
-import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_VideoDetailsDTO;
+import com.nlu.app.common.share.dto.aggregator_service.response.*;
 import com.nlu.app.dto.AppResponse;
 import com.nlu.app.service.CommentAggregateQuery;
 import com.nlu.app.service.UserAggregateQuery;
@@ -96,6 +93,17 @@ public class QueryController {
                                                                                       @RequestParam("pageSize") Integer pageSize) {
         return userAggregateQuery.queryNotifications(userId, username, page, pageSize)
                 .map(response -> AppResponse.<List<ClientView_NotificationDTO>>builder()
+                        .result(response)
+                        .build());
+    }
+
+    @GetMapping("/user/page/{userId}")
+    public Mono<AppResponse<ClientView_UserPageDetailsDTO>> queryUserPageDetails(
+            @RequestHeader("X-UserId") String userId,
+            @RequestHeader("X-Username") String username,
+            @PathVariable("userId") String targetUserId) {
+        return userAggregateQuery.queryUserPageDetails(targetUserId, userId.equals(targetUserId), userId, username)
+                .map(response -> AppResponse.<ClientView_UserPageDetailsDTO>builder()
                         .result(response)
                         .build());
     }

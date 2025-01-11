@@ -1,6 +1,7 @@
 package com.nlu.app.controller;
 
 import com.nlu.app.common.share.dto.file_service.response.SignedURLResponse;
+import com.nlu.app.common.share.dto.videoStreaming_service.response.VideoCountsResponse;
 import com.nlu.app.dto.AppResponse;
 import com.nlu.app.dto.request.*;
 import com.nlu.app.dto.response.VideoCreationResponse;
@@ -92,6 +93,28 @@ public class VideoController {
                 });
     }
 
+    @GetMapping("new-feed")
+    public AppResponse<List<String>> getVideoIdsFromStart(@RequestParam("page") Integer page,
+                                                          @RequestParam("pageSize") Integer pageSize,
+                                                          @RequestParam(value = "exclude", required = false) String excludeId) {
+        var response = (excludeId == null)
+                ? videoService.videoIdsFromStart(page, pageSize)
+                : videoService.videoIdsFromStart(page, pageSize, excludeId);
+        return AppResponse.<List<String>>builder()
+                .result(response.stream().toList())
+                .build();
+    }
+
+    @GetMapping("/search")
+    public AppResponse<List<String>> searchVideoIdsByTitle(@RequestParam("page") Integer page,
+                                                          @RequestParam("pageSize") Integer pageSize,
+                                                          @RequestParam("title") String title) {
+        return AppResponse.<List<String>>builder()
+                .result(videoService.searchVideoIds(page, pageSize, title)
+                        .stream().toList())
+                .build();
+    }
+
     @PostMapping("/progress")
     public Mono<AppResponse<String>> progress(@RequestBody SaveProcessVideoRequest request,
                                               @RequestHeader("X-UserId") String userId,
@@ -103,15 +126,10 @@ public class VideoController {
                 });
     }
 
-    @GetMapping("new-feed")
-    public AppResponse<List<String>> getVideoIdsFromStart(@RequestParam("page") Integer page,
-                                                          @RequestParam("pageSize") Integer pageSize,
-                                                          @RequestParam(value = "exclude", required = false) String excludeId) {
-        var response = (excludeId == null)
-                ? videoService.videoIdsFromStart(page, pageSize)
-                : videoService.videoIdsFromStart(page, pageSize, excludeId);
-        return AppResponse.<List<String>>builder()
-                .result(response.stream().toList())
+    @GetMapping("/count/{userId}")
+    public AppResponse<VideoCountsResponse> countVideos(@PathVariable("userId") String userId) {
+        return AppResponse.<VideoCountsResponse>builder()
+                .result(videoService.countVideo(userId))
                 .build();
     }
 

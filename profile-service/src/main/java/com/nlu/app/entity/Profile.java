@@ -24,6 +24,10 @@ public class Profile {
     String bio;
     @Column
     String avatarId;
+    @Column
+    String address;
+    @Column(columnDefinition = "BOOLEAN DEFAULT 1")
+    boolean gender;
     @ManyToMany
     @JoinTable(
             name = "profile_follow",

@@ -1,5 +1,6 @@
 package com.nlu.app.mapper;
 
+import com.nlu.app.common.share.dto.videoStreaming_service.response.VideoCountsResponse;
 import com.nlu.app.common.share.event.NewVideoCreatedEvent;
 import com.nlu.app.common.share.event.VideoUpvotedEvent;
 import com.nlu.app.dto.request.VideoCreationRequest;
@@ -35,6 +36,9 @@ public interface VideoMapper {
     @Mapping(target = "description", source = "video.videoDescription")
     @Mapping(target = "createAt", source = "video.createAt")
     VideoCreationResponse toVideoCreationResponse(Video video, String videoURL);
+
+    @Mapping(target = "videoCounts", source = "count")
+    VideoCountsResponse toVideoCountsResponse(Integer count);
 
     default LocalDateTime now() {
         return LocalDateTime.now();

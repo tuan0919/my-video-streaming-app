@@ -3,10 +3,7 @@ import com.nlu.app.common.share.dto.CompensationRequest;
 import com.nlu.app.common.share.dto.profile_service.request.ChangeAvatarRequest;
 import com.nlu.app.common.share.dto.profile_service.request.FollowRequest;
 import com.nlu.app.common.share.dto.profile_service.request.GetLinkUploadAvatarRequest;
-import com.nlu.app.common.share.dto.profile_service.response.ChangeAvatarResponse;
-import com.nlu.app.common.share.dto.profile_service.response.FollowerUserIdsResponse;
-import com.nlu.app.common.share.dto.profile_service.response.GetLinkUploadAvatarResponse;
-import com.nlu.app.common.share.dto.profile_service.response.ProfileResponseDTO;
+import com.nlu.app.common.share.dto.profile_service.response.*;
 import com.nlu.app.common.share.dto.saga.SagaAdvancedRequest;
 import com.nlu.app.dto.AppResponse;
 import com.nlu.app.service.ICompensationService;
@@ -67,6 +64,13 @@ public class ProfileController {
     public AppResponse<ProfileResponseDTO> getUserProfile(@PathVariable String userId) {
         return AppResponse.<ProfileResponseDTO>builder()
                 .result(profileService.getUserProfile(userId))
+                .build();
+    }
+
+    @GetMapping("/get/follow/{userId}")
+    public AppResponse<ProfileFollowStatusResponse> getFollowStats(@PathVariable String userId) {
+        return AppResponse.<ProfileFollowStatusResponse>builder()
+                .result(profileService.getFollowStatus(userId))
                 .build();
     }
 

@@ -4,6 +4,7 @@ import com.nlu.app.common.share.SagaAction;
 import com.nlu.app.common.share.dto.file_service.request.MoveFileRequest;
 import com.nlu.app.common.share.dto.file_service.request.UploadFileRequest;
 import com.nlu.app.common.share.dto.file_service.response.SignedURLResponse;
+import com.nlu.app.common.share.dto.videoStreaming_service.response.VideoCountsResponse;
 import com.nlu.app.dto.request.PutFileRequest;
 import com.nlu.app.dto.request.SaveFileRequest;
 import com.nlu.app.dto.request.VideoCreationRequest;
@@ -86,6 +87,11 @@ public class VideoService {
         return videoMapper.toVideoCreationResponse(video, link);
     }
 
+    public VideoCountsResponse countVideo(String userId) {
+        int count = videoRepository.countByUserId(userId);
+        return videoMapper.toVideoCountsResponse(count);
+    }
+
     public VideoDetailsResponse getVideoDetails(String videoId, String userId) {
         var oVideo = videoRepository.findById(videoId);
         if (oVideo.isEmpty()) {
@@ -140,6 +146,11 @@ public class VideoService {
     public Page<String> videoIdsFromStart(Integer page, Integer pageSize, String excludeId) {
         var pageable = PageRequest.of(page, pageSize);
         return videoPagingRepository.fetchFromStartExcludeId(pageable, excludeId);
+    }
+
+    public Page<String> searchVideoIds(Integer page, Integer pageSize, String title) {
+        var pageable = PageRequest.of(page, pageSize);
+        return videoPagingRepository.searchVideoIdByName(title, pageable);
     }
 
     public SignedURLResponse getUrlUploadToTemp (PutFileRequest request, String userId, String username) {

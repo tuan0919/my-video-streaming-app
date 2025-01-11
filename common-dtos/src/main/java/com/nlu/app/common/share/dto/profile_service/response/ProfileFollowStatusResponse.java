@@ -8,12 +8,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ProfileResponseDTO {
-    String fullName;
-    String country;
-    String bio;
-    String avatar;
-    boolean gender;
-    String address;
-    String profileId;
+public class ProfileFollowStatusResponse {
+    int followingCounts;
+    int followersCounts;
 }

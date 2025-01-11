@@ -13,6 +13,8 @@ public class ProfileCreationRequest {
     String fullName;
     String country;
     String bio;
+    boolean gender;
+    String address;
     String sagaId;
     String sagaAction;
 }
