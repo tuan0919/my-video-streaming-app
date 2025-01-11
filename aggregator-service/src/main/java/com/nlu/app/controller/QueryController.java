@@ -42,6 +42,18 @@ public class QueryController {
                         .build());
     }
 
+    @GetMapping("/search/video")
+    public Mono<AppResponse<List<ClientView_SearchVideoDTO>>> queryVideoDetails(@RequestHeader("X-UserId") String userId,
+                                                                           @RequestHeader("X-Username") String username,
+                                                                           @RequestParam("page") Integer page,
+                                                                           @RequestParam("pageSize") Integer pageSize,
+                                                                           @RequestParam("title") String title) {
+        return videoAggregateQuery.searchVideoByTitle(page, pageSize, title, userId, username)
+                .map(response -> AppResponse.<List<ClientView_SearchVideoDTO>>builder()
+                        .result(response)
+                        .build());
+    }
+
     @GetMapping("/video/new-feed")
     public Mono<AppResponse<List<ClientView_VideoDetailsDTO>>> queryNewFeed(@RequestParam("page") Integer page,
                                                                             @RequestParam("pageSize") Integer pageSize,

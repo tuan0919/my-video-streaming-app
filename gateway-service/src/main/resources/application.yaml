@@ -51,6 +51,10 @@ gateway-service:
       method: ["GET"]
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]
 
+    - path: /aggregator/query/search/video
+      method: [ "GET" ]
+      roles: [ "ROLE_USER", "ROLE_ADMIN" ]
+
     - path: /aggregator/query/video/*/comments
       method: [ "GET" ]
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]

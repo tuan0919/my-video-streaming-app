@@ -1,5 +1,6 @@
 package com.nlu.app.mapper;
 
+import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_SearchVideoDTO;
 import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_VideoDetailsDTO;
 import com.nlu.app.common.share.dto.identity_service.response.UserResponse;
 import com.nlu.app.common.share.dto.profile_service.response.ProfileResponseDTO;
@@ -20,8 +21,6 @@ public interface VideoAggregateMapper {
                                         ProfileResponseDTO ownerProfile,
                                         Boolean isFollowing,
                                         VideoDetailsResponse videoStat);
-
-
     @Mappings({
             @Mapping(target = "userId", source = "identity.id"),
             @Mapping(target = "username", source = "identity.username"),
@@ -31,9 +30,14 @@ public interface VideoAggregateMapper {
                                                      ProfileResponseDTO profile);
     @Mapping(target = "createTime", source = "stat.createAt", qualifiedByName = "mapToTime")
     ClientView_VideoDetailsDTO.VideoStats toVideoStats(VideoDetailsResponse stat);
-
     @Named("mapToTime")
     default String mapToTime(LocalDateTime dateTime) {
         return formatter.relativeToCurrentTime(dateTime);
     }
+
+    @Mappings({
+            @Mapping(target = "videoId", source = "details.videoId"),
+            @Mapping(target = "thumbnail", source = "details.thumbnail")
+    })
+    ClientView_SearchVideoDTO mapToDTO(VideoDetailsResponse details);
 }
