@@ -8,4 +8,5 @@ import java.util.List;
 public interface NotificationRepository extends JpaRepository<Notification, String> {
     List<Notification> findAllByUserId(String userId);
     Integer countAllByUserIdAndAndIsRead(String userId, boolean isRead);
+    List<Notification> findAllByNotificationIdIn(List<String> notificationIds);
 }

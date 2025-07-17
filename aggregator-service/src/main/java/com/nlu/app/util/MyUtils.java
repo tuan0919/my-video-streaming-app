@@ -9,6 +9,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 public class MyUtils {
     public static ServiceException convertException(Exception e) {
         ObjectMapper objectMapper = new ObjectMapper();
+        e.printStackTrace();
         try {
             // expected errors
             var webClientException = (WebClientResponseException)e;

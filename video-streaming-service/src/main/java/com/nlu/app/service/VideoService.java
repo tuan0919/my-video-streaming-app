@@ -153,6 +153,11 @@ public class VideoService {
         return videoPagingRepository.searchVideoIdByName(title, pageable);
     }
 
+    public Page<String> searchVideoIdsOwnByUserId(Integer page, Integer pageSize, String userId) {
+        var pageable = PageRequest.of(page, pageSize);
+        return videoPagingRepository.searchVideoIdByUserId(userId, pageable);
+    }
+
     public SignedURLResponse getUrlUploadToTemp (PutFileRequest request, String userId, String username) {
         String fileName = request.getFilename();
         String fileKey = "temp/"+username+"/"+fileName;

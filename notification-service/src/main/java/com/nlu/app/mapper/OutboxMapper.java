@@ -8,6 +8,7 @@ import com.nlu.app.common.share.SagaAdvancedStep;
 import com.nlu.app.common.share.SagaCompensationStep;
 import com.nlu.app.common.share.SagaStatus;
 import com.nlu.app.common.share.event.NotificationCreatedEvent;
+import com.nlu.app.common.share.event.NotificationsReadEvent;
 import com.nlu.app.common.share.event.ProfileCreatedEvent;
 import com.nlu.app.common.share.event.ProfileRemovedEvent;
 import com.nlu.app.entity.Outbox;
@@ -26,6 +27,15 @@ public interface OutboxMapper {
     @Mapping(target = "payload", source = "event", qualifiedByName = "mapToJSON")
     @Mapping(target = "aggregateId", source = "event.notificationId")
     Outbox toSuccessOutbox(NotificationCreatedEvent event, String sagaId, String sagaAction);
+
+    @Mapping(target = "aggregateType", constant = "notification.topics")
+    @Mapping(target = "sagaId", source = "sagaId")
+    @Mapping(target = "sagaAction", source = "sagaAction")
+    @Mapping(target = "sagaStep", constant = SagaAdvancedStep.NOTIFICATIONS_READ)
+    @Mapping(target = "sagaStepStatus", constant = SagaStatus.SUCCESS)
+    @Mapping(target = "payload", source = "event", qualifiedByName = "mapToJSON")
+    @Mapping(target = "aggregateId", source = "sagaId")
+    Outbox toSuccessOutbox(NotificationsReadEvent event, String sagaId, String sagaAction);
 
     @Named("mapToJSON")
     default String mapToJSON(Object object) {

@@ -83,6 +83,14 @@ gateway-service:
       method: [ "GET" ]
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]
 
+    - path: /aggregator/query/user/posted
+      method: [ "GET" ]
+      roles: [ "ROLE_USER", "ROLE_ADMIN" ]
+
+    - path: /aggregator/query/suggest/user
+      method: [ "GET" ]
+      roles: [ "ROLE_USER", "ROLE_ADMIN" ]
+
     - path: /profile/users/follow
       method: [ "PUT" ]
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]
@@ -111,6 +119,10 @@ gateway-service:
       method: [ "PUT" ]
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]
 
+    - path: /profile/users/suggest
+      method: [ "GET" ]
+      roles: [ "ROLE_USER", "ROLE_ADMIN" ]
+
     - path: /comment/users/new
       method: [ "POST" ]
       roles: [ "ROLE_USER", "ROLE_ADMIN" ]
@@ -137,6 +149,10 @@ gateway-service:
 
     - path: /notification/users/count
       method: [ "POST" ]
+      roles: [ "ROLE_USER" ]
+
+    - path: /notification/users/read
+      method: [ "PUT" ]
       roles: [ "ROLE_USER" ]
 
     - path: /socket/websocket

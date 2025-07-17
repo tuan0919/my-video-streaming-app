@@ -2,6 +2,7 @@ package com.nlu.app.mapper;
 
 import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_SearchVideoDTO;
 import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_VideoDetailsDTO;
+import com.nlu.app.common.share.dto.comment_service.response.CommentCountResponse;
 import com.nlu.app.common.share.dto.identity_service.response.UserResponse;
 import com.nlu.app.common.share.dto.profile_service.response.ProfileResponseDTO;
 import com.nlu.app.common.share.dto.videoStreaming_service.response.VideoDetailsResponse;
@@ -16,11 +17,12 @@ public interface VideoAggregateMapper {
     MyDateFormat formatter = new MyDateFormat();
     @Mapping(target = "isFollowed", source = "isFollowing")
     @Mapping(target = "ownerProfile", expression = "java(toOwnerProfile(ownerIdentity, ownerProfile))")
-    @Mapping(target = "stat", expression = "java(toVideoStats(videoStat))")
+    @Mapping(target = "stat", expression = "java(toVideoStats(videoStat, commentCount))")
     ClientView_VideoDetailsDTO mapToDTO(UserResponse ownerIdentity,
                                         ProfileResponseDTO ownerProfile,
                                         Boolean isFollowing,
-                                        VideoDetailsResponse videoStat);
+                                        VideoDetailsResponse videoStat,
+                                        CommentCountResponse commentCount);
     @Mappings({
             @Mapping(target = "userId", source = "identity.id"),
             @Mapping(target = "username", source = "identity.username"),
@@ -29,7 +31,8 @@ public interface VideoAggregateMapper {
     ClientView_VideoDetailsDTO.OwnerProfile toOwnerProfile(UserResponse identity,
                                                      ProfileResponseDTO profile);
     @Mapping(target = "createTime", source = "stat.createAt", qualifiedByName = "mapToTime")
-    ClientView_VideoDetailsDTO.VideoStats toVideoStats(VideoDetailsResponse stat);
+    @Mapping(target = "commentCount", source = "commentCount.count")
+    ClientView_VideoDetailsDTO.VideoStats toVideoStats(VideoDetailsResponse stat, CommentCountResponse commentCount);
     @Named("mapToTime")
     default String mapToTime(LocalDateTime dateTime) {
         return formatter.relativeToCurrentTime(dateTime);

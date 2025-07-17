@@ -65,11 +65,31 @@ public class QueryController {
                         .build());
     }
 
+    @GetMapping("/user/posted")
+    public Mono<AppResponse<List<ClientView_VideoDetailsDTO>>> getVideoPostedBy(@RequestParam("page") Integer page,
+                                                                             @RequestParam("pageSize") Integer pageSize,
+                                                                                @RequestParam("userId") String userId) {
+        return videoAggregateQuery.getVideoPostedByUserId(userId, "other", page, pageSize)
+                .map(response -> AppResponse.<List<ClientView_VideoDetailsDTO>>builder()
+                        .result(response)
+                        .build());
+    }
+
     @GetMapping("/search/user")
     public Mono<AppResponse<List<ClientView_SearchUserDTO>>> searchUser(@RequestParam("page") Integer page,
                                                                                 @RequestParam("pageSize") Integer pageSize,
                                                                                 @RequestParam("username") String targetUsername) {
         return userAggregateQuery.searchUserByUsername(page, pageSize, targetUsername)
+                .map(response -> AppResponse.<List<ClientView_SearchUserDTO>>builder()
+                        .result(response)
+                        .build());
+    }
+
+    @GetMapping("/suggest/user")
+    public Mono<AppResponse<List<ClientView_SearchUserDTO>>> suggestUser(@RequestParam("page") Integer page,
+                                                                        @RequestParam("pageSize") Integer pageSize,
+                                                                         @RequestHeader("X-UserId") String userId) {
+        return userAggregateQuery.suggestUser(page, pageSize, userId)
                 .map(response -> AppResponse.<List<ClientView_SearchUserDTO>>builder()
                         .result(response)
                         .build());

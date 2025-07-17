@@ -191,6 +191,37 @@ public class UserAggregateQuery {
                 });
     }
 
+    public Mono<List<ClientView_SearchUserDTO>> suggestUser(Integer page, Integer pageSize, String userId) {
+        var identityWebClient = WebClientBuilder.createClient(iWebClient, IdentityWebClient.class);
+        var profileWebClient = WebClientBuilder.createClient(pWebClient, ProfileWebClient.class);
+        return profileWebClient.getProfileSuggest(userId, page, pageSize)
+                .flatMapMany(response -> Flux.fromIterable(response.getResult()))
+                .flatMap(profile -> {
+                    Mono<UserResponse> userResponseMono = identityWebClient.getUser(profile.getUserId())
+                            .map(AppResponse::getResult);
+                    Mono<ProfileResponseDTO> userProfileResponseMono = profileWebClient.getProfile(profile.getUserId())
+                            .map(AppResponse::getResult);
+                    Mono<ProfileFollowStatusResponse> statusResponseMono = profileWebClient.getFollowStatus(profile.getUserId())
+                            .map(AppResponse::getResult);
+                    return Mono.zip(userResponseMono, userProfileResponseMono, statusResponseMono)
+                            .map(tuple -> {
+                                var userResponse = tuple.getT1();
+                                var profileResponse = tuple.getT2();
+                                var statResponse = tuple.getT3();
+                                return userAggregateMapper.toDTO(userResponse, profileResponse, statResponse);
+                            });
+                })
+                .collectList()
+                .onErrorResume(e -> {
+                    if (e instanceof Exception) {
+                        ServiceException exception = MyUtils.convertException((Exception) e);
+                        return Mono.error(exception);
+                    }
+                    e.printStackTrace();
+                    return Mono.error(e);
+                });
+    }
+
     private Mono<String> getVideoThumbnail(NotificationResponse notification, String userId, String username) {
         var commentWebClient = WebClientBuilder.createClient(cWebClient, CommentWebClient.class);
         var videoWebClient = WebClientBuilder.createClient(vWebClient, VideoStreamingWebClient.class);

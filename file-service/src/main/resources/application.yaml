@@ -12,7 +12,7 @@ amazon:
 server:
   servlet:
     context-path: /files
-  port: 57069
+  port: 0
 eureka:
   client:
     server-url:

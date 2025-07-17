@@ -29,4 +29,8 @@ public interface VideoStreamingWebClient {
     Mono<AppResponse<List<String>>> getIds_SearchByTitle(@RequestParam("page") Integer page,
                                                                  @RequestParam("pageSize") Integer pageSize,
                                                                  @RequestParam("title") String title);
+    @GetExchange(url = "video-streaming/videos/search/{userId}")
+    Mono<AppResponse<List<String>>> getIds_OwnByUserId(@RequestParam("page") Integer page,
+                                                         @RequestParam("pageSize") Integer pageSize,
+                                                         @PathVariable("userId") String userId);
 }

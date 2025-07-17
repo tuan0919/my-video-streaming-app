@@ -8,4 +8,5 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<Comment, String> {
     List<Comment> findCommentsByParent_Id(String parentId);
     List<Comment> findCommentsByVideoIdAndParentIsNull(String videoId);
+    Integer countByVideoId(String videoId);
 }

@@ -40,4 +40,10 @@ public interface VideoPagingRepository extends PagingAndSortingRepository<Video,
         WHERE v.videoName LIKE %:title%
     """)
     Page<String> searchVideoIdByName(@Param("title") String title, Pageable pageable);
+    @Query("""
+        SELECT v.videoId
+        FROM videos v
+        WHERE v.userId = :userId
+    """)
+    Page<String> searchVideoIdByUserId(@Param("userId") String userId, Pageable pageable);
 }

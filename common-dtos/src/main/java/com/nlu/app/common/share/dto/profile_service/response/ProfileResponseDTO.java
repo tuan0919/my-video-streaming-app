@@ -16,4 +16,5 @@ public class ProfileResponseDTO {
     boolean gender;
     String address;
     String profileId;
+    String userId;
 }

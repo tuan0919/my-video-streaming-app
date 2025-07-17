@@ -1,5 +1,6 @@
 package com.nlu.app.mapper;
 
+import com.nlu.app.common.share.dto.comment_service.response.CommentCountResponse;
 import com.nlu.app.common.share.dto.comment_service.response.CommentResponse;
 import com.nlu.app.common.share.event.comment.CommentReplyEvent;
 import com.nlu.app.dto.request.CommentCreationRequestDTO;
@@ -31,7 +32,8 @@ public interface CommentMapper {
             @Mapping(target = "parentId", source = "comment.parent", qualifiedByName = "mapToId")
     })
     CommentResponse mapToDTO(Comment comment, Integer replyCounts, Integer likeCounts, Integer dislikeCounts);
-
+    @Mapping(target = "count", source = "count")
+    CommentCountResponse mapToDTO(Integer count);
     @Named("mapToId")
     default String mapToId(Comment comment) {
         if (comment != null)

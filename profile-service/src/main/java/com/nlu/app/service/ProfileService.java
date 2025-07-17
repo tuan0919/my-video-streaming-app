@@ -15,6 +15,7 @@ import com.nlu.app.exception.ErrorCode;
 import com.nlu.app.mapper.OutboxMapper;
 import com.nlu.app.mapper.ProfileMapper;
 import com.nlu.app.repository.OutboxRepository;
+import com.nlu.app.repository.ProfilePaginationRepository;
 import com.nlu.app.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ import java.util.*;
 @Slf4j
 public class ProfileService implements IProfileService {
     private final ProfileRepository profileRepository;
+    private final ProfilePaginationRepository profilePaginationRepository;
     private final OutboxRepository outboxRepository;
     private final OutboxMapper outboxMapper;
     private final ProfileMapper profileMapper;
@@ -162,6 +164,21 @@ public class ProfileService implements IProfileService {
         }
         dto.setAvatar(avatar);
         return dto;
+    }
+
+    public Page<ProfileResponseDTO> suggestProfile(Integer page, Integer pageSize) {
+        var pagable = PageRequest.of(page, pageSize);
+        var suggestProfiles = profilePaginationRepository.suggestProfile(pagable).map(profileMapper::toResponseDTO);
+        for (var profile : profilePaginationRepository.suggestProfile(pagable).map(profileMapper::toResponseDTO)) {
+            String avatar;
+            try {
+                avatar = fileService.generateResourceURL(profile.getAvatar());
+            } catch (Exception e) {
+                avatar = "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
+            }
+            profile.setAvatar(avatar);
+        }
+        return suggestProfiles;
     }
 
     public Map<String, ProfileResponseDTO> getUserProfile(List<String> userIds) {

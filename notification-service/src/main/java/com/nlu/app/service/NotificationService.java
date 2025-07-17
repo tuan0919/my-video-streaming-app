@@ -10,6 +10,7 @@ import com.nlu.app.common.share.dto.notification_service.request.NotificationCre
 import com.nlu.app.common.share.dto.notification_service.response.NotificationResponse;
 import com.nlu.app.common.share.dto.saga.SagaAdvancedRequest;
 import com.nlu.app.common.share.event.NotificationCreatedEvent;
+import com.nlu.app.common.share.event.NotificationsReadEvent;
 import com.nlu.app.constant.NotificationType;
 import com.nlu.app.entity.Notification;
 import com.nlu.app.entity.Outbox;
@@ -55,6 +56,18 @@ public class NotificationService {
     public List<NotificationResponse> getNotificationsOfUser(String userId, Integer page, Integer pageSize) {
         var list = notificationPaginationRepository.findAllByUserId(PageRequest.of(page, pageSize), userId);
         return list.stream().map(notificationMapper::mapToDTO).toList();
+    }
+
+    @Transactional
+    public String markNotificationsAsRead(String id) {
+        var list = notificationRepository.findAllByNotificationIdIn(List.of(id));
+        list.stream().forEach(notification -> notification.setIsRead(true));
+        notificationRepository.saveAll(list);
+        NotificationsReadEvent event = NotificationsReadEvent.builder()
+                .ids(List.of(id)).build();
+        Outbox outbox = outboxMapper.toSuccessOutbox(event, list.getFirst().getUserId(), SagaAction.READ_NOTIFICATIONS);
+        outboxRepository.save(outbox);
+        return "OK";
     }
 
     public int countUnreadMessage(String userId) {

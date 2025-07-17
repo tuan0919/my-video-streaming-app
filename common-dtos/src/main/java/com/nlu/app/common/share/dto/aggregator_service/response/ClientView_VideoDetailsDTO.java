@@ -46,5 +46,6 @@ public class ClientView_VideoDetailsDTO {
         @Builder.Default
         String action = null;
         String createTime;
+        Integer commentCount;
     }
 }

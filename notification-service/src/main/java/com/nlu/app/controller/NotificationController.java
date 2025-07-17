@@ -3,6 +3,7 @@ package com.nlu.app.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nlu.app.common.share.dto.AppResponse;
 import com.nlu.app.common.share.dto.CompensationRequest;
+import com.nlu.app.common.share.dto.notification_service.request.MarkNotificationsAsReadRequest;
 import com.nlu.app.common.share.dto.notification_service.request.NotificationCreationRequest;
 import com.nlu.app.common.share.dto.notification_service.response.NotificationResponse;
 import com.nlu.app.common.share.dto.notification_service.response.UnreadCountResponse;
@@ -50,6 +51,13 @@ public class NotificationController {
         var response = service.getNotificationsOfUser(userId, page, pageSize);
         return AppResponse.<List<NotificationResponse>>builder()
                 .result(response)
+                .build();
+    }
+
+    @PutMapping("/read")
+    public AppResponse<String> markAsRead(@RequestBody MarkNotificationsAsReadRequest request) {
+        return AppResponse.<String>builder()
+                .result(service.markNotificationsAsRead(request.getId()))
                 .build();
     }
 

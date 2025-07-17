@@ -1,6 +1,7 @@
 package com.nlu.app.common.share.webclient;
 
 import com.nlu.app.common.share.dto.AppResponse;
+import com.nlu.app.common.share.dto.comment_service.response.CommentCountResponse;
 import com.nlu.app.common.share.dto.comment_service.response.CommentResponse;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,6 +27,8 @@ public interface CommentWebClient {
                                                                   @RequestParam("pageSize") Integer pageSize);
     @GetExchange(url = "comment/users/{commentId}")
     Mono<AppResponse<CommentResponse>> getCommentById(@PathVariable("commentId") String commentId);
+    @GetExchange(url = "comment/users/count")
+    Mono<AppResponse<CommentCountResponse>> countCommentByVideoId(@RequestParam String videoId);
 
     @PostExchange(url = "comment/users/interacts")
     Mono<AppResponse<Map<String, String>>> getUserReactionsForComments(@RequestBody List<String> commentIds,

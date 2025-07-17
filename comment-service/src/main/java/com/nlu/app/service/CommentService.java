@@ -2,6 +2,7 @@ package com.nlu.app.service;
 
 import com.nlu.app.common.share.SagaAction;
 import com.nlu.app.common.share.dto.comment_service.request.InteractCommentRequest;
+import com.nlu.app.common.share.dto.comment_service.response.CommentCountResponse;
 import com.nlu.app.common.share.dto.comment_service.response.CommentResponse;
 import com.nlu.app.common.share.dto.notification_service.request.SendMessageWsRequest;
 import com.nlu.app.common.share.event.comment.CommentReplyEvent;
@@ -89,6 +90,10 @@ public class CommentService {
         Integer likeCounts = interactRepository.countByComment_IdAndAction(comment.getId(), "LIKE");
         Integer dislikeCounts = interactRepository.countByComment_IdAndAction(comment.getId(), "DISLIKE");
         return commentMapper.mapToDTO(comment, replyCounts, likeCounts, dislikeCounts);
+    }
+
+    public CommentCountResponse countCommentByVideoId(String videoId) {
+        return commentMapper.mapToDTO(commentRepository.countByVideoId(videoId));
     }
 
     /**

@@ -33,4 +33,8 @@ public interface ProfileWebClient {
     Mono<AppResponse<List<String>>> getSavedVideoIds(@RequestHeader("X-UserId") String userId,
                                                      @RequestParam("page") Integer page,
                                                      @RequestParam("pageSize") Integer pageSize);
+    @GetExchange("/profile/users/suggest")
+    Mono<AppResponse<List<ProfileResponseDTO>>> getProfileSuggest(@RequestHeader("X-UserId") String userId,
+                                                                  @RequestParam("page") Integer page,
+                                                                  @RequestParam("pageSize") Integer pageSize);
 }

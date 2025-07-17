@@ -28,6 +28,7 @@ public interface ProfileMapper {
     ProfileRemovedEvent toProfileRemovedEvent(Profile profile);
     ProfileUpdatedEvent toProfileUpdatedEvent(Profile profile);
     ProfileCreationResponse toResponseCreationDTO(Profile profile);
+    @Mapping(target = "avatar", source = "profile.avatarId")
     ProfileResponseDTO toResponseDTO(Profile profile);
     @Mappings({
             @Mapping(target = "followingCounts", expression = "java(getSize(profile.getFollow()))"),

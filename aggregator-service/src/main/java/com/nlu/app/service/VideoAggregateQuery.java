@@ -3,9 +3,11 @@ package com.nlu.app.service;
 import com.nlu.app.common.share.dto.AppResponse;
 import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_SearchVideoDTO;
 import com.nlu.app.common.share.dto.aggregator_service.response.ClientView_VideoDetailsDTO;
+import com.nlu.app.common.share.dto.comment_service.response.CommentCountResponse;
 import com.nlu.app.common.share.dto.identity_service.response.UserResponse;
 import com.nlu.app.common.share.dto.profile_service.response.ProfileResponseDTO;
 import com.nlu.app.common.share.dto.videoStreaming_service.response.VideoDetailsResponse;
+import com.nlu.app.common.share.webclient.CommentWebClient;
 import com.nlu.app.exception.ServiceException;
 import com.nlu.app.mapper.VideoAggregateMapper;
 import com.nlu.app.common.share.webclient.IdentityWebClient;
@@ -33,6 +35,7 @@ public class VideoAggregateQuery {
     private WebClient iWebClient;
     private WebClient pWebClient;
     private WebClient vWebClient;
+    private WebClient cWebClient;
     private final VideoAggregateMapper videoAggregateMapper;
 
     @Autowired
@@ -50,10 +53,16 @@ public class VideoAggregateQuery {
         this.vWebClient = vWebClient;
     }
 
+    @Autowired
+    private void setcWebClient(@Qualifier("commentWebClient") WebClient cWebClient) {
+        this.cWebClient = cWebClient;
+    }
+
     public Mono<ClientView_VideoDetailsDTO> getVideoDetails(String videoId, String userId, String username) {
         var identityWebClient = WebClientBuilder.createClient(iWebClient, IdentityWebClient.class);
         var profileWebClient = WebClientBuilder.createClient(pWebClient, ProfileWebClient.class);
         var videoStreamingWebClient = WebClientBuilder.createClient(vWebClient, VideoStreamingWebClient.class);
+        var commentWebClient = WebClientBuilder.createClient(cWebClient, CommentWebClient.class);
 
         return videoStreamingWebClient.getVideoDetails(videoId, userId, username)
                 .flatMap(vResponse -> {
@@ -62,14 +71,16 @@ public class VideoAggregateQuery {
                     return Mono.zip(identityWebClient.getUser(videoOwnerId),
                             profileWebClient.getProfile(videoOwnerId),
                             profileWebClient.checkUserFollowing(videoOwnerId, userId, username),
-                            Mono.just(details));
+                            Mono.just(details),
+                            commentWebClient.countCommentByVideoId(videoId));
                 })
                 .map(tuple -> {
                     UserResponse ownerIdentity = tuple.getT1().getResult();
                     ProfileResponseDTO ownerProfile = tuple.getT2().getResult();
                     Boolean isFollowing = tuple.getT3().getResult();
                     VideoDetailsResponse videoStat = tuple.getT4();
-                    return videoAggregateMapper.mapToDTO(ownerIdentity, ownerProfile, isFollowing, videoStat);
+                    CommentCountResponse commentCount = tuple.getT5().getResult();
+                    return videoAggregateMapper.mapToDTO(ownerIdentity, ownerProfile, isFollowing, videoStat, commentCount);
                 })
                 .onErrorResume(e -> {
                     if (e instanceof Exception) {
@@ -151,6 +162,28 @@ public class VideoAggregateQuery {
                     return Mono.zip(detailsMonos, results -> Arrays.stream(results)
                             .map(r -> (VideoDetailsResponse) r)
                             .map(r -> videoAggregateMapper.mapToDTO(r))
+                            .collect(Collectors.toList()));
+                })
+                .switchIfEmpty(Mono.just(Arrays.asList())).onErrorResume(e -> {
+                    if (e instanceof Exception) {
+                        ServiceException exception = MyUtils.convertException((Exception) e);
+                        return Mono.error(exception);
+                    }
+                    e.printStackTrace();
+                    return Mono.error(e);
+                });
+    }
+
+    public Mono<List<ClientView_VideoDetailsDTO>> getVideoPostedByUserId(String userId, String username, Integer page, Integer pageSize) {
+        var videoStreamingWebClient = WebClientBuilder.createClient(vWebClient, VideoStreamingWebClient.class);
+        return videoStreamingWebClient.getIds_OwnByUserId(page, pageSize, userId)
+                .map(result -> result.getResult())
+                .flatMap(ids -> {
+                    List<Mono<ClientView_VideoDetailsDTO>> detailsMonos = ids.stream()
+                            .map(videoId -> getVideoDetails(videoId, userId, username))  // Gọi getVideoDetails cho mỗi videoId
+                            .collect(Collectors.toList());
+                    return Mono.zip(detailsMonos, results -> Arrays.stream(results)
+                            .map(result -> (ClientView_VideoDetailsDTO) result)
                             .collect(Collectors.toList()));
                 })
                 .switchIfEmpty(Mono.just(Arrays.asList())).onErrorResume(e -> {

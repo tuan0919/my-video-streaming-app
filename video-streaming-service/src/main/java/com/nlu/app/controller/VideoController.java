@@ -115,6 +115,16 @@ public class VideoController {
                 .build();
     }
 
+    @GetMapping("/search/{userId}")
+    public AppResponse<List<String>> searchVideoByUserId(@RequestParam("page") Integer page,
+                                                           @RequestParam("pageSize") Integer pageSize,
+                                                           @PathVariable String userId) {
+        return AppResponse.<List<String>>builder()
+                .result(videoService.searchVideoIdsOwnByUserId(page, pageSize, userId)
+                        .stream().toList())
+                .build();
+    }
+
     @PostMapping("/progress")
     public Mono<AppResponse<String>> progress(@RequestBody SaveProcessVideoRequest request,
                                               @RequestHeader("X-UserId") String userId,

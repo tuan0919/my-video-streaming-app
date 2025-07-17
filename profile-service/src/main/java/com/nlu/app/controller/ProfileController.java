@@ -39,6 +39,15 @@ public class ProfileController {
                 .build();
     }
 
+    @GetMapping("/suggest")
+    public AppResponse<List<ProfileResponseDTO>> suggestProfile(@RequestHeader("X-UserId") String userId,
+                                                          @RequestParam("page") Integer page,
+                                                          @RequestParam("pageSize") Integer pageSize) {
+        return AppResponse.<List<ProfileResponseDTO>>builder()
+                .result(profileService.suggestProfile(page, pageSize).stream().toList())
+                .build();
+    }
+
     @PutMapping("/follow")
     public AppResponse<String> follow(@RequestBody FollowRequest request,
                                       @RequestHeader("X-UserId") String userId,

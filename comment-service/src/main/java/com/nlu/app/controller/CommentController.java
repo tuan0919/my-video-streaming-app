@@ -1,5 +1,6 @@
 package com.nlu.app.controller;
 import com.nlu.app.common.share.dto.comment_service.request.InteractCommentRequest;
+import com.nlu.app.common.share.dto.comment_service.response.CommentCountResponse;
 import com.nlu.app.common.share.dto.comment_service.response.CommentResponse;
 import com.nlu.app.dto.AppResponse;
 import com.nlu.app.dto.request.CommentCreationRequestDTO;
@@ -33,6 +34,14 @@ public class CommentController {
     public AppResponse<CommentResponse> getComment(@PathVariable("commentId") String videoId) {
         var response = commentService.getComment(videoId);
         return AppResponse.<CommentResponse>builder()
+                .result(response)
+                .build();
+    }
+
+    @GetMapping("/count")
+    public AppResponse<CommentCountResponse> countCommentByVideoId(@RequestParam String videoId) {
+        var response = commentService.countCommentByVideoId(videoId);
+        return AppResponse.<CommentCountResponse>builder()
                 .result(response)
                 .build();
     }
